@@ -1,74 +1,88 @@
 ---
-globs: src/yic_mes/schemas/**/*.py
-description: Schema(DTO) 파일 작성/수정 시 자동 참조되는 규칙
+globs: packages/domain/src/**/*.ts,apps/api/src/**/*.schema.ts
+description: Zod 스키마 및 TypeScript 타입 작성/수정 시 자동 참조되는 규칙
 ---
 
-# Schema(DTO) 레이어 규칙
+# Zod Schema & TypeScript 타입 규칙
 
-> 적용 대상: `src/yic_mes/schemas/*.py`
-> 참고 파일: `src/yic_mes/schemas/common.py` (ApiResponse, PaginatedResponse)
+> 적용 대상: `packages/domain/src/`, `apps/api/src/**/*.schema.ts`
+> 참고: CLAUDE.md §4 C-4 (Zod 없는 외부 입력 금지)
 
 ## 요약
-Pydantic v2 모델로 API 요청/응답 데이터를 정의한다.
-ORM 모델과 분리하여 외부 노출 데이터를 통제한다.
+Zod로 런타임 검증 스키마를 정의하고 TypeScript 타입을 자동 추론한다.
+spec.yaml에서 자동생성된 타입과 일치해야 한다.
 
 ## 규칙
 
-### 1. 파일/클래스 네이밍
-- 파일명: 도메인명 (예: `production_order.py`)
-- 클래스명 접미사 규칙:
-  - `{Domain}Create` — 생성 요청
-  - `{Domain}Update` — 수정 요청 (모든 필드 Optional)
-  - `{Domain}Read` — 응답 (id, 감사필드 포함)
-  - `{Domain}Filter` — 목록 조회 필터 (Optional 필드)
+### 1. ERP 수신 스키마 (C-4 필수)
+```typescript
+// packages/domain/src/schemas/erp.schema.ts
+import { z } from 'zod'
 
-### 2. 필드 규칙
-- `model_config = ConfigDict(from_attributes=True)` 설정하여 ORM 변환 지원.
-- 필수/선택 구분 명확히. Update 스키마는 전부 `Optional`.
-- `Field()`로 validation 추가: `min_length`, `max_length`, `ge`, `le` 등.
-- 날짜 필드: `datetime` 타입 사용.
-- Enum 값은 `Literal["planned", "in_progress", "completed"]` 또는 `StrEnum` 사용.
+export const ERPOrderSchema = z.object({
+  ORDER_NO: z.string().min(1),
+  BUYER_CODE: z.string().min(1),
+  STYLE_CODE: z.string().min(1),
+  ORDERED_QTY: z.number().int().positive(),
+  SHIP_DATE: z.string().datetime(),
+})
 
-### 3. 공통 스키마 (common.py)
-```python
-class ApiResponse[T](BaseModel):
-    success: bool = True
-    data: T | None = None
-    message: str = ""
+export type ERPOrder = z.infer<typeof ERPOrderSchema>
 
-class PaginatedResponse[T](BaseModel):
-    items: list[T]
-    total: int
-    page: int
-    size: int
+// 사용
+const parsed = ERPOrderSchema.safeParse(rawData)
+if (!parsed.success) {
+  logger.error('ERP 오더 파싱 실패', parsed.error)
+  return
+}
 ```
 
-### 4. 예시 구조
-```python
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
+### 2. 도메인 스키마 패턴
+```typescript
+// packages/domain/src/schemas/lot.schema.ts
+export const CreateLotSchema = z.object({
+  erpIfOrderId: z.string().uuid(),
+  colorCode: z.string().min(1).max(20),
+  orderQty: z.number().int().positive(),
+})
 
+export const LotStatusSchema = z.enum([
+  'CUTTING', 'READY_FOR_SEW', 'SEWN', 'QC',
+  'PASSED_QC', 'MFZ_HOLD', 'READY_PACK', 'PACKED', 'SHIPPED'
+])
 
-class ProductionOrderCreate(BaseModel):
-    order_no: str = Field(max_length=50)
-    product_id: int
-    qty_plan: float = Field(gt=0)
+export type CreateLot = z.infer<typeof CreateLotSchema>
+export type LotStatus = z.infer<typeof LotStatusSchema>
+```
 
+### 3. 파일/타입 네이밍
+- 파일: `{domain}.schema.ts`
+- 스키마: `{Action}{Domain}Schema` (예: `CreateLotSchema`, `RecordLineOutputSchema`)
+- 타입: `z.infer<typeof {Schema}>` 자동 추론 사용
 
-class ProductionOrderUpdate(BaseModel):
-    qty_plan: float | None = Field(default=None, gt=0)
-    status: str | None = None
+### 4. 공유 타입 위치
+- `packages/domain/src/schemas/` — 프론트·백 공유 스키마
+- `packages/domain/src/constants/` — 도메인 상수 (§10)
+- `packages/domain/src/errors/` — DomainError 코드
 
+### 5. ISA-95 WorkOrder 상속 (ADR-007)
+```typescript
+// packages/domain/src/models/work-order.ts
+export interface WorkOrder {
+  workOrderID: string
+  workOrderType: 'PRODUCTION' | 'REWORK' | 'MAINTENANCE'
+  status: 'PLANNED' | 'RELEASED' | 'STARTED' | 'COMPLETED'
+}
 
-class ProductionOrderRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+export interface GarmentLot extends WorkOrder {
+  lotNo: string
+  colorCode: string
+  lotStatus: LotStatus
+}
+```
 
-    id: int
-    order_no: str
-    product_id: int
-    qty_plan: float
-    qty_actual: float
-    status: str
-    created_at: datetime
-    updated_at: datetime
+### 6. TypeScript strict 모드 필수
+```json
+// tsconfig.json
+{ "compilerOptions": { "strict": true, "strictNullChecks": true } }
 ```

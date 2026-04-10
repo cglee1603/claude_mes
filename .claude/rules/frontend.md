@@ -1,92 +1,114 @@
 ---
-globs: frontend/src/**/*.{ts,tsx,css}
+globs: apps/web/src/**/*.{ts,tsx,css}
 description: 프론트엔드 파일 작성/수정 시 자동 참조되는 규칙
 ---
 
 # Frontend 레이어 규칙
 
-> 적용 대상: `frontend/src/**/*.{ts,tsx,css}`
+> 적용 대상: `apps/web/src/**/*.{ts,tsx,css}`
+> 참고: CLAUDE.md §12 i18n Rules, §3 Tech Stack
 
 ## 요약
-React + TypeScript 기반 SPA. 백엔드 API(`/api/v1/`)와 통신하며 MES 화면을 구성한다.
+React 18 + TanStack Query 기반 SPA. MSW는 spec.yaml에서 자동생성 사용 (H-1).
+베트남 공장 현장을 위한 KO/EN/VI 3개 언어 지원 필수.
+PWA 오프라인 2시간(OFFLINE_MAX_HOURS) 지원.
 
 ## 디렉토리 구조
-
 ```
-frontend/src/
-├── components/          # 재사용 가능한 UI 컴포넌트
-│   ├── common/          # Button, Table, Modal, Form 등 공통 컴포넌트
-│   └── layout/          # Header, Sidebar, MainLayout 등 레이아웃
-├── pages/               # 라우트 단위 페이지 컴포넌트
-├── hooks/               # 커스텀 React 훅
-├── services/            # API 호출 함수 (fetch/axios 래퍼)
-├── types/               # TypeScript 타입/인터페이스 정의
-├── utils/               # 유틸리티 함수 (날짜 포맷, 숫자 변환 등)
-├── styles/              # 글로벌 스타일, 테마
-└── assets/              # 이미지, 아이콘 등 정적 리소스
+apps/web/src/
+├── components/
+│   ├── common/       # Button, Table, Modal, Form, StatusBadge
+│   └── layout/       # Header, Sidebar, MainLayout
+├── pages/            # 33개 화면 (WH, RX, SC, SW, QC, FP, AD, Admin)
+├── hooks/            # TanStack Query 커스텀 훅
+├── mocks/            # MSW 핸들러 (자동생성 — 수동 작성 금지 H-1)
+├── services/         # API 호출 함수
+├── types/            # TypeScript 타입 (spec.yaml 자동생성)
+├── i18n/             # ko.json, en.json, vi.json
+├── sw/               # PWA Service Worker, IndexedDB
+└── styles/
 ```
 
 ## 규칙
 
-### 1. 파일/컴포넌트 네이밍
-- 컴포넌트 파일: `PascalCase.tsx` (예: `ProductionOrderList.tsx`)
-- 훅 파일: `use{기능}.ts` (예: `useProductionOrders.ts`)
-- 서비스 파일: `{도메인}.ts` (예: `productionOrder.ts`)
-- 타입 파일: `{도메인}.ts` (예: `productionOrder.ts`)
-- 유틸 파일: `camelCase.ts` (예: `dateFormat.ts`)
-- 페이지 파일: `{Domain}Page.tsx` 또는 `{Domain}ListPage.tsx`
-
-### 2. 컴포넌트 규칙
-- 함수형 컴포넌트만 사용 (class 컴포넌트 금지).
-- Props는 인터페이스로 정의: `interface {Component}Props`.
-- 컴포넌트당 하나의 파일. 300줄 초과 시 분리 검토.
-- 상태 관리: 로컬은 `useState`, 서버 데이터는 커스텀 훅.
-
-### 3. API 통신 (services/)
-- 모든 API 호출은 `services/` 내 함수로 캡슐화.
-- 백엔드 응답 타입 `ApiResponse<T>`에 맞춰 처리.
-- 기본 URL: 환경변수 `VITE_API_BASE_URL` 사용.
-- 에러 처리: 서비스 함수에서 throw, 호출부에서 catch.
-
-```typescript
-// services/productionOrder.ts
-export async function getProductionOrders(params: ProductionOrderFilter): Promise<PaginatedResponse<ProductionOrder>> { ... }
-export async function createProductionOrder(data: ProductionOrderCreate): Promise<ProductionOrder> { ... }
+### 1. MSW 핸들러 — 자동생성만 (H-1)
+```bash
+# spec.yaml 변경 후 반드시 실행
+bun run generate-msw
+# 수동으로 apps/web/src/mocks/ 수정 절대 금지
 ```
 
-### 4. 타입 정의 (types/)
-- 백엔드 Schema(DTO)와 1:1 대응하는 타입 정의.
-- `{Domain}`, `{Domain}Create`, `{Domain}Update`, `{Domain}Filter` 패턴.
-- 공통 타입: `ApiResponse<T>`, `PaginatedResponse<T>`.
-
+### 2. i18n 필수 (§12)
 ```typescript
-// types/common.ts
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T | null;
-  message: string;
-}
+// ❌ 하드코딩 금지
+<Button>원단 입고</Button>
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  size: number;
+// ✅ i18next 사용
+import { useTranslation } from 'react-i18next'
+const { t } = useTranslation()
+<Button>{t('warehouse.receive.title')}</Button>
+```
+- 번역 키 형식: `{screen}.{component}.{label}`
+- `/add-i18n {screen}` 커맨드로 자동 추출
+
+### 3. TanStack Query 패턴
+```typescript
+// hooks/useProductionOrder.ts
+import { useQuery, useMutation } from '@tanstack/react-query'
+
+export function useLineOutputRecord() {
+  return useMutation({
+    mutationFn: (data: RecordLineOutputData) =>
+      api.post('/production/record-line-output', data),
+    onSuccess: () => queryClient.invalidateQueries(['line-output'])
+  })
 }
 ```
 
-### 5. 훅 (hooks/)
-- API 데이터 조회/변경은 커스텀 훅으로 추상화.
-- `use{Domain}s()` — 목록 조회 + 필터 + 페이지네이션.
-- `use{Domain}(id)` — 단건 조회.
-- `use{Domain}Mutation()` — 생성/수정/삭제.
+### 4. PWA 오프라인 (OFFLINE_MAX_HOURS = 2h)
+```typescript
+// sw/offline-queue.ts
+const MAX_AGE_MS = 2 * 60 * 60 * 1000  // OFFLINE_MAX_HOURS
 
-### 6. 페이지 구성 패턴
-- 목록 페이지: 필터 영역 + 테이블 + 페이지네이션.
-- 상세/폼 페이지: 폼 필드 + 저장/취소 버튼.
-- 페이지는 레이아웃 컴포넌트(`MainLayout`) 내부에 렌더링.
+// IndexedDB에 큐잉
+async function enqueueOfflineAction(action: OfflineAction) {
+  if (Date.now() - action.timestamp > MAX_AGE_MS) {
+    alert(t('offline.expired'))  // 사용자 경고
+    return
+  }
+  await db.offlineQueue.add(action)
+}
+// Background Sync로 온라인 복구 시 자동 전송
+```
 
-### 7. 스타일
-- CSS Modules 또는 Tailwind CSS 사용.
-- 인라인 스타일 지양. 공통 컴포넌트에 스타일 캡슐화.
-- 테마 변수는 `styles/` 에서 중앙 관리.
+### 5. 컴포넌트 규칙
+- 함수형 컴포넌트만 사용 (class 컴포넌트 금지)
+- Props 인터페이스: `interface {Component}Props`
+- 300줄 초과 시 분리
+
+### 6. API 서비스 함수 패턴
+```typescript
+// services/production.ts
+export async function recordLineOutput(
+  data: RecordLineOutputData
+): Promise<Result<LineOutput>> {
+  const res = await fetch('/api/production/record-line-output', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  return res.json()
+}
+```
+
+### 7. 33개 화면 목록
+| 그룹 | 화면 |
+|------|------|
+| 창고 | WH-01(원단입고), WH-02(이력조회), WH-03(대시보드) |
+| 릴렉싱 | RX-04(계획), RX-05(소재별시간), RX-06(완료알림) |
+| 재단 | SC-07~13 |
+| 봉제 | SW-14(투입계획), SW-15(Layout), SW-16(기계상태), SW-17~18(팀실적) |
+| 품질 | QC-25~32 (8단계 검사) |
+| 완성·포장 | FP-19(태깅), FP-20(Polybag), FP-21(MFZ), FP-22(Carton) |
+| 분석 | AD-23(공장장대시보드), AD-24(WIP조회) |
+| Admin | 생산라인, 기계, SMV, ERP동기화, 수명주기, QC기준 |

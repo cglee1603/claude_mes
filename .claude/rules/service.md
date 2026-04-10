@@ -1,71 +1,115 @@
 ---
-globs: src/yic_mes/services/**/*.py
+globs: apps/api/src/services/**/*.ts
 description: Service 파일 작성/수정 시 자동 참조되는 규칙
 ---
 
 # Service 레이어 규칙
 
-> 적용 대상: `src/yic_mes/services/*.py`
-> 참고 파일: 해당 도메인의 repository, schema
+> 적용 대상: `apps/api/src/services/*.ts`
+> 참고: CLAUDE.md §5 Service Boundaries, §8 Error Handling
 
 ## 요약
-비즈니스 로직을 처리하는 계층.
-Repository를 통해 데이터에 접근하고, 트랜잭션 경계를 관리한다.
-Controller에서 직접 Repository를 호출하지 않도록 중간 역할을 한다.
+비즈니스 로직을 처리하는 계층. Repository를 통해 데이터에 접근하고 트랜잭션을 관리한다.
+모든 메서드는 `Result<T, DomainError>` 패턴을 반환한다 (ADR-001).
 
 ## 규칙
 
 ### 1. 파일/클래스 네이밍
-- 파일명: `{도메인}.py`
-- 클래스명: `{Domain}Service`
+- 파일: `{domain}.service.ts`
+- 클래스: `{Domain}Service`
+- `/scaffold-service {name}` 으로 자동생성 권장
 
-### 2. 의존성 주입
-- Repository를 생성자에서 주입받는다.
-- 다른 Service도 필요 시 생성자에서 주입 (순환 참조 주의).
+### 2. Result<T, DomainError> 패턴 (H-3 위반 시 PR 차단)
+```typescript
+import type { Result, DomainError } from '@garment-mes/domain'
 
-### 3. 트랜잭션 관리
-- Service 메서드가 트랜잭션의 단위이다.
-- 메서드 내에서 `session.commit()` 호출.
-- 에러 발생 시 `session.rollback()` 처리 (또는 컨텍스트 매니저 활용).
+export class ProductionService {
+  constructor(
+    private lotRepo: ILotRepository,
+    private prisma: PrismaClient  // 트랜잭션용
+  ) {}
 
-### 4. 비즈니스 규칙
-- 유효성 검증(존재 여부, 상태 전이 가능 여부 등)은 Service에서 수행.
-- 에러 발생 시 `src/yic_mes/core/exceptions.py`의 커스텀 예외를 raise.
-- 상태 전이 로직: 허용되는 전이만 명시적으로 정의.
+  async recordLineOutput(p: LineOutputParams): Promise<Result<LineOutput, DomainError>> {
+    // 1. 유효성 검증
+    const lot = await this.lotRepo.findById(p.lotId)
+    if (!lot) return { ok: false, error: { code: 'NOT_FOUND', message: `LOT ${p.lotId} 없음` } }
+    if (lot.lotStatus !== 'READY_FOR_SEW')
+      return { ok: false, error: { code: 'INVALID_STATUS', message: '봉제 투입 불가 상태' } }
 
-### 5. 메서드 네이밍
-- `create_{도메인}` — 생성
-- `update_{도메인}` — 수정
-- `delete_{도메인}` — 삭제 (soft delete)
-- `get_{도메인}` — 단건 조회
-- `get_{도메인}_list` — 목록 조회
-- 도메인 액션: `start_production`, `complete_work_order` 등 동사형.
+    // 2. 트랜잭션 처리
+    const output = await this.prisma.$transaction(async tx => {
+      const o = await tx.lineOutput.create({
+        data: {
+          lotId: p.lotId,
+          lineId: p.lineId,
+          periodStart: p.periodStart,
+          periodEnd: p.periodEnd,
+          outputQty: p.outputQty,
+          defectQty: p.defectQty,
+          workerId: p.workerId ?? null,   // nullable — ADR-013
+          recordedBy: p.lineManagerId,    // 라인장 필수
+          dataStatus: 'PERMANENT'         // Layer C
+        }
+      })
+      await tx.garmentLot.update({
+        where: { id: p.lotId },
+        data: { actualQty: { increment: p.outputQty } }
+      })
+      return o
+    })
 
-### 6. 예시 구조
-```python
-from yic_mes.core.exceptions import NotFoundError, BusinessError
-from yic_mes.repositories.production_order import ProductionOrderRepository
-from yic_mes.schemas.production_order import ProductionOrderCreate
-
-
-class ProductionOrderService:
-    def __init__(self, repo: ProductionOrderRepository):
-        self.repo = repo
-
-    async def create_production_order(self, data: ProductionOrderCreate) -> ProductionOrder:
-        existing = await self.repo.get_by_order_no(data.order_no)
-        if existing:
-            raise BusinessError(f"Order {data.order_no} already exists")
-
-        order = ProductionOrder(**data.model_dump())
-        return await self.repo.create(order)
-
-    async def start_production(self, order_id: int) -> ProductionOrder:
-        order = await self.repo.get_by_id(order_id)
-        if not order:
-            raise NotFoundError("ProductionOrder", order_id)
-        if order.status != "planned":
-            raise BusinessError(f"Cannot start order in '{order.status}' status")
-
-        return await self.repo.update(order_id, {"status": "in_progress"})
+    return { ok: true, value: output }
+  }
+}
 ```
+
+### 3. MFZ Zero Policy — 유일 진입점 (C-7)
+```typescript
+// FinishingService.recordMFZ() 만이 MFZ_HOLD를 설정할 수 있다
+async recordMFZ(p: MfzParams): Promise<Result<MfzRecord, DomainError>> {
+  if (p.detectedCount > 0) {
+    await this.prisma.$transaction(async tx => {
+      // LOT 즉시 MFZ_HOLD (C-7 유일 진입점)
+      await tx.garmentLot.update({
+        where: { id: p.lotId },
+        data: { lotStatus: 'MFZ_HOLD' }
+      })
+      await tx.mfzRecord.create({
+        data: { ...p, dataStatus: 'PERMANENT' }
+      })
+    })
+  }
+  return { ok: true, value: record }
+}
+```
+
+### 4. 출하 차단 (ShipmentService 필수)
+```typescript
+async confirmShipment(p: ShipmentParams): Promise<Result<Shipment, DomainError>> {
+  const lot = await this.lotRepo.findById(p.lotId)
+  if (lot?.lotStatus === 'MFZ_HOLD')
+    return { ok: false, error: {
+      code: 'LOT_MFZ_HOLD',
+      message: 'MFZ 재검사 완료 후 출하 가능'
+    }}
+  // ...
+}
+```
+
+### 5. 임금 계산 절대 금지 (C-2 — ADR-005)
+```typescript
+// ❌ 절대 금지
+const wage = worker.hourlyRate * hours
+
+// ✅ ERP 전송 데이터만 준비 (임금 계산은 ERP에서)
+await this.erpQueue.enqueue({
+  entityType: 'LINE_PRODUCTION_RESULT',
+  payload: { line_code, work_date, total_output, total_defect }
+  // 임금 관련 필드 포함 금지
+})
+```
+
+### 6. 서비스 의존 방향 (C-5)
+- 상위 Service에서 하위만 호출 가능 (단방향)
+- `MaterialService → CuttingService → ProductionService → ...`
+- 역방향 호출 시 @domain-validator C-5 감지 → PR 차단
