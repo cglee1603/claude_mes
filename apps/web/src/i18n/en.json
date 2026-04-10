@@ -1,0 +1,324 @@
+{
+  "nav": {
+    "warehouse": "Warehouse",
+    "relaxation": "Relaxation",
+    "cutting": "Cutting",
+    "sewing": "Sewing",
+    "quality": "Quality",
+    "finishing": "Finishing",
+    "analytics": "Analytics",
+    "admin": "Admin"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "status": "Status",
+    "date": "Date",
+    "qty": "Qty",
+    "lotNo": "LOT No.",
+    "orderNo": "Order No.",
+    "lineNo": "Line No.",
+    "materialCode": "Material Code",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "delete": "Delete",
+    "register": "Register",
+    "all": "All",
+    "detail": "Detail",
+    "back": "Back",
+    "next": "Next",
+    "prev": "Previous",
+    "reset": "Reset"
+  },
+  "status": {
+    "CUTTING": "Cutting",
+    "READY_FOR_SEW": "Ready for Sew",
+    "SEWN": "Sewn",
+    "QC": "QC",
+    "PASSED_QC": "Passed QC",
+    "MFZ_HOLD": "MFZ Hold",
+    "READY_PACK": "Ready to Pack",
+    "PACKED": "Packed",
+    "SHIPPED": "Shipped",
+    "ACTIVE": "Active",
+    "ARCHIVED": "Archived"
+  },
+  "warehouse": {
+    "receive": {
+      "title": "Fabric Receipt",
+      "materialCode": "Material Code",
+      "supplierCode": "Supplier Code",
+      "receivedQty": "Received Qty",
+      "rollCount": "Roll Count",
+      "colorCode": "Color Code",
+      "inspectionStatus": "Inspection Status",
+      "inspectionDate": "Inspection Date",
+      "register": "Register Receipt",
+      "fourPoint": "4-Point Inspection",
+      "totalPoints": "Total Points",
+      "threshold": "Pass Threshold",
+      "result": "Inspection Result",
+      "pass": "Pass",
+      "fail": "Fail"
+    },
+    "history": {
+      "title": "Receipt History",
+      "receiptNo": "Receipt No.",
+      "receivedDate": "Received Date",
+      "totalRolls": "Total Rolls",
+      "totalQty": "Total Qty",
+      "inspectionResult": "Inspection Result"
+    },
+    "dashboard": {
+      "title": "Warehouse Dashboard",
+      "totalStock": "Total Stock",
+      "pendingInspection": "Pending Inspection",
+      "relaxingMaterial": "Relaxing",
+      "readyForCutting": "Ready for Cutting",
+      "stockByMaterial": "Stock by Material",
+      "recentReceipts": "Recent Receipts"
+    }
+  },
+  "relaxation": {
+    "plan": {
+      "title": "Relaxation Plan",
+      "materialType": "Material Type",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "duration": "Duration (hrs)",
+      "location": "Storage Location",
+      "status": "Status"
+    },
+    "material": {
+      "title": "Relaxation Hours by Material",
+      "cotton": "Cotton (COTTON)",
+      "linen": "Linen (LINEN)",
+      "poly": "Polyester (POLY)",
+      "wool": "Wool (WOOL)",
+      "hours": "Hours"
+    },
+    "complete": {
+      "title": "Relaxation Complete Alert",
+      "completed": "Completed",
+      "pending": "In Progress",
+      "overdue": "Overdue"
+    }
+  },
+  "cutting": {
+    "title": "Cutting",
+    "createLot": {
+      "title": "Create LOT",
+      "erpOrderNo": "ERP Order No.",
+      "styleCode": "Style Code",
+      "colorCode": "Color Code",
+      "orderQty": "Order Qty",
+      "lotQty": "LOT Qty"
+    },
+    "createBundle": {
+      "title": "Create Bundle",
+      "lotNo": "LOT No.",
+      "bundleNo": "Bundle No.",
+      "qty": "Qty",
+      "rollId": "Roll ID",
+      "shadingGroup": "Shading Group"
+    },
+    "markerEfficiency": {
+      "title": "Marker Efficiency",
+      "markerNo": "Marker No.",
+      "efficiency": "Efficiency (%)",
+      "fabricUsed": "Fabric Used",
+      "waste": "Waste"
+    },
+    "shadingRisk": {
+      "title": "Shading Risk",
+      "risk": "Risk",
+      "safe": "Safe",
+      "warning": "Warning"
+    }
+  },
+  "sewing": {
+    "plan": {
+      "title": "Sewing Input Plan",
+      "line": "Line",
+      "inputDate": "Input Date",
+      "plannedQty": "Planned Qty"
+    },
+    "layout": {
+      "title": "Line Layout",
+      "lineNo": "Line No.",
+      "operatorCount": "Operators",
+      "machineCount": "Machines"
+    },
+    "machine": {
+      "title": "Machine Status",
+      "machineNo": "Machine No.",
+      "machineType": "Machine Type",
+      "status": "Status",
+      "operator": "Operator",
+      "lastMaintenance": "Last Maintenance"
+    },
+    "output": {
+      "title": "Team Output Entry",
+      "lineId": "Line ID",
+      "periodStart": "Start Time",
+      "periodEnd": "End Time",
+      "outputQty": "Output Qty",
+      "defectQty": "Defect Qty",
+      "lineManager": "Line Manager"
+    },
+    "summary": {
+      "title": "Team Output Summary",
+      "totalOutput": "Total Output",
+      "totalDefect": "Total Defect",
+      "efficiency": "Efficiency (%)",
+      "oee": "OEE"
+    }
+  },
+  "quality": {
+    "title": "Quality Inspection",
+    "dhu": "DHU",
+    "ftp": "FTP",
+    "aql": "AQL",
+    "inline": {
+      "title": "Inline Inspection",
+      "inspectionPoint": "Inspection Point",
+      "inspector": "Inspector",
+      "inspectedQty": "Inspected Qty",
+      "defectCount": "Defect Count",
+      "defectType": "Defect Type"
+    },
+    "inlineResult": {
+      "title": "Inline Inspection Result"
+    },
+    "final": {
+      "title": "Final Inspection",
+      "sampleSize": "Sample Size",
+      "acceptLevel": "Acceptance Level",
+      "result": "Result"
+    },
+    "finalResult": {
+      "title": "Final Inspection Result"
+    },
+    "packing": {
+      "title": "Packing Inspection"
+    },
+    "shipping": {
+      "title": "Shipping Inspection"
+    },
+    "dhuTrend": {
+      "title": "DHU Trend",
+      "period": "Period",
+      "line": "Line",
+      "trend": "Trend"
+    },
+    "dashboard": {
+      "title": "Quality Dashboard",
+      "passRate": "Pass Rate",
+      "avgDhu": "Avg DHU",
+      "avgFtp": "Avg FTP"
+    }
+  },
+  "finishing": {
+    "tag": {
+      "title": "Tagging",
+      "tagType": "Tag Type",
+      "tagNo": "Tag No.",
+      "applied": "Applied"
+    },
+    "polybag": {
+      "title": "Polybag",
+      "bagType": "Bag Type",
+      "qty": "Qty",
+      "sealed": "Sealed"
+    },
+    "mfz": {
+      "title": "Metal Detection (MFZ)",
+      "detectedCount": "Detected Count",
+      "detectionStatus": "Detection Status",
+      "passed": "Passed",
+      "hold": "Hold",
+      "inspector": "Inspector",
+      "machine": "Detector No."
+    },
+    "carton": {
+      "title": "Carton Packing",
+      "cartonNo": "Carton No.",
+      "qtyPerCarton": "Qty per Carton",
+      "totalCartons": "Total Cartons",
+      "grossWeight": "Gross Weight",
+      "netWeight": "Net Weight"
+    }
+  },
+  "analytics": {
+    "kpi": {
+      "title": "Factory Manager Dashboard",
+      "todayOutput": "Today's Output",
+      "weeklyOutput": "Weekly Output",
+      "overallEfficiency": "Overall Efficiency",
+      "onTimeDelivery": "On-Time Delivery",
+      "qualityRate": "Quality Pass Rate",
+      "activeOrders": "Active Orders",
+      "wipLots": "WIP LOTs"
+    },
+    "wip": {
+      "title": "WIP Inquiry",
+      "orderNo": "Order No.",
+      "buyer": "Buyer",
+      "style": "Style",
+      "totalLots": "Total LOTs",
+      "progress": "Progress",
+      "currentStage": "Current Stage"
+    }
+  },
+  "admin": {
+    "line": {
+      "title": "Production Line Management",
+      "lineCode": "Line Code",
+      "lineName": "Line Name",
+      "capacity": "Capacity",
+      "isActive": "Active"
+    },
+    "machine": {
+      "title": "Sewing Machine Management",
+      "machineCode": "Machine Code",
+      "machineType": "Machine Type",
+      "lineAssigned": "Assigned Line",
+      "isActive": "Active"
+    },
+    "smv": {
+      "title": "SMV Management",
+      "styleCode": "Style Code",
+      "operation": "Operation",
+      "smvValue": "SMV Value",
+      "updatedBy": "Updated By"
+    },
+    "erp": {
+      "title": "ERP Synchronization",
+      "lastSync": "Last Sync",
+      "syncStatus": "Sync Status",
+      "pendingItems": "Pending Items",
+      "syncNow": "Sync Now"
+    },
+    "lifecycle": {
+      "title": "Data Lifecycle",
+      "layerA": "Layer A (ERP Origin)",
+      "layerB": "Layer B (MES Own)",
+      "layerC": "Layer C (Permanent)",
+      "layerD": "Layer D (ERP Queue)",
+      "archiveSchedule": "Archive Schedule",
+      "archivedCount": "Archived Count"
+    },
+    "qcConfig": {
+      "title": "QC Config Management",
+      "buyerCode": "Buyer Code",
+      "dhuThreshold": "DHU Threshold",
+      "aqlLevel": "AQL Level",
+      "inspectionLevel": "Inspection Level"
+    }
+  }
+}

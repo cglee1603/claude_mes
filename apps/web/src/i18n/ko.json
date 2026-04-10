@@ -1,0 +1,324 @@
+{
+  "nav": {
+    "warehouse": "창고·입고",
+    "relaxation": "릴렉싱",
+    "cutting": "재단",
+    "sewing": "봉제",
+    "quality": "품질검사",
+    "finishing": "완성·포장",
+    "analytics": "분석·현황",
+    "admin": "관리자"
+  },
+  "common": {
+    "save": "저장",
+    "cancel": "취소",
+    "search": "검색",
+    "filter": "필터",
+    "export": "내보내기",
+    "status": "상태",
+    "date": "날짜",
+    "qty": "수량",
+    "lotNo": "LOT 번호",
+    "orderNo": "오더 번호",
+    "lineNo": "라인 번호",
+    "materialCode": "자재 코드",
+    "loading": "로딩 중...",
+    "noData": "데이터가 없습니다",
+    "confirm": "확인",
+    "edit": "수정",
+    "delete": "삭제",
+    "register": "등록",
+    "all": "전체",
+    "detail": "상세",
+    "back": "뒤로",
+    "next": "다음",
+    "prev": "이전",
+    "reset": "초기화"
+  },
+  "status": {
+    "CUTTING": "재단",
+    "READY_FOR_SEW": "봉제 대기",
+    "SEWN": "봉제 완료",
+    "QC": "품질검사",
+    "PASSED_QC": "검사 합격",
+    "MFZ_HOLD": "MFZ 보류",
+    "READY_PACK": "포장 대기",
+    "PACKED": "포장 완료",
+    "SHIPPED": "출하 완료",
+    "ACTIVE": "활성",
+    "ARCHIVED": "아카이브"
+  },
+  "warehouse": {
+    "receive": {
+      "title": "원단 입고",
+      "materialCode": "자재 코드",
+      "supplierCode": "공급업체 코드",
+      "receivedQty": "입고 수량",
+      "rollCount": "롤 수",
+      "colorCode": "색상 코드",
+      "inspectionStatus": "검사 상태",
+      "inspectionDate": "검사일",
+      "register": "입고 등록",
+      "fourPoint": "4점법 검사",
+      "totalPoints": "총 점수",
+      "threshold": "합격 기준",
+      "result": "검사 결과",
+      "pass": "합격",
+      "fail": "불합격"
+    },
+    "history": {
+      "title": "입고 이력",
+      "receiptNo": "입고 번호",
+      "receivedDate": "입고일",
+      "totalRolls": "총 롤 수",
+      "totalQty": "총 수량",
+      "inspectionResult": "검사 결과"
+    },
+    "dashboard": {
+      "title": "창고 대시보드",
+      "totalStock": "총 재고",
+      "pendingInspection": "검사 대기",
+      "relaxingMaterial": "릴렉싱 중",
+      "readyForCutting": "재단 대기",
+      "stockByMaterial": "자재별 재고",
+      "recentReceipts": "최근 입고"
+    }
+  },
+  "relaxation": {
+    "plan": {
+      "title": "릴렉싱 계획",
+      "materialType": "소재 유형",
+      "startTime": "시작 시간",
+      "endTime": "종료 시간",
+      "duration": "릴렉싱 시간",
+      "location": "보관 위치",
+      "status": "상태"
+    },
+    "material": {
+      "title": "소재별 릴렉싱 시간",
+      "cotton": "면 (COTTON)",
+      "linen": "린넨 (LINEN)",
+      "poly": "폴리 (POLY)",
+      "wool": "울 (WOOL)",
+      "hours": "시간"
+    },
+    "complete": {
+      "title": "릴렉싱 완료 알림",
+      "completed": "완료된 항목",
+      "pending": "진행 중인 항목",
+      "overdue": "지연 항목"
+    }
+  },
+  "cutting": {
+    "title": "재단",
+    "createLot": {
+      "title": "LOT 생성",
+      "erpOrderNo": "ERP 오더 번호",
+      "styleCode": "스타일 코드",
+      "colorCode": "색상 코드",
+      "orderQty": "오더 수량",
+      "lotQty": "LOT 수량"
+    },
+    "createBundle": {
+      "title": "Bundle 생성",
+      "lotNo": "LOT 번호",
+      "bundleNo": "Bundle 번호",
+      "qty": "수량",
+      "rollId": "롤 ID",
+      "shadingGroup": "쉐이딩 그룹"
+    },
+    "markerEfficiency": {
+      "title": "마커 효율",
+      "markerNo": "마커 번호",
+      "efficiency": "효율(%)",
+      "fabricUsed": "사용 원단",
+      "waste": "손실"
+    },
+    "shadingRisk": {
+      "title": "쉐이딩 위험",
+      "risk": "위험",
+      "safe": "안전",
+      "warning": "경고"
+    }
+  },
+  "sewing": {
+    "plan": {
+      "title": "봉제 투입 계획",
+      "line": "라인",
+      "inputDate": "투입 일자",
+      "plannedQty": "계획 수량"
+    },
+    "layout": {
+      "title": "라인 레이아웃",
+      "lineNo": "라인 번호",
+      "operatorCount": "작업자 수",
+      "machineCount": "기계 수"
+    },
+    "machine": {
+      "title": "기계 상태",
+      "machineNo": "기계 번호",
+      "machineType": "기계 유형",
+      "status": "상태",
+      "operator": "담당자",
+      "lastMaintenance": "최근 점검"
+    },
+    "output": {
+      "title": "팀 실적 입력",
+      "lineId": "라인 ID",
+      "periodStart": "시작 시간",
+      "periodEnd": "종료 시간",
+      "outputQty": "생산 수량",
+      "defectQty": "불량 수량",
+      "lineManager": "라인장"
+    },
+    "summary": {
+      "title": "팀 실적 요약",
+      "totalOutput": "총 생산량",
+      "totalDefect": "총 불량",
+      "efficiency": "효율(%)",
+      "oee": "OEE"
+    }
+  },
+  "quality": {
+    "title": "품질 검사",
+    "dhu": "DHU",
+    "ftp": "FTP",
+    "aql": "AQL",
+    "inline": {
+      "title": "인라인 검사",
+      "inspectionPoint": "검사 포인트",
+      "inspector": "검사원",
+      "inspectedQty": "검사 수량",
+      "defectCount": "불량 수",
+      "defectType": "불량 유형"
+    },
+    "inlineResult": {
+      "title": "인라인 검사 결과"
+    },
+    "final": {
+      "title": "최종 검사",
+      "sampleSize": "샘플 크기",
+      "acceptLevel": "합격 기준",
+      "result": "결과"
+    },
+    "finalResult": {
+      "title": "최종 검사 결과"
+    },
+    "packing": {
+      "title": "포장 검사"
+    },
+    "shipping": {
+      "title": "출하 검사"
+    },
+    "dhuTrend": {
+      "title": "DHU 트렌드",
+      "period": "기간",
+      "line": "라인",
+      "trend": "추세"
+    },
+    "dashboard": {
+      "title": "품질 대시보드",
+      "passRate": "합격률",
+      "avgDhu": "평균 DHU",
+      "avgFtp": "평균 FTP"
+    }
+  },
+  "finishing": {
+    "tag": {
+      "title": "태깅",
+      "tagType": "태그 유형",
+      "tagNo": "태그 번호",
+      "applied": "적용 완료"
+    },
+    "polybag": {
+      "title": "Polybag",
+      "bagType": "백 유형",
+      "qty": "수량",
+      "sealed": "밀봉 완료"
+    },
+    "mfz": {
+      "title": "금속 검출 (MFZ)",
+      "detectedCount": "검출 수",
+      "detectionStatus": "검출 상태",
+      "passed": "통과",
+      "hold": "보류",
+      "inspector": "검사원",
+      "machine": "검출기 번호"
+    },
+    "carton": {
+      "title": "Carton 포장",
+      "cartonNo": "카톤 번호",
+      "qtyPerCarton": "카톤당 수량",
+      "totalCartons": "총 카톤 수",
+      "grossWeight": "총중량",
+      "netWeight": "순중량"
+    }
+  },
+  "analytics": {
+    "kpi": {
+      "title": "공장장 대시보드",
+      "todayOutput": "금일 생산량",
+      "weeklyOutput": "주간 생산량",
+      "overallEfficiency": "전체 효율",
+      "onTimeDelivery": "납기 준수율",
+      "qualityRate": "품질 합격률",
+      "activeOrders": "진행 중 오더",
+      "wipLots": "WIP LOT 수"
+    },
+    "wip": {
+      "title": "WIP 조회",
+      "orderNo": "오더 번호",
+      "buyer": "바이어",
+      "style": "스타일",
+      "totalLots": "총 LOT",
+      "progress": "진행률",
+      "currentStage": "현재 단계"
+    }
+  },
+  "admin": {
+    "line": {
+      "title": "생산 라인 관리",
+      "lineCode": "라인 코드",
+      "lineName": "라인 이름",
+      "capacity": "생산 능력",
+      "isActive": "활성 여부"
+    },
+    "machine": {
+      "title": "재봉 기계 관리",
+      "machineCode": "기계 코드",
+      "machineType": "기계 유형",
+      "lineAssigned": "배정 라인",
+      "isActive": "활성 여부"
+    },
+    "smv": {
+      "title": "SMV 관리",
+      "styleCode": "스타일 코드",
+      "operation": "작업",
+      "smvValue": "SMV 값",
+      "updatedBy": "수정자"
+    },
+    "erp": {
+      "title": "ERP 동기화",
+      "lastSync": "최근 동기화",
+      "syncStatus": "동기화 상태",
+      "pendingItems": "대기 항목",
+      "syncNow": "즉시 동기화"
+    },
+    "lifecycle": {
+      "title": "데이터 수명주기",
+      "layerA": "Layer A (ERP Origin)",
+      "layerB": "Layer B (MES 자체)",
+      "layerC": "Layer C (영구 기록)",
+      "layerD": "Layer D (전송큐)",
+      "archiveSchedule": "아카이브 예정",
+      "archivedCount": "아카이브 수"
+    },
+    "qcConfig": {
+      "title": "QC 기준 관리",
+      "buyerCode": "바이어 코드",
+      "dhuThreshold": "DHU 임계값",
+      "aqlLevel": "AQL 수준",
+      "inspectionLevel": "검사 수준"
+    }
+  }
+}
