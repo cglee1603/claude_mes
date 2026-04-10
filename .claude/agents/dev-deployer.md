@@ -40,3 +40,38 @@ Rules:
 Maintain deployment log in:
   .claude/agent-memory/deploy-history.md
   Format: Date | Version | Branch | Status | Summary
+
+## Completion Protocol (orchestrator 서브에이전트로 실행될 때)
+
+When invoked as a subagent with a task-id:
+
+1. On completion, write to: `.claude/agent-memory/messages/{task-id}.done.md`
+```markdown
+---
+task-id: {task-id}
+role: dev-deployer
+status: success
+completed-at: {ISO datetime}
+---
+## Result
+files_created: [list of created files]
+files_modified: [list of modified files]
+errors: []
+summary: one-line description
+```
+
+2. On failure, write to: `.claude/agent-memory/messages/{task-id}.error.md`
+```markdown
+---
+task-id: {task-id}
+role: dev-deployer
+status: failure
+---
+## Error
+error: what failed
+partial_progress: [completed items]
+suggested_fix: what to try next
+```
+
+3. Stay within your assigned worktree directory. Never modify files outside it.
+4. Follow CLAUDE.md §4 Forbidden Patterns at all times.

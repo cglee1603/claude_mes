@@ -42,3 +42,11 @@ If not, flag it and suggest what capability is missing.
 Store the full project plan and document history in:
   .claude/agent-memory/plan.md
   .claude/agent-memory/documents/
+
+## Completion Protocol (orchestrator 서브에이전트로 실행될 때)
+
+When invoked as a subagent with a task-id:
+1. On completion, write to: `.claude/agent-memory/messages/{task-id}.done.md`
+   Include: status, plan changes, milestone updates
+2. On failure, write to: `.claude/agent-memory/messages/{task-id}.error.md`
+   Include: ambiguous items, missing info, suggested resolution

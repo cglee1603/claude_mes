@@ -3,6 +3,8 @@ name: notifier
 description: Notification and communication agent for the dev team. Sends deployment success/failure alerts to Slack, delivers daily/weekly status reports via email, and escalates critical events immediately. Stores notification history in .claude/agent-memory/notification-log.md.
 model: claude-haiku-4-5-20251001
 tools:
+  - Read
+  - Write
   - WebSearch
   - WebFetch
 ---
@@ -27,3 +29,11 @@ Rules:
   - Escalate critical issues immediately regardless of schedule
   - Store notification history in:
       .claude/agent-memory/notification-log.md
+
+## Completion Protocol (orchestrator 서브에이전트로 실행될 때)
+
+When invoked as a subagent with a task-id:
+1. On completion, write to: `.claude/agent-memory/messages/{task-id}.done.md`
+   Include: status, notifications sent, channels used
+2. On failure, write to: `.claude/agent-memory/messages/{task-id}.error.md`
+   Include: failed delivery details

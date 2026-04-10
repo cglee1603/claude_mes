@@ -27,3 +27,11 @@ Rules:
   - Always keep issue status in sync with actual code state
   - Store issue summary in:
       .claude/agent-memory/issue-log.md
+
+## Completion Protocol (orchestrator 서브에이전트로 실행될 때)
+
+When invoked as a subagent with a task-id:
+1. On completion, write to: `.claude/agent-memory/messages/{task-id}.done.md`
+   Include: status, issues created/closed, milestone progress %
+2. On failure, write to: `.claude/agent-memory/messages/{task-id}.error.md`
+   Include: failed operations, GitHub API errors

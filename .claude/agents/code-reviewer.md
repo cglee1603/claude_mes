@@ -30,3 +30,11 @@ Rules:
   - Always explain WHY a change is needed, not just what
   - Security issues are always blocking — never approve with open security flags
   - Do not approve PRs that lack test coverage for new logic
+
+## Completion Protocol (orchestrator 서브에이전트로 실행될 때)
+
+When invoked as a subagent with a task-id:
+1. On completion, write to: `.claude/agent-memory/messages/{task-id}.done.md`
+   Include: status, review verdict (APPROVED/CHANGES_REQUESTED), blocking issues count
+2. On failure, write to: `.claude/agent-memory/messages/{task-id}.error.md`
+   Include: what couldn't be reviewed and why

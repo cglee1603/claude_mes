@@ -5,6 +5,7 @@ model: claude-sonnet-4-6
 tools:
   - Bash
   - Read
+  - Write
   - Glob
   - Grep
 ---
@@ -27,3 +28,11 @@ Rules:
     report: failed test name / error message / affected file
   - Store test result history in:
       .claude/agent-memory/test-history.md
+
+## Completion Protocol (orchestrator 서브에이전트로 실행될 때)
+
+When invoked as a subagent with a task-id:
+1. On completion, write to: `.claude/agent-memory/messages/{task-id}.done.md`
+   Include: status, test results, coverage %, pass/fail counts
+2. On failure, write to: `.claude/agent-memory/messages/{task-id}.error.md`
+   Include: failed test names, error messages, affected files

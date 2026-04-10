@@ -23,6 +23,10 @@ packages/openapi/src/generated/
 
 # Claude Code
 .claude/settings.local.json
+.worktrees/
+.claude/agent-memory/messages/*.done.md
+.claude/agent-memory/messages/*.error.md
+.claude/agent-memory/messages/*.progress.md
 
 # OS
 .DS_Store
