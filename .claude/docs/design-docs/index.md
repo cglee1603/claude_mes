@@ -4,4 +4,4 @@
 
 | 문서 | 설명 | 상태 |
 |------|------|------|
-| [core-beliefs.md](core-beliefs.md) | 아키텍처 원칙, 금지 패턴 | 확정 |
+| [core-beliefs.md](core-beliefs.md) | 아키텍처 원칙, Layer A~D 생명주기, 금지 패턴 | 확정 |
