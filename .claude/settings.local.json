@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:goddaehee.tistory.com)",
+      "Bash(mv docs/design-docs/core-beliefs.md .claude/docs/design-docs/)",
+      "Bash(mv docs/design-docs/index.md .claude/docs/design-docs/)",
+      "Bash(mv docs/QUALITY_SCORE.md .claude/docs/)",
+      "Bash(mv docs/TROUBLESHOOTING.md .claude/docs/)",
+      "Bash(mv docs/SECURITY.md .claude/docs/)",
+      "Bash(cp /c/works/workspace/claude_code/claude_mes/yic_mes/.claude/ARCHITECTURE.md /c/works/workspace/claude_code/claude_mes/.claude/ARCHITECTURE.md)",
+      "Bash(cp -r /c/works/workspace/claude_code/claude_mes/yic_mes/.claude/docs /c/works/workspace/claude_code/claude_mes/.claude/docs)",
+      "Bash(cp -r /c/works/workspace/claude_code/claude_mes/yic_mes/.claude/rules /c/works/workspace/claude_code/claude_mes/.claude/rules)",
+      "Bash(cp -r /c/works/workspace/claude_code/claude_mes/yic_mes/frontend /c/works/workspace/claude_code/claude_mes/frontend)",
+      "Bash(cp -r /c/works/workspace/claude_code/claude_mes/yic_mes/src /c/works/workspace/claude_code/claude_mes/src)",
+      "Bash(cp -r /c/works/workspace/claude_code/claude_mes/yic_mes/tests /c/works/workspace/claude_code/claude_mes/tests)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
