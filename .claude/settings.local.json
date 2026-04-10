@@ -14,7 +14,18 @@
       "Bash(cp -r /c/works/workspace/claude_code/claude_mes/yic_mes/src /c/works/workspace/claude_code/claude_mes/src)",
       "Bash(cp -r /c/works/workspace/claude_code/claude_mes/yic_mes/tests /c/works/workspace/claude_code/claude_mes/tests)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(cd /tmp)",
+      "Bash(unzip -q \"/c/works/workspace/claude_code/claude_mes/etc_doc/MES_DevPlan_Part1.docx\" -d part1)",
+      "Bash(unzip -q \"/c/works/workspace/claude_code/claude_mes/etc_doc/MES_DevPlan_Part2.docx\" -d part2)",
+      "Bash(unzip -q \"/c/works/workspace/claude_code/claude_mes/etc_doc/MES_DevPlan_Part3.docx\" -d part3)",
+      "Read(//tmp/**)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3:*)"
     ]
   }
 }

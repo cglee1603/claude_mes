@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Garment OEM MES — 종합 개발 계획 v3.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--blue:#2E75B6;--teal:#0F6E56;--green:#166534;
+  --amber:#854F0B;--red:#B71C1C;--gray:#404040;--silver:#888;
+  --bg:#fff;--bg2:#f7f8fa;--bg3:#eef0f3;--text:#1a1a1a;--text2:#555;--text3:#888;
+  --border:#dde0e6;
+  --info-bg:#EBF3FC;--info-c:#1565C0;--info-b:#90CAF9;
+  --warn-bg:#FFF8E1;--warn-c:#6D4C00;--warn-b:#FFD54F;
+  --danger-bg:#FDEDED;--danger-c:#7F1D1D;--danger-b:#F09595;
+  --success-bg:#E8F5E9;--success-c:#1B5E20;--success-b:#A5D6A7;
+  --purple-bg:#EEEDFE;--purple-c:#26215C;--purple-b:#AFA9EC;
+  --code-bg:#F3F4F6;
+  --r-md:8px;--r-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1b1e;--bg2:#222428;--bg3:#2a2d32;
+    --text:#e8e9ec;--text2:#aab;--text3:#778;--border:#383c44;
+    --info-bg:#0c2040;--info-c:#90CAF9;
+    --warn-bg:#2a1f00;--warn-c:#FFD54F;
+    --danger-bg:#2a0a0a;--danger-c:#EF9A9A;
+    --success-bg:#0a2010;--success-c:#A5D6A7;
+    --purple-bg:#1a1840;--purple-c:#AFA9EC;
+    --code-bg:#2a2d32;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.65}
+
+/* ── NAV ── */
+.top-bar{background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:12px}
+.top-bar h1{color:#fff;font-size:17px;font-weight:500}
+.top-bar .ver{background:rgba(255,255,255,.2);color:#fff;font-size:11px;padding:2px 8px;border-radius:4px}
+
+.phase-nav{display:flex;gap:4px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.pnav{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:all .15s;white-space:nowrap}
+.pnav.on{color:#fff;border-color:transparent}
+.pnav:hover:not(.on){background:var(--bg3)}
+
+/* ── MAIN ── */
+.main{padding:20px 16px 60px;max-width:1060px;margin:0 auto}
+.phase-panel{display:none}.phase-panel.on{display:block}
+
+/* ── PHASE HEADER ── */
+.phase-hdr{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border)}
+.phase-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:3px}
+.phase-info h2{font-size:18px;font-weight:500;margin-bottom:4px}
+.phase-info p{font-size:13px;color:var(--text2)}
+.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.stat{background:var(--bg2);border-radius:var(--r-md);padding:8px 14px;font-size:12px;color:var(--text2)}
+.stat b{display:block;font-size:16px;font-weight:500;color:var(--text);margin-bottom:1px}
+
+/* ── SECTION ── */
+.sec{margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.sec-hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none;background:var(--bg2);transition:background .1s}
+.sec-hdr:hover{background:var(--bg3)}
+.sec-icon{width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.sec-title{font-size:13px;font-weight:500;flex:1}
+.sec-meta{font-size:11px;color:var(--text3)}
+.sec-chev{font-size:10px;color:var(--text3);transition:transform .2s}
+.sec-body{display:none;padding:14px}
+.sec-body.open{display:block}
+
+/* ── ITEM TYPES ── */
+.item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.55}
+.item:last-child{border-bottom:none}
+.imark{font-size:11px;font-weight:600;padding:1px 7px;border-radius:3px;flex-shrink:0;margin-top:2px}
+.prep-mark{background:var(--purple-bg);color:var(--purple-c)}
+.task-mark{background:var(--info-bg);color:var(--info-c)}
+.cust-mark{background:var(--danger-bg);color:var(--danger-c)}
+.team-mark{background:var(--warn-bg);color:var(--warn-c)}
+.risk-mark{background:var(--danger-bg);color:var(--danger-c)}
+.check-mark{background:var(--success-bg);color:var(--success-c)}
+.harness-mark{background:#1F3864;color:#fff}
+
+/* ── CODE BLOCK ── */
+.code-block{background:var(--code-bg);border-radius:var(--r-md);padding:12px 14px;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;color:var(--text);margin:8px 0;overflow-x:auto;border:1px solid var(--border)}
+.code-block .cm{color:var(--text3)}
+.code-block .ck{color:#0F6E56}
+.code-block .cv{color:#854F0B}
+.code-block .cs{color:#1565C0}
+
+/* ── CALLOUT ── */
+.callout{padding:10px 14px;border-radius:var(--r-md);font-size:12px;line-height:1.65;margin:8px 0;border-left:3px solid}
+.cb{background:var(--info-bg);color:var(--info-c);border-color:var(--info-c)}
+.cg{background:var(--success-bg);color:var(--success-c);border-color:var(--success-c)}
+.ca{background:var(--warn-bg);color:var(--warn-c);border-color:var(--warn-c)}
+.cr{background:var(--danger-bg);color:var(--danger-c);border-color:var(--danger-c)}
+.cp{background:var(--purple-bg);color:var(--purple-c);border-color:var(--purple-c)}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:10px;flex-wrap:wrap;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11px}
+.leg{display:flex;align-items:center;gap:5px;color:var(--text2)}
+.leg-dot{width:8px;height:8px;border-radius:2px}
+
+/* ── FOOTNOTE ── */
+.fn{font-size:10px;vertical-align:super;color:var(--info-c);cursor:pointer;font-weight:500;margin-left:1px}
+.fn-section{margin-top:20px;border-top:1px solid var(--border);padding-top:14px}
+.fn-item{font-size:12px;color:var(--text2);padding:3px 0;line-height:1.5}
+.fn-num{color:var(--info-c);font-weight:500;margin-right:6px}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+.tbl th{padding:7px 10px;background:var(--bg3);color:var(--text2);font-weight:500;text-align:left;border-bottom:1px solid var(--border)}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:nth-child(even) td{background:var(--bg2)}
+
+/* ── METHODOLOGY BANNER ── */
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+@media(max-width:580px){.method-grid{grid-template-columns:1fr}}
+.method-card{border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;background:var(--bg)}
+.method-card h3{font-size:13px;font-weight:500;margin-bottom:8px}
+.method-card p{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* ── HARNESS GRID ── */
+.harness-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:8px 0}
+.htool{border:1px solid var(--border);border-radius:var(--r-md);padding:10px;background:var(--bg)}
+.htool-name{font-size:12px;font-weight:500;color:var(--navy);margin-bottom:3px}
+.htool-desc{font-size:11px;color:var(--text2);line-height:1.4}
+
+/* ── GATE CARD ── */
+.gate-card{background:var(--navy);color:#fff;border-radius:var(--r-lg);padding:14px 18px;margin:14px 0}
+.gate-card h3{font-size:14px;font-weight:500;margin-bottom:6px}
+.gate-card p{font-size:12px;opacity:.85;line-height:1.6}
+.gate-items{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.gate-item{background:rgba(255,255,255,.15);font-size:11px;padding:3px 8px;border-radius:3px}
+
+/* ── APPENDIX ── */
+.app-section{margin-bottom:28px}
+.app-section h3{font-size:15px;font-weight:500;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ── TIMELINE ── */
+.timeline{display:flex;gap:0;overflow-x:auto;padding-bottom:8px;margin-bottom:16px}
+.tl-phase{flex-shrink:0;text-align:center;font-size:11px}
+.tl-bar{height:28px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;padding:0 8px;white-space:nowrap}
+.tl-label{font-size:10px;color:var(--text3);margin-top:3px}
+
+.tag{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Garment OEM MES — 종합 개발 계획</h1>
+  <span class="ver">v3.1</span>
+  <span class="ver" style="margin-left:auto">Raza &amp; Bois + Harness 방법론 통합</span>
+</div>
+
+<!-- 범례 -->
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#7F77DD"></div>사전 준비</div>
+  <div class="leg"><div class="leg-dot" style="background:#1565C0"></div>주요 작업</div>
+  <div class="leg"><div class="leg-dot" style="background:#B71C1C"></div>고객 확인 필수</div>
+  <div class="leg"><div class="leg-dot" style="background:#92400E"></div>팀내 협의</div>
+  <div class="leg"><div class="leg-dot" style="background:#1B5E20"></div>Gate 체크</div>
+  <div class="leg"><div class="leg-dot" style="background:#1F3864"></div>Harness 실행</div>
+</div>
+
+<!-- 탭 네비게이션 -->
+<div class="phase-nav">
+  <div class="pnav on" onclick="showPhase('overview')" style="background:#1F3864;border-color:#1F3864">개요 &amp; 방법론</div>
+  <div class="pnav" onclick="showPhase('d14')" data-color="#7F77DD">D-14 사전구축</div>
+  <div class="pnav" onclick="showPhase('w14')" data-color="#1D9E75">W1~W4 Inception</div>
+  <div class="pnav" onclick="showPhase('w58')" data-color="#BA7517">W5~W8 Foundation</div>
+  <div class="pnav" onclick="showPhase('w912')" data-color="#C00000">W9~W12 Core Build</div>
+  <div class="pnav" onclick="showPhase('w1316')" data-color="#1F3864">W13~W16 Advanced</div>
+  <div class="pnav" onclick="showPhase('w1720')" data-color="#166534">W17~W20 Launch</div>
+  <div class="pnav" onclick="showPhase('phase2')" data-color="#5F5E5A">Phase 2 확산</div>
+  <div class="pnav" onclick="showPhase('appendix')" data-color="#444">부록 &amp; 용어집</div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════
+  개요 & 방법론
+══════════════════════════════════════════ -->
+<div id="p-overview" class="phase-panel on">
+  <div class="phase-hdr">
+    <div>
+      <div class="phase-info">
+        <h2>방법론 개요 &amp; 전체 타임라인</h2>
+        <p>Raza &amp; Bois<span class="fn" onclick="showFn(1)">1</span> + Harness<span class="fn" onclick="showFn(2)">2</span> 통합 적용 — Garment OEM MES v3.1</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><b>20주</b>Phase 1 전체</div>
+        <div class="stat"><b>33개</b>구현 화면</div>
+        <div class="stat"><b>49개</b>API endpoint</div>
+        <div class="stat"><b>4개</b>Gate</div>
+        <div class="stat"><b>7개</b>Harness 도구</div>
+        <div class="stat"><b>13개</b>ADR</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 타임라인 -->
+  <div class="timeline">
+    <div class="tl-phase"><div class="tl-bar" style="background:#7F77DD;width:80px">D-14</div><div class="tl-label">사전구축</div></div>
+    <div class="tl-phase"><div class="tl-bar" style="background:#1D9E75;width:100px">W1~W4</div><div class="tl-label">Inception</div></div>
+    <div class="tl-phase"><div class="tl-bar" style="background:#BA7517;width:100px">W5~W8</div><div class="tl-label">Foundation</div></div>
+    <div class="tl-phase"><div class="tl-bar" style="background:#C00000;width:100px">W9~W12</div><div class="tl-label">Core Build</div></div>
+    <div class="tl-phase"><div class="tl-bar" style="background:#1F3864;width:100px">W13~W16</div><div class="tl-label">Advanced</div></div>
+    <div class="tl-phase"><div class="tl-bar" style="background:#166534;width:100px">W17~W20</div><div class="tl-label">Launch</div></div>
+    <div class="tl-phase"><div class="tl-bar" style="background:#5F5E5A;width:80px">Phase 2</div><div class="tl-label">제3공장</div></div>
+  </div>
+
+  <!-- 방법론 카드 -->
+  <div class="method-grid">
+    <div class="method-card" style="border-left:4px solid #2E75B6;border-radius:0 var(--r-lg) var(--r-lg) 0">
+      <h3>Raza &amp; Bois 방법론 — Claude Code 운영 원칙</h3>
+      <p>Claude Code가 대규모 코드베이스에서 일관성을 유지하며 고품질 코드를 생성하기 위한 운영 프레임워크입니다. CLAUDE.md를 프로젝트 두뇌로 삼아 세션 간 맥락을 유지하고, Plan Mode<span class="fn" onclick="showFn(3)">3</span>→Code Mode<span class="fn" onclick="showFn(4)">4</span> 두 단계로 작업합니다.</p>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;color:var(--text2)">
+        <div style="background:var(--bg2);padding:6px 8px;border-radius:4px">CLAUDE.md 13개 섹션으로 프로젝트 맥락 정의</div>
+        <div style="background:var(--bg2);padding:6px 8px;border-radius:4px">Stream A(프론트) + Stream B(백엔드) 병렬 개발</div>
+        <div style="background:var(--bg2);padding:6px 8px;border-radius:4px">/session-start · /daily-check 일일 루틴</div>
+        <div style="background:var(--bg2);padding:6px 8px;border-radius:4px">/sync-friday 주간 통합 + Compounding Engineering</div>
+      </div>
+    </div>
+    <div class="method-card" style="border-left:4px solid #1F3864;border-radius:0 var(--r-lg) var(--r-lg) 0">
+      <h3>Harness 방법론 — 7개 도구 자동 품질 검증</h3>
+      <p>PR<span class="fn" onclick="showFn(5)">5</span>마다 7개 도구가 자동 실행되어 계약 위반·성능 회귀·도메인 규칙 위반을 즉시 차단합니다. CRITICAL 발견 시 머지<span class="fn" onclick="showFn(6)">6</span>가 자동 차단되어 기술 부채<span class="fn" onclick="showFn(7)">7</span>가 쌓이지 않습니다.</p>
+      <div class="harness-grid" style="margin-top:10px">
+        <div class="htool"><div class="htool-name">Dredd</div><div class="htool-desc">OpenAPI 계약 테스트. spec.yaml vs 실제 응답 비교</div></div>
+        <div class="htool"><div class="htool-name">k6</div><div class="htool-desc">성능 회귀 차단. p95 임계값 초과 시 PR 차단</div></div>
+        <div class="htool"><div class="htool-name">Testcontainers</div><div class="htool-desc">실제 PostgreSQL로 통합 테스트. Mock DB 금지</div></div>
+        <div class="htool"><div class="htool-name">fast-check</div><div class="htool-desc">속성 기반 테스트. 1만 케이스 무작위 검증</div></div>
+        <div class="htool"><div class="htool-name">@domain-validator</div><div class="htool-desc">Forbidden Pattern 18개 자동 grep. CRITICAL 차단</div></div>
+        <div class="htool"><div class="htool-name">openapi-msw</div><div class="htool-desc">MSW 핸들러 자동 생성. 수동 작성 금지</div></div>
+        <div class="htool"><div class="htool-name">/daily-check</div><div class="htool-desc">매일 저녁 7개 도구 종합 리포트</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 설계 원칙 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--info-bg);color:var(--info-c)">원</div>
+      <div class="sec-title">4대 설계 원칙 (모든 결정의 기준)</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body open">
+      <div class="callout cb">원칙 1 — ERP<span class="fn" onclick="showFn(8)">8</span>는 유일한 마스터 원천, MES<span class="fn" onclick="showFn(9)">9</span>는 실행 레이어. 스타일·BOM<span class="fn" onclick="showFn(10)">10</span>·자재 코드는 ERP에서 받아 사용, MES가 독자 생성 금지.</div>
+      <div class="callout cb">원칙 2 — 데이터는 Layer A~D로 엄격히 구분. ERP 수신 데이터(Layer A)는 정리 가능, MES 생성 실행 기록(Layer C)은 영구 보관.</div>
+      <div class="callout cb">원칙 3 — 팀(라인) 단위 실적이 Phase 1 기본. 작업자 개인 추적은 Phase 2에서 자발적 전환. MES는 임금 계산 절대 금지 (ADR<span class="fn" onclick="showFn(11)">11</span>-005).</div>
+      <div class="callout cb">원칙 4 — ERP API 합의가 모든 것의 전제조건. W1 Day1에 ERP 담당자와 기술 협의 착수. 미수령 시 Mock ERP로 개발 진행, W13으로 실 연동 이동.</div>
+      <table class="tbl">
+        <thead><tr><th>ADR</th><th>결정 내용</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>001</td><td>Result&lt;T,DomainError&gt; 패턴</td><td>에러 무시 방지, 컴파일 타임 강제</td></tr>
+          <tr><td>003</td><td>Repository 패턴 + DI</td><td>단위 테스트 시 Mock 교체 가능</td></tr>
+          <tr><td>005</td><td>임금 계산 MES 제외</td><td>노동법 오류 시 법적 분쟁</td></tr>
+          <tr><td>007</td><td>ISA-95<span class="fn" onclick="showFn(12)">12</span> WorkOrder 상속</td><td>글로벌 MES 호환, 추적성 보장</td></tr>
+          <tr><td>009</td><td>LOT<span class="fn" onclick="showFn(13)">13</span> 번호 체계 확정</td><td>{order}-L{serial:03d}-B{serial:03d}</td></tr>
+          <tr><td>011</td><td>ERP = Single Source of Truth</td><td>마스터 코드 1회성 특성 반영</td></tr>
+          <tr><td>012</td><td>데이터 수명주기 정책</td><td>ERP_IF 180일 아카이브, Layer C 영구</td></tr>
+          <tr><td>013</td><td>팀 실적 우선, 개인은 Phase 2</td><td>현장 저항 방지, 데이터 신뢰성</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 각주 -->
+  <div class="fn-section">
+    <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">각주</div>
+    <div class="fn-item"><span class="fn-num">1</span>Raza &amp; Bois: Claude Code를 대규모 프로젝트에 효과적으로 적용하기 위한 운영 방법론. CLAUDE.md·Plan Mode·Stream A/B 병렬 개발 등을 포함.</div>
+    <div class="fn-item"><span class="fn-num">2</span>Harness: 7개 자동화 검증 도구 집합. PR마다 실행되어 계약 위반·성능 회귀·도메인 규칙 위반을 자동 차단.</div>
+    <div class="fn-item"><span class="fn-num">3</span>Plan Mode: Claude Code가 코드를 작성하기 전에 구현 계획을 먼저 제시하고 승인을 받는 단계.</div>
+    <div class="fn-item"><span class="fn-num">4</span>Code Mode: Plan Mode 승인 후 실제 코드를 생성·수정하는 단계.</div>
+    <div class="fn-item"><span class="fn-num">5</span>PR (Pull Request): 코드 변경사항을 메인 브랜치에 합치기 위한 검토 요청.</div>
+    <div class="fn-item"><span class="fn-num">6</span>머지 (Merge): PR 검토 완료 후 코드를 메인 브랜치에 통합하는 행위.</div>
+    <div class="fn-item"><span class="fn-num">7</span>기술 부채 (Technical Debt): 빠른 개발을 위해 임시방편으로 만든 코드가 나중에 유지보수 비용을 증가시키는 현상.</div>
+    <div class="fn-item"><span class="fn-num">8</span>ERP (Enterprise Resource Planning): 전사적 자원 관리 시스템. 오더·재무·인사 등을 통합 관리.</div>
+    <div class="fn-item"><span class="fn-num">9</span>MES (Manufacturing Execution System): 제조실행시스템. 생산 현장의 실행·추적·품질을 관리.</div>
+    <div class="fn-item"><span class="fn-num">10</span>BOM (Bill of Materials): 자재 명세서. 제품을 만들기 위한 부품·원자재 목록.</div>
+    <div class="fn-item"><span class="fn-num">11</span>ADR (Architecture Decision Record): 아키텍처 결정 기록. 결정 날짜·맥락·이유·결과를 영구 보존.</div>
+    <div class="fn-item"><span class="fn-num">12</span>ISA-95: ERP와 공장 현장 시스템 간 공통 언어를 정의하는 국제 표준 (IEC 62264).</div>
+    <div class="fn-item"><span class="fn-num">13</span>LOT: 동일 조건(오더·색상)으로 생산되는 의류 묶음 단위. Roll→LOT→Bundle→Carton→B/L 추적.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  D-14 사전구축
+══════════════════════════════════════════ -->
+<div id="p-d14" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-badge" style="background:#7F77DD22;color:#26215C;border:1px solid #7F77DD55">D-14</div>
+    <div class="phase-info">
+      <h2>D-14 사전구축 — W1 착수 전 반드시 완료</h2>
+      <p>Claude Code가 올바르게 작동할 수 있는 기술적·지식적 환경을 완성하는 단계. 이 단계를 생략하면 W5 이후 하네스 소급 적용 비용이 3~5배 증가.</p>
+      <div class="stats-row">
+        <div class="stat"><b>14일</b>전체 기간</div>
+        <div class="stat"><b>13개</b>CLAUDE.md 섹션</div>
+        <div class="stat"><b>7개</b>Harness 도구 설치</div>
+        <div class="stat"><b>4개</b>CI/CD 파이프라인</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 사전 준비 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--purple-bg);color:var(--purple-c)">준</div>
+      <div class="sec-title">사전 준비 — D-14 착수 전 반드시 완료</div>
+      <div class="sec-meta">D-15~D-17</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark prep-mark">준비</span><div><strong>클라우드 계정 개설</strong><br>AWS ap-southeast-1<span class="fn" onclick="showFn(14)">14</span> 리전 선택. IAM<span class="fn" onclick="showFn(15)">15</span> 사용자 생성, MFA<span class="fn" onclick="showFn(16)">16</span> 필수. RDS<span class="fn" onclick="showFn(17)">17</span> PostgreSQL 15 인스턴스 생성 (db.t3.medium 권장, Multi-AZ 옵션).<br><div class="code-block"><span class="cm"># AWS CLI 기본 설정</span><br>aws configure<br><span class="cm"># AWS_ACCESS_KEY_ID, SECRET, REGION=ap-southeast-1</span><br>aws ec2 describe-availability-zones --region ap-southeast-1</div></div></div>
+      <div class="item"><span class="imark prep-mark">준비</span><div><strong>GitHub 저장소 생성 + 팀 권한 설정</strong><br>저장소명: garment-oem-mes. Branch protection: main 브랜치 직접 push 금지, PR+리뷰 1명 필수, CI 통과 필수.<br><div class="code-block"><span class="cm"># 저장소 초기화</span><br>mkdir garment-oem-mes &amp;&amp; cd garment-oem-mes<br>git init &amp;&amp; git checkout -b main<br><span class="cm"># GitHub Settings → Branches → Add rule → main</span><br><span class="cm"># ✓ Require PR before merging</span><br><span class="cm"># ✓ Require status checks (ci / contract / perf)</span></div></div></div>
+      <div class="item"><span class="imark prep-mark">준비</span><div><strong>Node.js 20 LTS + bun<span class="fn" onclick="showFn(18)">18</span> 설치 (전 팀원)</strong><br><div class="code-block">curl -fsSL https://bun.sh/install | bash<br>bun --version  <span class="cm"># 1.x 이상 확인</span><br>node --version <span class="cm"># v20.x 이상 확인</span></div></div></div>
+      <div class="item"><span class="imark prep-mark">준비</span><div><strong>Claude Code 설치 + API 키 설정</strong><br><div class="code-block">npm install -g @anthropic-ai/claude-code<br>claude config set apiKey sk-ant-xxxx<br>claude --version</div></div></div>
+      <div class="item"><span class="imark prep-mark">준비</span><div><strong>Docker Desktop 설치 (Testcontainers<span class="fn" onclick="showFn(19)">19</span> 용)</strong><br>전 팀원 로컬에 Docker Desktop 필수. Windows라면 WSL2<span class="fn" onclick="showFn(20)">20</span> 활성화 후 설치.</div></div>
+    </div>
+  </div>
+
+  <!-- 주요 작업 A: Monorepo -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--info-bg);color:var(--info-c)">A</div>
+      <div class="sec-title">A단계: Monorepo<span class="fn" onclick="showFn(21)">21</span> 구조 + bun workspaces 초기화 (D-14~D-12)</div>
+      <div class="sec-meta">담당: 풀스택 리드</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>디렉토리 구조 생성</strong>
+      <div class="code-block">garment-oem-mes/<br>├── apps/<br>│   ├── web/     <span class="cm"># React 18 · Stream A</span><br>│   └── api/     <span class="cm"># Node.js 20 · Stream B</span><br>├── packages/<br>│   ├── domain/  <span class="cm"># 공유 타입·에러코드·도메인 규칙</span><br>│   ├── openapi/ <span class="cm"># API Spec SSOT<span class="fn" onclick="showFn(22)">22</span> + MSW<span class="fn" onclick="showFn(23)">23</span> 자동생성</span><br>│   └── db/      <span class="cm"># Prisma<span class="fn" onclick="showFn(24)">24</span> Schema (Layer A~D 전체)</span><br>├── .claude/<br>│   ├── settings.json<br>│   ├── agents/   <span class="cm"># 8개 에이전트</span><br>│   └── commands/ <span class="cm"># 7개 커맨드</span><br>├── .github/workflows/<br>├── notes/<br>│   ├── decisions.md  <span class="cm"># ADR 001~013</span><br>│   ├── handoff.md    <span class="cm"># 세션간 인계</span><br>│   └── defer.md      <span class="cm"># Phase 2 이월</span><br>├── scripts/domain-validate.sh<br>└── CLAUDE.md</div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>루트 package.json 생성 (bun workspaces)</strong>
+      <div class="code-block">{<br>  <span class="cs">"name"</span>: <span class="cv">"garment-oem-mes"</span>,<br>  <span class="cs">"workspaces"</span>: [<span class="cv">"apps/*"</span>, <span class="cv">"packages/*"</span>],<br>  <span class="cs">"scripts"</span>: {<br>    <span class="cs">"typecheck"</span>: <span class="cv">"tsc --noEmit"</span>,<br>    <span class="cs">"test"</span>:      <span class="cv">"bun test"</span>,<br>    <span class="cs">"lint"</span>:      <span class="cv">"eslint apps packages"</span>,<br>    <span class="cs">"validate"</span>:  <span class="cv">"bash scripts/domain-validate.sh"</span><br>  }<br>}</div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>tsconfig.json strict 모드 설정 (필수)</strong>
+      <div class="code-block">{<br>  <span class="cs">"compilerOptions"</span>: {<br>    <span class="cs">"strict"</span>: <span class="ck">true</span>,<br>    <span class="cs">"noImplicitAny"</span>: <span class="ck">true</span>,<br>    <span class="cs">"strictNullChecks"</span>: <span class="ck">true</span>  <span class="cm">// ISA-95 상속 타입 안전성</span><br>  }<br>}</div>
+      <div class="callout cr">strict 미설정 시 ISA-95 WorkOrder 상속 타입이 런타임에서 무너짐. 반드시 D-14에 설정.</div></div></div>
+    </div>
+  </div>
+
+  <!-- 주요 작업 B: CLAUDE.md -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--info-bg);color:var(--info-c)">B</div>
+      <div class="sec-title">B단계: CLAUDE.md 13개 섹션 작성 (D-11~D-10)</div>
+      <div class="sec-meta">담당: PM + MES전문가 + 풀스택리드 공동</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="callout cp">CLAUDE.md는 Claude Code가 세션 시작 시 항상 먼저 읽는 "프로젝트 두뇌"입니다. 여기에 없는 규칙은 Claude Code가 알 수 없습니다.</div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>13개 섹션 구성</strong>
+      <table class="tbl">
+        <thead><tr><th>섹션</th><th>내용</th><th>중요도</th></tr></thead>
+        <tbody>
+          <tr><td>§1 Project Overview</td><td>Garment OEM MES, 제2공장, 베트남, 클라우드 AWS ap-southeast-1</td><td><span class="tag" style="background:var(--danger-bg);color:var(--danger-c)">CRITICAL</span></td></tr>
+          <tr><td>§2 Architecture</td><td>3-Layer, ISA-95, ERP Single Source of Truth, Layer A~D DB 구조</td><td><span class="tag" style="background:var(--danger-bg);color:var(--danger-c)">CRITICAL</span></td></tr>
+          <tr><td>§3 Tech Stack</td><td>React 18, Node.js 20, PostgreSQL 15, Prisma, i18next KO/EN/VI</td><td>HIGH</td></tr>
+          <tr><td>§4 Forbidden Patterns</td><td>C-1~C-8 (CRITICAL), H-1~H-5 (HIGH), M-1~M-5 (MEDIUM) 총 18개</td><td><span class="tag" style="background:var(--danger-bg);color:var(--danger-c)">CRITICAL</span></td></tr>
+          <tr><td>§5 Service Boundaries</td><td>9개 Service 단방향 의존 규칙, 순환 의존 절대 금지</td><td>HIGH</td></tr>
+          <tr><td>§6 API Patterns</td><td>Dual-Endpoint: POST /api/{process}/{action}, GET /api/orders/{id}/{aspect}</td><td>HIGH</td></tr>
+          <tr><td>§7 Testing Rules</td><td>TC 필수, DHU fast-check 1만케이스, Dredd 계약 테스트</td><td>HIGH</td></tr>
+          <tr><td>§8 Error Handling</td><td>Result&lt;T,DomainError&gt; 패턴, 에러 코드 목록</td><td>HIGH</td></tr>
+          <tr><td>§9 ERP Integration</td><td>5종 IF 스테이징 테이블, MES→ERP 라인 팀 실적, 임금 계산 금지</td><td>HIGH</td></tr>
+          <tr><td>§10 Domain Rules</td><td>18개 규칙 (W2 인터뷰 후 확정), FOUR_POINT_THRESHOLD=28 등</td><td><span class="tag" style="background:var(--danger-bg);color:var(--danger-c)">CRITICAL</span></td></tr>
+          <tr><td>§11 Data Lifecycle</td><td>Layer A: 아카이브 가능, Layer C: PERMANENT 삭제 금지</td><td>HIGH</td></tr>
+          <tr><td>§12 i18n Rules</td><td>KO/EN/VI, i18next, /add-i18n 커맨드 자동화</td><td>MEDIUM</td></tr>
+          <tr><td>§13 Claude Commands</td><td>/session-start, /daily-check, /sync-friday, /scaffold-service 등 7개</td><td>HIGH</td></tr>
+        </tbody>
+      </table></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>§4 Forbidden Patterns 핵심 예시</strong>
+      <div class="code-block"><span class="cm">### §4 Forbidden Patterns (CLAUDE.md)</span><br><br><span class="cm"># C-1 CRITICAL: AQL/DHU 임계값 하드코딩 절대 금지</span><br><span class="ck">FORBIDDEN</span>: <span class="cv">if (dhu &gt; 3.0)</span>  <span class="cm">← 바이어별 기준이 다름</span><br><span class="ck">CORRECT</span>:   <span class="cv">buyer_qc_config.dhuThreshold</span><br><br><span class="cm"># C-2 CRITICAL: 임금 계산 로직 MES 내 절대 금지</span><br><span class="ck">FORBIDDEN</span>: <span class="cv">worker.wage * hours</span><br><span class="ck">CORRECT</span>:   <span class="cv">ERP에서 계산, MES는 실적만 기록</span><br><br><span class="cm"># C-3 CRITICAL: Service에서 Prisma 직접 접근 금지</span><br><span class="ck">FORBIDDEN</span>: <span class="cv">this.prisma.lot.findMany()</span> in Service<br><span class="ck">CORRECT</span>:   <span class="cv">LotRepository 경유</span><br><br><span class="cm"># C-5 CRITICAL: Service 순환 의존 금지</span><br><span class="ck">FORBIDDEN</span>: <span class="cv">MaterialService ↔ CuttingService 상호 import</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>CLAUDE.md 불변 Hook 설정</strong><br>CLAUDE.md를 main 브랜치에서만 수정 가능하도록 Hook 설정. feature 브랜치에서 CLAUDE.md 수정 시도 시 커밋 차단.
+      <div class="code-block"><span class="cm"># .claude/settings.json</span><br>{<br>  <span class="cs">"hooks"</span>: {<br>    <span class="cs">"PreCommit"</span>: [{<br>      <span class="cs">"matcher"</span>: <span class="cv">"CLAUDE\\.md"</span>,<br>      <span class="cs">"hooks"</span>: [{<br>        <span class="cs">"type"</span>: <span class="cv">"command"</span>,<br>        <span class="cs">"command"</span>: <span class="cv">"bash scripts/check-main-branch.sh"</span><br>      }]<br>    }]<br>  }<br>}</div></div></div>
+    </div>
+  </div>
+
+  <!-- 주요 작업 C: .claude/ 설정 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--info-bg);color:var(--info-c)">C</div>
+      <div class="sec-title">C단계: .claude/ 에이전트·커맨드·Hook 설정 (D-9~D-8)</div>
+      <div class="sec-meta">담당: AI 전문가</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>/session-start 커맨드 — 매일 아침 의무 실행</strong>
+      <div class="code-block"><span class="cm"># .claude/commands/session-start.md</span><br>## /session-start — 매일 아침 세션 시작 시 자동 실행<br><br>1. CLAUDE.md §1~§13 전체 로드 및 핵심 규칙 확인<br>2. notes/handoff.md 마지막 항목 읽기 (전날 이월 작업)<br>3. notes/defer.md 확인 (Phase 2 이월 항목 오늘 범위 아닌지 확인)<br>4. 현재 브랜치 확인 — main 브랜치이면 경고 출력<br>5. @domain-validator 간이 스캔 (CRITICAL 0건 확인)<br>6. 금일 목표 출력: "오늘 구현할 것: [Service/화면명]"</div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>/daily-check 커맨드 — 매일 저녁 의무 실행</strong>
+      <div class="code-block"><span class="cm"># .claude/commands/daily-check.md</span><br>## /daily-check — Harness 7개 도구 종합 리포트<br><br>1. Dredd: bun run contract-test → failures 수 리포트<br>2. k6: bun run perf-check → 임계값 초과 endpoint 리포트<br>3. TC: bun run test:integration → 실패 케이스 리포트<br>4. fast-check: bun run test:properties → 반례 리포트<br>5. @domain-validator: bash scripts/domain-validate.sh → CRITICAL 건수<br>6. openapi-msw: bun run generate-msw → 드리프트 확인<br>7. notes/handoff.md 업데이트: 금일 완료·내일 이월 기록</div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>/scaffold-service 커맨드 — Service 뼈대 4분 자동생성</strong>
+      <div class="code-block"><span class="cm"># 사용법: /scaffold-service material</span><br><span class="cm"># 생성 파일:</span><br>apps/api/src/services/material.service.interface.ts<br>apps/api/src/services/material.service.ts<br>apps/api/src/repositories/material.repo.ts<br>apps/api/src/routes/material.route.ts<br>apps/api/src/services/__tests__/material.service.test.ts<br><span class="cm"># Result&lt;T,DomainError&gt; 패턴·Repository DI 자동 적용</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>@domain-validator 에이전트 스크립트</strong>
+      <div class="code-block"><span class="cm">#!/usr/bin/env bash</span><br><span class="cm"># scripts/domain-validate.sh</span><br>CRITICAL=0<br><br>check_forbidden() {<br>  result=$(grep -rn "$2" apps/api/src --include="*.ts" | grep -v ".test.")<br>  [ -n "$result" ] &amp;&amp; { echo "❌ $1"; echo "$result"; CRITICAL=$((CRITICAL+1)); }<br>}<br><br>check_forbidden "C-1: AQL 하드코딩" "dhuThreshold.*[0-9]\."<br>check_forbidden "C-2: 임금계산" "wage\|salary\|payroll"<br>check_forbidden "C-3: Service→Prisma 직접" "Service.*this\.prisma\."<br>check_forbidden "C-4: Zod 없는 외부입력" "req\.body\b" <br><br>[ $CRITICAL -eq 0 ] &amp;&amp; echo "✅ @domain-validator 통과 (0건)"<br>exit $CRITICAL</div></div></div>
+    </div>
+  </div>
+
+  <!-- 주요 작업 D: ADR + Harness 설치 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--info-bg);color:var(--info-c)">D</div>
+      <div class="sec-title">D·E단계: ADR 서명 + Harness 7개 설치 + CI/CD (D-7~D-1)</div>
+      <div class="sec-meta">담당: 풀스택 리드 + PM</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>Harness 도구 일괄 설치</strong>
+      <div class="code-block"><span class="cm"># apps/api 의존성</span><br>bun add -D dredd k6 @testcontainers/postgresql fast-check<br>bun add zod @prisma/client winston<br><br><span class="cm"># apps/web 의존성</span><br>bun add -D msw openapi-msw vitest @testing-library/react<br>bun add @tanstack/react-query i18next react-i18next<br><br><span class="cm"># fast-check 속성 테스트 초기 6개</span><br><span class="cm"># packages/domain/src/__tests__/domain-properties.test.ts</span><br><span class="cm"># 1) DHU∈[0,100] 2) Bundle유일성 3) CP날짜 4) MarkerEff 5) OEE 6) 릴렉싱시간</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>CI/CD 4개 워크플로우 설정</strong>
+      <table class="tbl">
+        <thead><tr><th>워크플로우</th><th>트리거</th><th>실패 시</th></tr></thead>
+        <tbody>
+          <tr><td>ci.yml</td><td>모든 PR, main push</td><td>PR 머지 차단</td></tr>
+          <tr><td>contract.yml</td><td>routes/** 또는 spec.yaml 변경 PR</td><td>PR 머지 차단</td></tr>
+          <tr><td>perf.yml</td><td>routes/** 또는 schema.prisma 변경 PR</td><td>PR 머지 차단</td></tr>
+          <tr><td>claude-review.yml</td><td>모든 PR opened/sync</td><td>CRITICAL 발견 시 머지 차단 요청</td></tr>
+        </tbody>
+      </table></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>D-14 완료 검증 스크립트 (W1 착수 전날 실행)</strong>
+      <div class="code-block"><span class="cm">#!/usr/bin/env bash</span><br>echo "=== D-14 완료 검증 ==="<br>bun run typecheck &amp;&amp; echo "✅ 타입체크" || exit 1<br>bun run test --testPathPattern="domain-properties" &amp;&amp; echo "✅ fast-check 6개" || exit 1<br>bun run test:integration &amp;&amp; echo "✅ TC 통과" || exit 1<br>bash scripts/domain-validate.sh &amp;&amp; echo "✅ @domain-validator" || exit 1<br>count=$(grep -c "^## ADR-" notes/decisions.md)<br>[ "$count" -eq 13 ] &amp;&amp; echo "✅ ADR 13개" || { echo "❌ ADR $count개"; exit 1; }<br>echo "=== W1 착수 가능 ==="</div></div></div>
+    </div>
+  </div>
+
+  <!-- 고객 확인 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--danger-bg);color:var(--danger-c)">고</div>
+      <div class="sec-title">고객 확인 필수 사항</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>프로젝트 공식 킥오프 미팅</strong> — 범위·일정·Gate 기준 합의. 33개 화면·20주 일정·Gate 1~4 통과 기준을 고객 PM이 인지하고 서명.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>ERP 담당자 공식 소개</strong> — W1 Day1에 기술 협의 시작을 위한 ERP 담당자 연락처 수령. API 제공 일정 초안 수령.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>ADR-005 (임금 계산 MES 제외) 고객 서명</strong> — "MES는 라인 팀 실적만 기록, 급여 계산은 ERP에서"를 고객 책임자가 이해하고 서명.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>ADR-013 (팀 실적 우선) 고객 서명</strong> — Phase 1에서 개인 생산성 추적을 하지 않는 이유(현장 저항·데이터 신뢰성)를 설명하고 공장장 서명 수령.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>클라우드 배포 AWS 계정 비용 담당 확인</strong> — 월 비용 예상($200~400/월 기준)을 설명하고 결제 주체 확정.</div></div>
+    </div>
+  </div>
+
+  <!-- 팀내 협의 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--warn-bg);color:var(--warn-c)">팀</div>
+      <div class="sec-title">팀내 협의 사항</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>Stream A / Stream B 담당자 확정</strong> — Stream A(프론트엔드, React·MSW): 누가? Stream B(백엔드, Node.js·PostgreSQL): 누가? 각 Stream 리드 1인 지정.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>ADR-001~013 팀 전체 서명 미팅 (1시간)</strong> — 특히 ADR-007(ISA-95 상속)·ADR-011(ERP Single Source of Truth)·ADR-013(팀 실적 우선)은 의미를 충분히 토론하고 반대 의견 해소 후 서명.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>Forbidden Patterns 18개 등급 합의</strong> — CRITICAL/HIGH/MEDIUM 등급 분류에 팀 동의 필요. 특히 C-3(Service→Prisma 직접)이 실제로 차단됨을 체험 필요.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>/daily-check 실행 시간 합의</strong> — 매일 몇 시에 실행할지 팀 합의. 권장: 퇴근 1시간 전(오후 5시). 결과를 Slack 채널에 자동 공유하는 방법 논의.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  W1~W4 Inception
+══════════════════════════════════════════ -->
+<div id="p-w14" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-badge" style="background:#1D9E7522;color:#04342C;border:1px solid #1D9E7555">W1~W4</div>
+    <div class="phase-info">
+      <h2>W1~W4 Inception — 설계 기반 구축 (1개월차)</h2>
+      <p>"코드 한 줄 없이" 시작. Claude Code가 올바른 방향으로 코드를 생성할 수 있는 지식·계획·Schema를 완성하는 단계.</p>
+      <div class="stats-row">
+        <div class="stat"><b>Gate 1</b>W4 완료 시</div>
+        <div class="stat"><b>30+6개</b>체크 항목</div>
+        <div class="stat"><b>18개</b>현장 인터뷰</div>
+        <div class="stat"><b>60+개</b>DB 테이블 설계</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cp">Raza &amp; Bois 원칙: W4 Gate 1 통과 후에만 W5 코딩 시작. 9개 Service 경계·ERP API 합의·ERD<span class="fn" onclick="showFn(25)">25</span> 서명이 없으면 코드를 아무리 많이 작성해도 나중에 전면 재설계해야 합니다.</div>
+
+  <!-- W1 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#1D9E7522;color:#04342C">W1</div>
+      <div class="sec-title">W1 (1~5일): 킥오프 + ERP API 협의 착수 + 9개 Service 경계 정의</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>ERP API 협의 — W1 Day1 오후, 0번 우선순위</strong><br>이것이 늦어지면 W9 이후 전체가 지연됨. ERP 담당자와 5개 항목 확인.
+      <table class="tbl" style="margin-top:8px">
+        <thead><tr><th>확인 항목</th><th>MES 필요 이유</th><th>기한</th></tr></thead>
+        <tbody>
+          <tr><td>오더 데이터 API 형식 (REST/SOAP/File)</td><td>ERP_IF_ORDER 스키마 설계</td><td>W1 내</td></tr>
+          <tr><td>스타일·BOM API 구조</td><td>ERP_IF_STYLE 스키마 설계</td><td>W1 내</td></tr>
+          <tr><td>작업자 ID 연동 방식</td><td>WORKER 테이블 ERP ID 매핑</td><td>W1 내</td></tr>
+          <tr><td>MES→ERP 라인 실적 수신 포맷</td><td>ERP_PRODUCTIVITY_QUEUE 설계</td><td>W2 내</td></tr>
+          <tr><td>테스트 환경 API 제공 일정</td><td>W8 이전 필수</td><td>W3 전</td></tr>
+        </tbody>
+      </table>
+      <div class="callout cr">W3 전까지 ERP API 명세 미수령 시: Mock ERP 서버 자체 구축, 실 연동은 W13으로 이동. ADR-006에 "ERP 미제공으로 W13 착수" 공식 기록. 고객 PM에게 일정 위험 서면 통보 필수.</div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>SERVICE_BOUNDARIES.md 작성 (2~3시간 워크숍)</strong><br>9개 Service의 담당 책임과 절대 금지 항목을 팀 전체가 토론하여 정의. @domain-validator C-5 검사의 판단 근거가 됨.
+      <div class="code-block"><span class="cm"># SERVICE_BOUNDARIES.md 작성 원칙</span><br><span class="cm"># "이 Service는 무엇을 해서는 안 되는가(금지 목록)"를 먼저 작성</span><br><br>## MaterialService<br>담당: receiveFabric · inspect4Point · moveToRelax · checkTrimStock<br>금지: CuttingService 직접 호출, Roll.status DB 직접 변경<br>ERP 규칙: 자재코드 직접 생성 금지, ERP_IF_MATERIAL에서 조회<br><br>## ProductionService<br>담당: recordLineOutput · getLineEfficiency<br>금지: 임금계산, QualityService 직접 호출<br>실적단위: 라인(팀) 기본 (worker_id nullable)</div></div></div>
+      <div class="item"><span class="imark harness-mark">Harness</span><div><strong>/session-start 일일 실행 시작</strong><br>W1부터 매일 아침 /session-start를 실행하여 notes/handoff.md 체인을 만들기 시작. 이 루틴이 20주 동안 Claude Code 세션의 연속성을 보장.</div></div>
+    </div>
+  </div>
+
+  <!-- W2 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#1D9E7522;color:#04342C">W2</div>
+      <div class="sec-title">W2 (6~10일): 현장 인터뷰 2일 + §10 Domain Rules 확정</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="callout ca">현장 인터뷰는 2일로 분리: Day1 현장 관찰·문서 수집, Day2 담당자 인터뷰. 즉답 불가 항목은 TBD 표기 + 마감일 설정.</div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>18개 인터뷰 항목 (v3.1 — 팀 실적 방식 초점)</strong>
+      <table class="tbl">
+        <thead><tr><th>항목</th><th>대상</th><th>§10 반영</th><th>즉답</th></tr></thead>
+        <tbody>
+          <tr><td>라인별 실적 기록 방식·엑셀 서식 수거</td><td>라인장</td><td>LINE_OUTPUT 설계 기준</td><td>Y</td></tr>
+          <tr><td>시간대별 목표량 설정 방식</td><td>생산관리팀</td><td>달성률 계산 공식</td><td>Y</td></tr>
+          <tr><td>팀 실적→급여 연동 방식</td><td>인사팀·총무</td><td>ERP 전송 포맷</td><td>Y</td></tr>
+          <tr><td>DHU<span class="fn" onclick="showFn(26)">26</span> 임계값 (바이어별)</td><td>QC팀장</td><td>buyer_qc_config 초기값</td><td>Y</td></tr>
+          <tr><td>4점법<span class="fn" onclick="showFn(27)">27</span> 합격 기준 (28pts)</td><td>창고 담당</td><td>FOUR_POINT_THRESHOLD=28</td><td>Y</td></tr>
+          <tr><td>릴렉싱<span class="fn" onclick="showFn(28)">28</span> 시간 소재별</td><td>창고 담당</td><td>RELAXATION_HOURS 맵</td><td>Y</td></tr>
+          <tr><td>미싱기<span class="fn" onclick="showFn(29)">29</span> 벤더·모델 목록</td><td>생산부장</td><td>SEW_MACHINE_TYPE 마스터</td><td>기계대장 확인 2~3일</td></tr>
+          <tr><td>ERP 시스템 종류·버전</td><td>IT 담당자</td><td>ERP_CONN_CONFIG 설정</td><td>Y</td></tr>
+          <tr><td>스타일 코드 생성 주기·방식</td><td>ERP 담당자</td><td>MES 수신 주기 설계</td><td>Y</td></tr>
+          <tr><td>자재 코드 ERP 비활성화 시점</td><td>ERP·구매팀</td><td>아카이브 정책 기준</td><td>Y</td></tr>
+          <tr><td>SMV<span class="fn" onclick="showFn(30)">30</span> 데이터 현재 관리 위치</td><td>생산기술팀</td><td>MES 자체 관리 여부</td><td>Y</td></tr>
+          <tr><td>MFZ<span class="fn" onclick="showFn(31)">31</span> 기기 교정 주기</td><td>QC팀장</td><td>MAINTENANCE 주기</td><td>Y</td></tr>
+          <tr><td>AQL<span class="fn" onclick="showFn(32)">32</span> 기준 (바이어별)</td><td>QC 담당자</td><td>buyer_qc_config 초기값</td><td>Y</td></tr>
+          <tr><td>번들 수량 기준 (표준·최소·최대)</td><td>현장 반장</td><td>BUNDLE_QTY 기본값</td><td>Y</td></tr>
+          <tr><td>WiFi 오프라인 허용 시간</td><td>IT 담당자</td><td>OFFLINE_MAX_HOURS=2</td><td>Y</td></tr>
+          <tr><td>RBAC<span class="fn" onclick="showFn(33)">33</span> 역할 목록</td><td>공장장</td><td>5개 역할 확정</td><td>Y</td></tr>
+          <tr><td>바이어별 Carton 라벨 규격</td><td>QC 팀장</td><td>FinishingService 출력 포맷</td><td>바이어 문서 수집 필요</td></tr>
+          <tr><td>재작업 발생 시 처리 프로세스</td><td>봉제 감독</td><td>REWORK_ORDER 워크플로우</td><td>현장 관찰 필요</td></tr>
+        </tbody>
+      </table></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>W2 완료 직후 작성할 시드 파일</strong>
+      <div class="code-block"><span class="cm">// packages/db/seed/buyer-qc-config.ts</span><br>export const BUYER_QC_CONFIG = [<br>  { buyerCode: <span class="cv">"NIKE"</span>, dhuThreshold: 2.5, aqlLevel: <span class="cv">"II"</span> },<br>  { buyerCode: <span class="cv">"ZARA"</span>, dhuThreshold: 3.0, aqlLevel: <span class="cv">"II"</span> },<br>  <span class="cm">// W2 인터뷰 확정값 반영</span><br>]<br><br><span class="cm">// packages/domain/src/constants/fabric.ts</span><br>export const FOUR_POINT_THRESHOLD = 28 <span class="cm">// pts/100m</span><br>export const RELAXATION_HOURS: Record&lt;string,number&gt; = {<br>  COTTON: 48, LINEN: 48, POLY: 24, WOOL: 72, BLEND: 48<br>}</div></div></div>
+    </div>
+  </div>
+
+  <!-- W3 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#1D9E7522;color:#04342C">W3</div>
+      <div class="sec-title">W3 (11~15일): 49개 API 명세 + M1~M8 ERD 검토 + ERP 샘플 Zod<span class="fn" onclick="showFn(34)">34</span> 파싱</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>ERP ORDER 샘플 10건 Zod 파싱 검증 (W3 전 수령 필수)</strong>
+      <div class="code-block"><span class="cm">// apps/api/src/erp/schemas/erp-order.schema.ts</span><br>import { z } from <span class="cv">"zod"</span><br><br>export const ERPOrderSchema = z.object({<br>  ORDER_NO:    z.string().min(1),<br>  BUYER_CODE:  z.string().min(1),<br>  STYLE_NO:    z.string().min(1),<br>  SHIP_DATE:   z.string().datetime(),<br>  ORDERED_QTY: z.number().positive(),<br>  <span class="cm">// 실제 ERP 필드명으로 교체 필요</span><br>})<br><br>const samples = JSON.parse(fs.readFileSync(<span class="cv">"seed/erp-sample.json"</span>, <span class="cv">"utf8"</span>))<br>const fails = samples.filter((s: unknown) =&gt; !ERPOrderSchema.safeParse(s).success)<br>console.log(`${samples.length}건 중 ${samples.length - fails.length}건 파싱 성공`)<br><span class="cm">// fails.length &gt; 0 → ERP 담당자와 필드 매핑 재협의</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>ERD Schema Review 미팅 (1시간) — Layer 구조 기준 검토</strong>
+      <table class="tbl">
+        <thead><tr><th>DB 그룹</th><th>핵심 테이블</th><th>검토 포인트</th></tr></thead>
+        <tbody>
+          <tr><td>Layer A (ERP Origin)</td><td>ERP_IF_ORDER, ERP_IF_STYLE, ERP_IF_MATERIAL</td><td>data_status 컬럼 포함 여부, 아카이브 정책</td></tr>
+          <tr><td>Layer B (MES 자체)</td><td>PRODUCTION_LINE, SEW_MACHINE, SMV_DATA</td><td>ERP에서 제공 안 하는 공장 물리 구조만</td></tr>
+          <tr><td>Layer C (영구 보관)</td><td>GARMENT_LOT, LINE_OUTPUT, QC_INSPECTION, MFZ_RECORD</td><td>삭제 방지 트리거, PERMANENT 상태</td></tr>
+          <tr><td>Layer D (ERP 전송큐)</td><td>ERP_LINE_RESULT_QUEUE, ERP_SHIPMENT_QUEUE</td><td>전송 완료 후 로그 보관, 재시도 정책</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+  </div>
+
+  <!-- W4 Gate 1 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#1D9E7522;color:#04342C">W4</div>
+      <div class="sec-title">W4 (16~20일): Prisma Schema 완성 + Gate 1 (36개 항목)</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="gate-card">
+        <h3>Gate 1 — W4 완료 기준 (36개 항목 전체 통과 시 W5 착수)</h3>
+        <p>미통과 시 W5 착수 1주 연기. 미통과 항목은 즉시 담당자 배정·마감일 설정.</p>
+        <div class="gate-items">
+          <div class="gate-item">ADR 13개 서명</div>
+          <div class="gate-item">SERVICE_BOUNDARIES.md 서명</div>
+          <div class="gate-item">인터뷰 18개 완료</div>
+          <div class="gate-item">ERP API 명세 수령 (또는 Mock ADR)</div>
+          <div class="gate-item">§10 Domain Rules 18개</div>
+          <div class="gate-item">Prisma validate 오류 0</div>
+          <div class="gate-item">fast-check 6개 통과</div>
+          <div class="gate-item">Layer A~D 분류 서명</div>
+          <div class="gate-item">삭제 방지 트리거 검증</div>
+          <div class="gate-item">CI/CD 4개 초록불</div>
+        </div>
+      </div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>Layer C 삭제 방지 트리거 구현 및 검증</strong>
+      <div class="code-block"><span class="cm">-- packages/db/prisma/schema.prisma</span><br><span class="cm">-- 모든 Layer C 테이블에 data_status 컬럼 추가</span><br><br><span class="cm">-- Layer C 삭제 방지 트리거 (마이그레이션 파일에 추가)</span><br>CREATE OR REPLACE FUNCTION prevent_delete_permanent()<br>RETURNS TRIGGER AS $$<br>BEGIN<br>  IF OLD.data_status = <span class="cv">'PERMANENT'</span> THEN<br>    RAISE EXCEPTION <span class="cv">'PERMANENT 레코드 삭제 불가: %'</span>, OLD.id;<br>  END IF;<br>  RETURN OLD;<br>END;<br>$$ LANGUAGE plpgsql;<br><br>CREATE TRIGGER trg_protect_lot<br>  BEFORE DELETE ON garment_lot<br>  FOR EACH ROW EXECUTE FUNCTION prevent_delete_permanent();<br><span class="cm">-- line_output, qc_inspection, mfz_record에도 동일 적용</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- 고객 확인 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--danger-bg);color:var(--danger-c)">고</div>
+      <div class="sec-title">고객 확인 필수 사항</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>W2 Day1·Day2 현장 방문 일정 확보</strong> — 현장 담당자(공장장·QC팀장·재단반장·창고 담당·라인장) 인터뷰 시간 배정. 사전에 "IT 프로젝트가 아니라 현재 업무 방식을 배우러 왔다"고 설명하도록 공장장에게 요청.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>ERP ORDER 샘플 10건 W3 착수 전 제공</strong> — 실제 오더 데이터(익명화 가능). 미제공 시 W13 이동 ADR 서명 필요.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>§10 Domain Rules 18개 + 요구사항 확정 서명서 서명</strong> — 33개 화면·49개 API 목록을 고객 책임자가 확인하고 서명. 이후 범위 변경은 Change Request 프로세스 적용.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>바이어별 DHU·AQL 기준 서면 확인</strong> — buyer_qc_config 초기값의 법적 근거. QC팀장 서명 필수.</div></div>
+    </div>
+  </div>
+
+  <!-- 팀내 협의 -->
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--warn-bg);color:var(--warn-c)">팀</div>
+      <div class="sec-title">팀내 협의 사항</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>9개 Service 경계 워크숍 (W1, 2~3시간)</strong> — 특히 "금지 목록"을 먼저 작성하는 방식으로 진행. 서비스 간 의존 방향이 모호한 경우 이 자리에서 해결.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>봉제 실적 입력 방식 확정 (W4 전)</strong> — 방법 A(라인장 대리 입력) vs 방법 B(공정별 분산 입력) 현장 협의 후 확정. 서명 필수.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>ERD Schema Review 미팅 (W3, 1시간)</strong> — MES 전문가가 각 Layer를 5분씩 설명, 나머지 시간은 "이 테이블이 없으면 어떤 화면이 구현 불가능한가?" 토론.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>Plan Mode 선언 (W4)</strong> — W5~W8에서 구현할 9개 Service 중 어느 것을 어떤 순서로 어느 팀원이 담당하는지 명확히 계획 선언. /plan-mode 커맨드 실행 기록 보관.</div></div>
+    </div>
+  </div>
+
+  <!-- 각주 -->
+  <div class="fn-section">
+    <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">이 단계 각주</div>
+    <div class="fn-item"><span class="fn-num">14</span>ap-southeast-1: AWS 싱가포르 리전. 베트남에서 접속 시 지연 30~50ms로 최적.</div>
+    <div class="fn-item"><span class="fn-num">15</span>IAM: AWS Identity and Access Management. 사용자·권한 관리.</div>
+    <div class="fn-item"><span class="fn-num">16</span>MFA: Multi-Factor Authentication. 이중 인증. 보안 강화 필수.</div>
+    <div class="fn-item"><span class="fn-num">17</span>RDS: AWS Relational Database Service. 관리형 관계형 데이터베이스 서비스.</div>
+    <div class="fn-item"><span class="fn-num">18</span>bun: 빠른 JavaScript 런타임·패키지 매니저. npm/yarn 대체.</div>
+    <div class="fn-item"><span class="fn-num">19</span>Testcontainers: 테스트 시 실제 Docker 컨테이너(PostgreSQL 등)를 자동 기동하는 라이브러리.</div>
+    <div class="fn-item"><span class="fn-num">20</span>WSL2: Windows Subsystem for Linux 2. Windows에서 Linux 환경 실행.</div>
+    <div class="fn-item"><span class="fn-num">21</span>Monorepo: 여러 프로젝트를 단일 Git 저장소에서 관리하는 구조.</div>
+    <div class="fn-item"><span class="fn-num">22</span>SSOT: Single Source of Truth. 데이터의 유일한 원천. 중복 없음.</div>
+    <div class="fn-item"><span class="fn-num">23</span>MSW: Mock Service Worker. 브라우저에서 API 요청을 가로채 Mock 응답을 반환.</div>
+    <div class="fn-item"><span class="fn-num">24</span>Prisma: Node.js TypeScript 환경의 ORM. DB 스키마를 코드로 관리.</div>
+    <div class="fn-item"><span class="fn-num">25</span>ERD: Entity-Relationship Diagram. 데이터베이스 테이블 간 관계 다이어그램.</div>
+    <div class="fn-item"><span class="fn-num">26</span>DHU: Defects per Hundred Units. 100개당 불량 수. (불량수/검사수)×100.</div>
+    <div class="fn-item"><span class="fn-num">27</span>4점법: 원단 품질 검사법. 결점 길이별 1~4점 부여, 100m당 28점 이하 합격.</div>
+    <div class="fn-item"><span class="fn-num">28</span>릴렉싱: 원단을 재단 전 일정 시간 이완시켜 수축을 방지하는 공정.</div>
+    <div class="fn-item"><span class="fn-num">29</span>미싱기: 재봉틀. 봉제 공정의 핵심 기계.</div>
+    <div class="fn-item"><span class="fn-num">30</span>SMV: Standard Minute Value. 특정 봉제 작업의 표준 소요 시간(분). 효율 계산 기준.</div>
+    <div class="fn-item"><span class="fn-num">31</span>MFZ: Metal Free Zone. 금속 탐지 검사 구간. 수출 법적 의무 (Needle Zero Policy).</div>
+    <div class="fn-item"><span class="fn-num">32</span>AQL: Acceptance Quality Limit. 샘플 검사에서 허용 최대 불량률.</div>
+    <div class="fn-item"><span class="fn-num">33</span>RBAC: Role-Based Access Control. 역할 기반 접근 제어. 5개 역할: 공장장·라인장·QC·창고·작업자.</div>
+    <div class="fn-item"><span class="fn-num">34</span>Zod: TypeScript 스키마 검증 라이브러리. 런타임에서 데이터 타입과 형식을 검사.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  W5~W8 Foundation
+══════════════════════════════════════════ -->
+<div id="p-w58" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-badge" style="background:#BA751722;color:#412402;border:1px solid #BA751755">W5~W8</div>
+    <div class="phase-info">
+      <h2>W5~W8 Foundation — 창고·릴렉싱·재단 + ERP 수신 1차 (2개월차)</h2>
+      <p>spec.yaml이 Git에 커밋된 순간 Stream A·B가 독립 병렬로 개발 시작. ERP 자재 코드 수신 파이프라인이 창고 화면보다 먼저 구축되어야 합니다.</p>
+      <div class="stats-row">
+        <div class="stat"><b>W5 Day1</b>spec.yaml 확정</div>
+        <div class="stat"><b>13개</b>화면 구현 (01~13)</div>
+        <div class="stat"><b>Dredd</b>첫 통과 목표</div>
+        <div class="stat"><b>매주 금요일</b>/sync-friday</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#BA751722;color:#412402">W5</div>
+      <div class="sec-title">W5: spec.yaml 확정 → Stream A/B 분기 → ERP Sync 기본 골격</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>spec.yaml 확정 즉시 자동화 체인 (W5 Day1 오후)</strong>
+      <div class="code-block"><span class="cm"># Step 1: OpenAPI 유효성 검증</span><br>bunx swagger-cli validate packages/openapi/spec.yaml<br><span class="cm"># → 0 errors 확인</span><br><br><span class="cm"># Step 2: MSW 핸들러 자동 생성 (수동 작성 금지 — §4 H-1)</span><br>bun run generate-msw<br><span class="cm"># → apps/web/src/mocks/handlers.ts 자동 갱신 (49개)</span><br><br><span class="cm"># Step 3: TypeScript 타입 자동 생성</span><br>bun run generate-types<br><span class="cm"># → packages/openapi/src/generated/api-types.ts</span><br><br><span class="cm"># Step 4: Dredd 기준점 설정</span><br>bun run contract-test<br><span class="cm"># → 0 passing, 0 failing — 기준점 기록</span><br><br><span class="cm"># Step 5: Stream A/B 브랜치 분기</span><br>git checkout -b stream/frontend-wh-rx   <span class="cm"># Stream A</span><br>git checkout -b stream/backend-material  <span class="cm"># Stream B</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>ERP Sync Service 기본 골격 (W5 Day2~3) — 화면보다 먼저</strong>
+      <div class="code-block"><span class="cm">// apps/api/src/erp/erp-sync.service.ts</span><br>async receiveOrder(rawData: unknown[]): Promise&lt;void&gt; {<br>  for (const raw of rawData) {<br>    const parsed = ERPOrderSchema.safeParse(raw)<br>    if (!parsed.success) { await this.logError(raw, parsed.error); continue }<br><br>    <span class="cm">// Layer A 스테이징 테이블에 저장 (직접 ORDER_PLAN 생성 금지)</span><br>    await this.prisma.erpIfOrder.upsert({<br>      where: { erpOrderNo: parsed.data.ORDER_NO },<br>      create: { ...mapOrderFields(parsed.data), ifStatus: <span class="cv">'RECEIVED'</span> },<br>      update: { ifStatus: <span class="cv">'RECEIVED'</span> }<br>    })<br>  }<br>}</div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#BA751722;color:#412402">W6</div>
+      <div class="sec-title">W6: MaterialService 완성 + 창고 화면 01~03 (엑셀 대장 대체)</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="callout ca">창고 화면(WH-01)에서 자재 코드를 직접 입력하는 것은 §4 C-11 위반. ERP_IF_MATERIAL에서 조회한 드롭다운만 허용.</div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>/scaffold-service material 실행 (4분 뼈대 자동생성)</strong>
+      <div class="code-block"><span class="cm"># W6 Day1 아침 첫 작업</span><br>/scaffold-service material<br><span class="cm"># 생성: material.service.ts, material.repo.ts,</span><br><span class="cm">#        material.route.ts, material.service.test.ts</span><br><span class="cm"># 이후 비즈니스 로직(4점법·Trim재고)에만 집중</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>4점법 검사 핵심 구현 (FOUR_POINT_THRESHOLD 상수 사용)</strong>
+      <div class="code-block"><span class="cm">// material.service.ts</span><br>async inspect4Point(p: Inspect4PointParams) {<br>  const totalPts = p.defectEntries.reduce((s,d) =&gt; s+d.points, 0)<br>  const score = (totalPts / p.inspectedMeters) * 100<br>  <span class="cm">// FOUR_POINT_THRESHOLD 상수 사용 (숫자 28 직접 사용 금지 — §4 M-3)</span><br>  const result = score &lt;= FOUR_POINT_THRESHOLD ? <span class="cv">"PASS"</span> : <span class="cv">"FAIL"</span><br>  if (result === <span class="cv">"FAIL"</span>) await this.returnOrderRepo.create({ ... })<br>  return { ok: true, value: { score, result } }<br>}</div></div></div>
+      <div class="item"><span class="imark harness-mark">Harness</span><div><strong>W6 완료: Dredd 14개 endpoint 계약 테스트 첫 통과 목표</strong><br>창고·릴렉싱 관련 API 14개가 spec.yaml과 일치하는지 contract-test 실행.</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#BA751722;color:#412402">W8</div>
+      <div class="sec-title">W8: CuttingService Shading 방지 + LOT 생성 + Compounding Engineering</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>Bundle 생성 및 Shading<span class="fn" onclick="showFn(35)">35</span> 방지 핵심 구현</strong>
+      <div class="code-block"><span class="cm">// cutting.service.ts — createBundle()</span><br><span class="cm">// ★ Shading 방지: 동일 색상에 다른 Roll 혼입 차단</span><br>const existing = await this.bundleRepo.findByLotId(lot.id)<br>const shadingRisk = existing.some(b =&gt;<br>  b.colorCode === p.colorCode &amp;&amp; b.receiptId !== p.receiptId<br>)<br>if (shadingRisk) return { ok: false, error: { code: <span class="cv">"SHADING_RISK"</span> } }</div></div></div>
+      <div class="item"><span class="imark harness-mark">Harness</span><div><strong>/techdebt 실행 — Compounding Engineering</strong><br>W5~W7 구현 중 발견된 새 Forbidden Patterns를 §4에 추가. /techdebt 커맨드가 목록 자동 생성 → PM 검토 → main 브랜치 커밋.</div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>/sync-friday 매주 금요일 실행</strong><br>Stream A(프론트)와 Stream B(백)를 실제 API로 연결. MSW 드리프트 확인. CLAUDE.md Compounding 결과 공유.</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--danger-bg);color:var(--danger-c)">고</div>
+      <div class="sec-title">고객 확인 + 팀내 협의</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>W8 완료 중간 데모</strong> — 공장장 대상. GET /orders/{id}/materials 화면으로 "현재 이 오더의 자재가 어디 있는지"를 실시간으로 확인하는 체험. 엑셀 대비 실질 가치 전달.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>Trim BOM 데이터 수령</strong> — ERP_IF_BOM 샘플. 부자재 재고 계산(WH-02)의 전제 조건.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>spec.yaml 변경 시 즉시 generate-msw 실행 합의</strong> — 재생성 없이 Stream A를 계속하면 금요일 /sync-friday에서 MSW 드리프트 발생. 팀 규칙으로 확정.</div></div>
+    </div>
+  </div>
+
+  <div class="fn-section">
+    <div class="fn-item"><span class="fn-num">35</span>Shading: 동일 색상이라도 다른 Roll의 원단이 같은 Bundle에 혼입될 때 미묘한 색상 차이가 발생하는 불량. 바이어 클레임의 주요 원인.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  W9~W12 Core Build
+══════════════════════════════════════════ -->
+<div id="p-w912" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-badge" style="background:#C0000022;color:#500;border:1px solid #C0000055">W9~W12</div>
+    <div class="phase-info">
+      <h2>W9~W12 Core Build — 봉제·팀실적·QC·LOT 완전 추적 (3개월차)</h2>
+      <p>k6 성능 PR 게이팅 첫 활성화. ProductionService에서 라인 단위 실적을 기록하고 LINE_DAILY_SUMMARY를 ERP로 전송하는 핵심 워크플로우 완성.</p>
+      <div class="stats-row">
+        <div class="stat"><b>Gate 2</b>W12 완료 시</div>
+        <div class="stat"><b>26+5개</b>체크 항목</div>
+        <div class="stat"><b>k6</b>W9부터 PR 게이팅</div>
+        <div class="stat"><b>팀 실적</b>ERP 전송 검증</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#C0000022;color:#7F1D1D">W10</div>
+      <div class="sec-title">W10: ProductionService — 라인 팀 실적 중심 구현 (ADR-013 핵심)</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="callout cp">ADR-013: worker_id는 nullable. 라인장이 팀 실적을 입력하는 것이 Phase 1 기본. 개인 추적은 Phase 2에서 자발적 전환.</div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>LINE_OUTPUT 기록 — 시간대별 라인 팀 실적</strong>
+      <div class="code-block"><span class="cm">// production.service.ts — recordLineOutput()</span><br>async recordLineOutput(p: LineOutputParams) {<br>  const output = await this.prisma.$transaction(async tx =&gt; {<br>    const o = await tx.lineOutput.create({ data: {<br>      lotId:        p.lotId,<br>      lineId:       p.lineId,       <span class="cm">// 필수</span><br>      processStage: p.processStage,<br>      periodStart:  p.periodStart,  <span class="cm">// 09:00</span><br>      periodEnd:    p.periodEnd,    <span class="cm">// 10:00</span><br>      outputQty:    p.outputQty,<br>      defectQty:    p.defectQty,<br>      workerId:     p.workerId ?? null, <span class="cm">// 선택 — ADR-013</span><br>      recordedBy:   p.lineManagerId,<span class="cm">// 입력한 라인장</span><br>      dataStatus:   <span class="cv">'PERMANENT'</span>       <span class="cm">// 삭제 금지</span><br>    }})<br>    await tx.lot.update({<br>      where: { id: p.lotId },<br>      data: { actualQty: { increment: p.outputQty } }<br>    })<br>    return o<br>  })<br>  return { ok: true, value: output }<br>}</div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>SW-18 화면 UX — 라인장 중심 실적 입력</strong>
+      <div class="callout cg">라인장 입장: "지금 엑셀에 쓰던 것을 여기에 입력한다" — 시간대별 목표 vs 실적, 달성률 자동 계산. 작업자에게 개인 데이터가 기록된다는 압박 없음.</div>
+      <div class="code-block"><span class="cm">// 화면 구성 (시간대 선택 → 수량 입력 → 저장)</span><br>시간대: [09:00~10:00 ▼]  목표: 320pcs<br>출력 수량: [  298  ]  불량: [  8  ]<br>달성률: 93.1%  (자동 계산)<br>[저장] [다음 시간대]<br><br>오늘 누계: 1,240 / 3,200pcs (38.8%)</div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#C0000022;color:#7F1D1D">W11</div>
+      <div class="sec-title">W11: 팀 생산성 집계 cron + ERP 전송 큐 + PWA<span class="fn" onclick="showFn(36)">36</span> 오프라인</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>자정 cron — LINE_DAILY_SUMMARY 집계 + ERP 전송</strong>
+      <div class="code-block"><span class="cm">// jobs/line-productivity.job.ts (매일 자정)</span><br>async aggregateDailyLine(date: string) {<br>  for (const line of await this.lineRepo.findActive()) {<br>    const outputs = await this.lineOutputRepo.findByLineAndDate(line.id, date)<br>    if (!outputs.length) continue<br><br>    const totalOutput = outputs.reduce((s,o) =&gt; s+o.outputQty, 0)<br>    const totalDefect = outputs.reduce((s,o) =&gt; s+o.defectQty, 0)<br><br>    <span class="cm">// LINE_DAILY_SUMMARY 저장 (Layer C — PERMANENT)</span><br>    await this.summaryRepo.upsert({<br>      lineId: line.id, workDate: date,<br>      totalOutput, totalDefect,<br>      dataStatus: <span class="cv">'PERMANENT'</span><br>    })<br><br>    <span class="cm">// ERP 전송 큐 (팀 실적 — 기존 급여 방식 유지)</span><br>    await this.erpQueue.enqueue({<br>      entityType: <span class="cv">'LINE_PRODUCTION_RESULT'</span>,<br>      payload: { line_code: line.lineCode, work_date: date,<br>                 total_output: totalOutput, total_defect: totalDefect }<br>    })<br>  }<br>}</div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>PWA Service Worker — 베트남 회선 오프라인 대응 (최대 2시간)</strong>
+      <div class="code-block"><span class="cm">// apps/web/src/sw/offline-queue.ts</span><br>const MAX_AGE = 2 * 60 * 60 * 1000  <span class="cm">// §10 OFFLINE_MAX_HOURS=2</span><br><br><span class="cm">// 오프라인 필수 화면: SW-18(실적입력), QC 입력 화면</span><br><span class="cm">// IndexedDB 큐잉 → 복구 시 Background Sync</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#C0000022;color:#7F1D1D">W12</div>
+      <div class="sec-title">W12: QualityService 8단계 + FTP<span class="fn" onclick="showFn(37)">37</span>+DHU + Gate 2</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>QC 공통 처리 — FTP 항상 DHU와 함께 (H-5 위반 방지)</strong>
+      <div class="code-block"><span class="cm">// quality.service.ts — recordInspection()</span><br><span class="cm">// buyer_qc_config에서 기준 조회 (하드코딩 절대 금지 — C-1)</span><br>const aql = await this.buyerConfigRepo.findByBuyerId(order.buyerId)<br>if (!aql) return { ok: false, error: { code: <span class="cv">"AQL_CONFIG_MISSING"</span> } }<br><br><span class="cm">// DHU + FTP 항상 함께 계산 (H-5: FTP 없이 DHU만 금지)</span><br>const dhu     = (p.totalDefectCount / p.inspectedQty) * 100<br>const ftpRate = (p.passQty / p.inspectedQty) * 100<br>const passed  = dhu &lt;= aql.dhuThreshold</div></div></div>
+      <div class="gate-card">
+        <h3>Gate 2 — W12 완료 기준 (31개 항목)</h3>
+        <p>기존 26개 + 마스터 데이터·팀 실적 관련 5개 추가. 1개라도 미통과 시 W13 착수 1주 연기.</p>
+        <div class="gate-items">
+          <div class="gate-item">k6: 라인 출력 ≤200ms</div>
+          <div class="gate-item">k6: LOT 추적 ≤800ms</div>
+          <div class="gate-item">ERP→MES 오더 수신 파이프라인 정상</div>
+          <div class="gate-item">자재 코드 드롭다운 (직접 입력 0건)</div>
+          <div class="gate-item">Layer C 삭제 방지 트리거 동작</div>
+          <div class="gate-item">LINE_DAILY_SUMMARY ERP 큐 등록</div>
+          <div class="gate-item">QualityService 8단계 + FTP+DHU</div>
+          <div class="gate-item">LOT 완전 추적 Roll→B/L</div>
+          <div class="gate-item">Dredd 49개 0 failures</div>
+          <div class="gate-item">@domain-validator CRITICAL 0건</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--danger-bg);color:var(--danger-c)">고·팀</div>
+      <div class="sec-title">고객 확인 + 팀내 협의</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>LOT 완전 추적 API 공장장 데모</strong> — "어느 Roll 원단이 들어간 제품이 어느 B/L로 출하됐는지 3초 안에 찾을 수 있다"를 실연. 바이어 리콜 대응 가치를 직접 체험.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>ERP ORDER Zod 파싱 결과 ERP 담당자 공유</strong> — 파싱 실패 필드 목록을 ERP 담당자에게 전달, 필드 매핑 재협의.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>k6 임계값 팀 합의 (W9 착수 전)</strong> — p95 기준값을 팀 전체가 동의해야 나중에 "왜 이 숫자냐" 논쟁이 없음. 권장: 라인 출력 200ms, LOT 추적 800ms, 대시보드 800ms.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>OptimizationService 납기 예측 KPI 완화 공식 결정</strong> — W11 시점 실측 데이터 3주 미만. Gate 4에서 "동작 확인만 (오차율 무관)"으로 완화. notes/defer.md에 기록.</div></div>
+    </div>
+  </div>
+
+  <div class="fn-section">
+    <div class="fn-item"><span class="fn-num">36</span>PWA: Progressive Web App. 웹앱을 오프라인에서도 동작하도록 Service Worker를 사용하는 기술.</div>
+    <div class="fn-item"><span class="fn-num">37</span>FTP: First Time Pass. 최초 합격률. (최초 합격수/전체 검사수)×100. 항상 DHU와 함께 계산·보고 필수.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  W13~W16 Advanced
+══════════════════════════════════════════ -->
+<div id="p-w1316" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-badge" style="background:#1F386422;color:#1F3864;border:1px solid #1F386455">W13~W16</div>
+    <div class="phase-info">
+      <h2>W13~W16 Advanced — MFZ·ERP 5종·OptimizationService·대시보드 (4개월차)</h2>
+      <p>FinishingService(MFZ Zero Policy)·5종 ERP 연동·라인밸런싱·kpi_snapshots 사전 집계까지 33개 화면 전체 완성.</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#1F386422;color:#1F3864">W13</div>
+      <div class="sec-title">W13: FinishingService + MFZ Zero Policy 구현</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>MFZ 검사 — 검출 즉시 MFZ_HOLD + Ply<span class="fn" onclick="showFn(38)">38</span> 역추적</strong>
+      <div class="code-block"><span class="cm">// finishing.service.ts — recordMFZ()</span><br>if (p.detectedCount &gt; 0) {<br>  <span class="cm">// LOT 즉시 MFZ_HOLD (C-7: 이 메서드가 유일한 진입점)</span><br>  await tx.lot.update({ where:{id:p.lotId}, data:{lotStatus:'MFZ_HOLD'} })<br>  <span class="cm">// Ply 역추적: 어느 Bundle(재단 레이어)에서 발생했는지</span><br>  const plyTrace = await tx.bundle.findMany({ where:{lotId:p.lotId},<br>    include:{cuttingActual:{include:{materialReceipt:true}}} })<br>  <span class="cm">// MFZ_RECORD.data_status = 'PERMANENT' (법적 의무 증거)</span><br>}</div></div></div>
+      <div class="callout cr">MFZ_HOLD 상태의 LOT는 ShipmentService에서 자동 출하 차단. 재검사 완료 후 공장장만 해제 가능. MFZ_RECORD는 수출 법적 의무 이행 증거로 영구 보관.</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#1F386422;color:#1F3864">W14</div>
+      <div class="sec-title">W14: ERP 5종 양방향 연동 완성 + 33개 화면 완성</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>5종 ERP IF 스테이징 처리 (idempotent<span class="fn" onclick="showFn(39)">39</span>)</strong>
+      <table class="tbl">
+        <thead><tr><th>방향</th><th>데이터 종류</th><th>Layer</th><th>주기</th></tr></thead>
+        <tbody>
+          <tr><td>ERP→MES</td><td>오더·납기·바이어 기준</td><td>A (아카이브 가능)</td><td>오더 생성 시·변경 시</td></tr>
+          <tr><td>ERP→MES</td><td>스타일·BOM·공정 순서</td><td>A</td><td>스타일 등록 시</td></tr>
+          <tr><td>ERP→MES</td><td>자재 코드·BOM 수량</td><td>A</td><td>자재 등록·변경 시</td></tr>
+          <tr><td>MES→ERP</td><td>라인별 팀 생산 실적</td><td>D (전송 큐)</td><td>매일 자정</td></tr>
+          <tr><td>MES→ERP</td><td>출하 실적 (매출 인식)</td><td>D</td><td>출하 완료 즉시</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#1F386422;color:#1F3864">W16</div>
+      <div class="sec-title">W16: 대시보드 + 다국어 완성 + Gate 3 사전 점검</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>kpi_snapshots 사전 집계 (매 시간 cron — GET ≤800ms 달성)</strong>
+      <div class="code-block"><span class="cm">// jobs/kpi-snapshot.job.ts (매 시간 실행)</span><br><span class="cm">// 실시간 집계 대신 사전 집계 테이블에서 조회</span><br><span class="cm">// → GET /api/analytics/factory-kpi p95 ≤800ms 달성</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>i18next 다국어 — /add-i18n 커맨드 자동화</strong>
+      <div class="code-block"><span class="cm"># /add-i18n warehouse 실행 시 Claude Code가:</span><br><span class="cm"># 1. 화면의 모든 텍스트 문자열 자동 추출</span><br><span class="cm"># 2. ko.json · en.json · vi.json 키 자동 생성</span><br><span class="cm"># 3. 컴포넌트에 t('key') 자동 적용</span><br><span class="cm"># 베트남어 현장 용어는 현장 담당자 검수 필수</span></div></div></div>
+      <div class="gate-card">
+        <h3>Gate 3 사전 점검 (W16 완료 시 — 16개 항목)</h3>
+        <div class="gate-items">
+          <div class="gate-item">33개 화면 전체 완성</div>
+          <div class="gate-item">MFZ_HOLD 출하 차단</div>
+          <div class="gate-item">ERP 5종 양방향 정합성</div>
+          <div class="gate-item">kpi_snapshots ≤800ms</div>
+          <div class="gate-item">다국어 KO·VI·EN 전환</div>
+          <div class="gate-item">@performance-tuner N+1 0건</div>
+          <div class="gate-item">MES Admin 6개 화면</div>
+          <div class="gate-item">notes/defer.md 최신화</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--danger-bg);color:var(--danger-c)">고·팀</div>
+      <div class="sec-title">고객 확인 + 팀내 협의</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>MFZ Zero Policy 고객 확인 서명</strong> — "금속 검출 시 즉시 LOT 격리, 출하 자동 차단"에 공장장 서명. 수출 법적 의무 이행 증거.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>ERP 5종 필드 매핑 ERP 담당자 서명</strong> — MES→ERP 라인 팀 실적 포맷이 기존 급여 처리 방식과 일치하는지 인사팀·ERP 담당자 공동 확인.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>대시보드 KPI 항목 공장장 확정</strong> — "공장장이 매일 볼 지표"를 직접 선택하게 함. 이 자리에서 나오는 요청은 Change Request로 관리.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>Phase 2 이월 7개 항목 고객 안내</strong> — IoT 연동·납기 예측 ML·개인 추적 전환 등이 Phase 2임을 공식 확인. notes/phase2-roadmap.md 고객 서명.</div></div>
+      <div class="item"><span class="imark team-mark">협의</span><div><strong>FinishingService 겸임 담당자 확정 (W13 전)</strong> — QualityService 담당자가 겸임하는 경우 일정 조정 필요.</div></div>
+    </div>
+  </div>
+
+  <div class="fn-section">
+    <div class="fn-item"><span class="fn-num">38</span>Ply: 재단 시 원단을 겹쳐 쌓은 각 레이어. Bundle 내 특정 Ply에서 금속이 검출된 경우 해당 Roll까지 역추적 가능.</div>
+    <div class="fn-item"><span class="fn-num">39</span>Idempotent: 동일한 요청을 여러 번 실행해도 결과가 같은 특성. ERP에서 동일 오더를 두 번 전송해도 MES에서 중복 처리 안 됨.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  W17~W20 Launch
+══════════════════════════════════════════ -->
+<div id="p-w1720" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-badge" style="background:#16653422;color:#173404;border:1px solid #16653455">W17~W20</div>
+    <div class="phase-info">
+      <h2>W17~W20 Launch — SIT·UAT·파일럿·Gate 3·4·납품 (5개월차)</h2>
+      <p>"만든 것이 올바른가"를 현장에서 검증. 코드 추가 최소화. 라인장이 시스템을 엑셀처럼 자연스럽게 사용하는 것이 성공 기준.</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#16653422;color:#173404">W17</div>
+      <div class="sec-title">W17: SIT — E2E 4개 시나리오 + 하네스 전체 동시 실행</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>SIT 환경 시드 데이터 (W16 완료 직후 구성)</strong><br>바이어 2개(NIKE·ZARA), 스타일 3개, 오더 5개, Roll 20개, 작업자 30명, 라인 3개, 미싱기 15대.
+      <div class="code-block">NODE_ENV=sit bun run db:migrate<br>NODE_ENV=sit bun run db:seed:sit<br>NODE_ENV=sit bun run sit:smoke  <span class="cm"># 서버 기동 확인</span></div></div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>E2E-4 (v3.1 신규): 라인 실적 → 집계 → ERP 전송 검증</strong>
+      <div class="code-block">① Line B 시간대별 실적 5건 입력 (라인장 역할)<br>② 자정 cron 수동 실행 → LINE_DAILY_SUMMARY 집계 확인<br>③ ERP 전송 큐 등록 확인<br>④ ERP 수신 확인 (라인별 팀 생산 실적)<br>⑤ 완료 오더 ARCHIVED 전환 확인<br>⑥ Layer C LINE_OUTPUT 삭제 시도 → 트리거 차단 확인</div></div></div>
+      <div class="item"><span class="imark harness-mark">Harness</span><div><strong>Day 9~10: 하네스 7개 전체 동시 실행</strong>
+      <div class="code-block">bun run contract-test   <span class="cm"># Dredd 49개 0 failures</span><br>k6 run scripts/k6-full.js  <span class="cm"># 전체 임계값 통과</span><br>bun run test              <span class="cm"># fast-check 1만 케이스</span><br>bash scripts/domain-validate.sh  <span class="cm"># CRITICAL 0건</span><br>bun run test:integration  <span class="cm"># TC 전체 통과</span><br>bun run test:e2e          <span class="cm"># E2E 4개 시나리오</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#16653422;color:#173404">W18</div>
+      <div class="sec-title">W18: UAT — 라인장 중심 현장 검증 (개인 데이터 압박 없음)</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="callout cp">UAT 핵심 멘트 (라인장에게): "기존에 엑셀에 쓰시던 것을 여기에 입력하시면 됩니다. 방식은 똑같습니다." 개인 생산량이 기록된다는 압박 없이 팀 실적만 입력.</div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>UAT 결함 4단계 분류 및 처리</strong>
+      <table class="tbl">
+        <thead><tr><th>등급</th><th>기준</th><th>처리 기한</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag" style="background:var(--danger-bg);color:var(--danger-c)">P1 Critical</span></td><td>시스템 사용 불가 블로커</td><td>24시간 이내</td></tr>
+          <tr><td><span class="tag" style="background:var(--warn-bg);color:var(--warn-c)">P2 Major</span></td><td>주요 기능 동작 이상</td><td>48시간 이내</td></tr>
+          <tr><td><span class="tag" style="background:var(--info-bg);color:var(--info-c)">P3 Minor</span></td><td>UI 개선·다국어 오타</td><td>파일럿 전</td></tr>
+          <tr><td><span class="tag" style="background:var(--bg3);color:var(--text2)">P4 Enhancement</span></td><td>신규 기능 요청</td><td>Phase 2 이관</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#16653422;color:#173404">W19</div>
+      <div class="sec-title">W19: 파일럿 — 7개 KPI 실측 + 현장 교육 3회</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>파일럿 7개 KPI (라인장 친화적)</strong>
+      <table class="tbl">
+        <thead><tr><th>KPI</th><th>목표</th><th>관찰 포인트</th></tr></thead>
+        <tbody>
+          <tr><td>라인장 일일 실적 입력률</td><td>≥95%</td><td>빠뜨린 날짜 발생 시 이유 파악</td></tr>
+          <tr><td>입력 소요 시간</td><td>≤3분/회</td><td>엑셀 대비 비교</td></tr>
+          <tr><td>MES 집계 vs 수기 오차</td><td>≤2%</td><td>신뢰성 검증</td></tr>
+          <tr><td>ERP 팀 실적 전송 성공률</td><td>≥99%</td><td>급여 연동 기준</td></tr>
+          <tr><td>MFZ Zero Policy 준수</td><td>100%</td><td>법적 의무</td></tr>
+          <tr><td>라인장 만족도 조사</td><td>5점 만점 3점 이상</td><td>거부감 측정</td></tr>
+          <tr><td>공장장 대시보드 일일 사용</td><td>매일 1회 이상</td><td>실제 사용 검증</td></tr>
+        </tbody>
+      </table></div></div>
+      <div class="callout ca">경고 신호: 라인장이 입력을 미루고 퇴근 전에 몰아서 입력, "그냥 엑셀로 할게요" 발언, 공장장이 대시보드를 열지 않음 → 즉시 현장 인터뷰 → UX 개선 또는 교육 보완.</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:var(--danger-bg);color:var(--danger-c)">고·팀</div>
+      <div class="sec-title">Gate 4 체크 + 고객 확인 + 팀내 협의</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="gate-card">
+        <h3>Gate 4 — W20 납품 기준 (15개 항목)</h3>
+        <div class="gate-items">
+          <div class="gate-item">파일럿 KPI 6/7 달성</div>
+          <div class="gate-item">MFZ Zero 100%</div>
+          <div class="gate-item">ERP 전송 ≥99%</div>
+          <div class="gate-item">라인장 만족도 ≥3점</div>
+          <div class="gate-item">파일럿 기간 엑셀 병행 0건</div>
+          <div class="gate-item">운영 매뉴얼 KO·VI</div>
+          <div class="gate-item">시스템 관리자 교육 완료</div>
+          <div class="gate-item">Phase 2 로드맵 서명</div>
+          <div class="gate-item">납품 패키지 완성</div>
+          <div class="gate-item">발주사 최종 서명</div>
+        </div>
+      </div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>Gate 4 최종 검수 서명 — 공장장 + 발주사 대표</strong> — 납품 패키지 (코드·마이그레이션·운영 매뉴얼·교육 자료·아키텍처 문서·Phase 2 로드맵) 인도 확인.</div></div>
+      <div class="item"><span class="imark cust-mark">고객</span><div><strong>ADR-013 Phase 2 전환 조건 고객 인식 확인</strong> — "6개월 후 공장장이 원하면 개인 추적 도입 가능" 조건을 고객이 이해하고 합의.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  Phase 2
+══════════════════════════════════════════ -->
+<div id="p-phase2" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-badge" style="background:#5F5E5A22;color:#2C2C2A;border:1px solid #5F5E5A55">Phase 2</div>
+    <div class="phase-info">
+      <h2>Phase 2 — 제3공장 확산 + 개인 추적 자발적 전환 (8주)</h2>
+      <p>제2공장 파일럿 성공 후 제3공장(신설)으로 확산. 개인 추적은 공장장이 자발적으로 요청할 때만 단계적으로 도입.</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr" onclick="toggleSec(this)">
+      <div class="sec-icon" style="background:#5F5E5A22;color:#2C2C2A">확산</div>
+      <div class="sec-title">제3공장 확산 + 멀티 팩토리 활성화</div>
+      <div class="sec-chev">▼</div>
+    </div>
+    <div class="sec-body">
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>제3공장 마스터 데이터 분리 설정</strong><br>공장별 Row-Level Security<span class="fn" onclick="showFn(40)">40</span> 활성화. 제2공장 데이터를 제3공장에서 조회 불가. 각 공장의 Layer B(라인·기계)는 공장별로 독립 관리.</div></div>
+      <div class="item"><span class="imark task-mark">작업</span><div><strong>제2공장 운영 6개월 후 개인 추적 도입 (선택적)</strong>
+      <table class="tbl">
+        <thead><tr><th>단계</th><th>시점</th><th>내용</th><th>급여 연동</th></tr></thead>
+        <tbody>
+          <tr><td>Step 1</td><td>운영 6개월 후</td><td>LINE_OUTPUT에 worker_id 선택 입력 활성화 (참고용)</td><td>없음</td></tr>
+          <tr><td>Step 2</td><td>운영 9개월 후</td><td>라인장에게만 공정별 담당자 현황 리포트 제공</td><td>없음</td></tr>
+          <tr><td>Step 3</td><td>공장장 자발적 요청 시</td><td>개인 생산성 ERP 전송. 작업자 사전 설명 필수</td><td>ERP에서 설정</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+  </div>
+
+  <div class="fn-section">
+    <div class="fn-item"><span class="fn-num">40</span>Row-Level Security: DB 레코드 단위로 접근 권한을 제어하는 기능. 공장 A 사용자가 공장 B 데이터를 조회 불가.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  부록 & 용어집
+══════════════════════════════════════════ -->
+<div id="p-appendix" class="phase-panel">
+  <div class="phase-hdr">
+    <div class="phase-info">
+      <h2>부록 &amp; 용어집</h2>
+      <p>개발 계획 전반에 걸친 상세 설명, ADR 목록, DB Layer 구조, Harness 설정 예시.</p>
+    </div>
+  </div>
+
+  <!-- 부록 A -->
+  <div class="app-section">
+    <h3>부록 A — Raza &amp; Bois 방법론 상세</h3>
+    <table class="tbl">
+      <thead><tr><th>구성요소</th><th>역할</th><th>실행 시점</th></tr></thead>
+      <tbody>
+        <tr><td>CLAUDE.md</td><td>프로젝트 두뇌. 13개 섹션으로 구성. 세션 시작 시 항상 로드.</td><td>D-11 작성, 수정은 main만</td></tr>
+        <tr><td>Plan Mode</td><td>Claude Code가 코드 작성 전 구현 계획을 제시하고 승인 대기.</td><td>각 Service 구현 전</td></tr>
+        <tr><td>Code Mode</td><td>Plan Mode 승인 후 실제 코드 생성·수정.</td><td>Plan 승인 직후</td></tr>
+        <tr><td>Stream A/B</td><td>프론트엔드(MSW Mock)·백엔드(TC 실 DB) 독립 병렬 개발.</td><td>W5 spec.yaml 확정 후</td></tr>
+        <tr><td>/session-start</td><td>매일 아침 CLAUDE.md 로드·handoff.md 확인·목표 설정.</td><td>매일 아침</td></tr>
+        <tr><td>/daily-check</td><td>매일 저녁 Harness 7개 종합 리포트·handoff.md 업데이트.</td><td>매일 저녁</td></tr>
+        <tr><td>/sync-friday</td><td>매주 금요일 Stream A/B 합류·MSW 드리프트 확인·Compounding.</td><td>매주 금요일</td></tr>
+        <tr><td>/scaffold-service</td><td>Service 뼈대 4분 자동 생성. Result 패턴·Repository DI 포함.</td><td>각 Service 착수 전</td></tr>
+        <tr><td>/techdebt</td><td>W8·W12·W16 기술 부채 목록 자동 생성 → §4 추가.</td><td>W8·W12·W16</td></tr>
+        <tr><td>Compounding Engineering</td><td>구현 중 발견된 패턴을 §4에 주간 추가. 지식 복리 증가.</td><td>/sync-friday 중</td></tr>
+        <tr><td>notes/handoff.md</td><td>세션 간 인계 메모. Claude Code 컨텍스트 창 한계 극복.</td><td>매일 /daily-check 시</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 부록 B -->
+  <div class="app-section">
+    <h3>부록 B — Harness 7개 도구 설정 상세</h3>
+    <table class="tbl">
+      <thead><tr><th>도구</th><th>설치·설정</th><th>실행 명령</th><th>차단 조건</th></tr></thead>
+      <tbody>
+        <tr><td>Dredd</td><td>bun add -D dredd<br>dredd.yml: host, dry-run: false</td><td>bun run contract-test</td><td>failures &gt; 0</td></tr>
+        <tr><td>k6</td><td>brew install k6 (또는 Docker)<br>scripts/k6-full.js 작성</td><td>k6 run scripts/k6-full.js</td><td>p95 임계값 초과</td></tr>
+        <tr><td>Testcontainers</td><td>bun add -D @testcontainers/postgresql<br>Docker Desktop 필수</td><td>bun run test:integration</td><td>테스트 케이스 실패</td></tr>
+        <tr><td>fast-check</td><td>bun add -D fast-check<br>domain-properties.test.ts 6개</td><td>bun run test:properties</td><td>반례 발견</td></tr>
+        <tr><td>@domain-validator</td><td>scripts/domain-validate.sh 작성<br>C-1~C-8 grep 규칙</td><td>bash scripts/domain-validate.sh</td><td>CRITICAL 건수 &gt; 0</td></tr>
+        <tr><td>openapi-msw</td><td>bun add -D openapi-msw<br>generate-msw 스크립트</td><td>bun run generate-msw</td><td>생성 실패 또는 수동 작성 탐지</td></tr>
+        <tr><td>/daily-check</td><td>.claude/commands/daily-check.md<br>7개 도구 순차 실행</td><td>/daily-check (Claude Code)</td><td>CRITICAL 건수 &gt; 0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 부록 C -->
+  <div class="app-section">
+    <h3>부록 C — DB Layer A~D 구조</h3>
+    <table class="tbl">
+      <thead><tr><th>Layer</th><th>성격</th><th>주요 테이블</th><th>삭제 정책</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag" style="background:var(--purple-bg);color:var(--purple-c)">Layer A</span></td><td>ERP Origin — 실행 컨텍스트</td><td>ERP_IF_ORDER, ERP_IF_STYLE, ERP_IF_MATERIAL, ERP_IF_WORKER</td><td>오더 완료+180일 → ARCHIVED<br>자재 재고0+90일 → ARCHIVED</td></tr>
+        <tr><td><span class="tag" style="background:var(--info-bg);color:var(--info-c)">Layer B</span></td><td>MES 자체 — 공장 물리 구조</td><td>PRODUCTION_LINE, SEW_MACHINE, SMV_DATA, SKILL_MATRIX</td><td>관리자 삭제 가능<br>(단, 실적 기록 없는 경우만)</td></tr>
+        <tr><td><span class="tag" style="background:var(--success-bg);color:var(--success-c)">Layer C</span></td><td>MES Origin — 실행 기록 (영구)</td><td>GARMENT_LOT, LINE_OUTPUT, LINE_DAILY_SUMMARY, QC_INSPECTION, MFZ_RECORD, LOT_STATUS_HISTORY</td><td>data_status='PERMANENT'<br>삭제 방지 트리거 보호<br>절대 삭제 불가</td></tr>
+        <tr><td><span class="tag" style="background:var(--warn-bg);color:var(--warn-c)">Layer D</span></td><td>ERP 전송 큐 (MES→ERP)</td><td>ERP_LINE_RESULT_QUEUE, ERP_SHIPMENT_QUEUE</td><td>전송 완료 후 로그 보관<br>(90일 후 ARCHIVED)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 부록 D: 전체 용어집 -->
+  <div class="app-section">
+    <h3>부록 D — 전체 용어집 (가나다순)</h3>
+    <table class="tbl">
+      <thead><tr><th>용어·약어</th><th>풀이</th></tr></thead>
+      <tbody>
+        <tr><td>4점법</td><td>원단 품질 검사법. 결점 크기별 1~4점 부여, 100m당 28점 이하 합격</td></tr>
+        <tr><td>ADR</td><td>Architecture Decision Record. 아키텍처 결정 기록. 결정 이유 영구 보존</td></tr>
+        <tr><td>AQL</td><td>Acceptance Quality Limit. 샘플 검사 허용 최대 불량률</td></tr>
+        <tr><td>B/L</td><td>Bill of Lading. 선하증권. 화물 운송 계약서</td></tr>
+        <tr><td>BOM</td><td>Bill of Materials. 자재 명세서. 제품 구성 부품 목록</td></tr>
+        <tr><td>Bundle</td><td>재단 후 동일 사이즈·색상으로 묶은 원단 묶음</td></tr>
+        <tr><td>Carton</td><td>포장 단계에서 Bundle을 담는 박스. CBM·중량 자동 계산</td></tr>
+        <tr><td>CI/CD</td><td>Continuous Integration/Delivery. 코드 변경 시 자동 빌드·테스트·배포</td></tr>
+        <tr><td>Compounding Engineering</td><td>구현 중 발견된 Forbidden Pattern을 §4에 주간 추가하는 작업</td></tr>
+        <tr><td>DHU</td><td>Defects per Hundred Units. 100개당 불량 수. (불량수/검사수)×100</td></tr>
+        <tr><td>DI</td><td>Dependency Injection. 의존성 주입. 테스트 시 Mock으로 교체 가능</td></tr>
+        <tr><td>Dredd</td><td>OpenAPI spec.yaml과 실제 API 응답을 비교하는 계약 테스트 도구</td></tr>
+        <tr><td>ERP</td><td>Enterprise Resource Planning. 전사적 자원 관리 시스템</td></tr>
+        <tr><td>fast-check</td><td>속성 기반 테스트 라이브러리. 수만 개 무작위 입력으로 도메인 규칙 검증</td></tr>
+        <tr><td>FTP</td><td>First Time Pass. 최초 합격률. (최초합격수/전체검사수)×100</td></tr>
+        <tr><td>Gate</td><td>단계별 품질 관문. Gate 1(W4)·2(W12)·3(W17)·4(W20). 미통과 시 착수 불가</td></tr>
+        <tr><td>Harness</td><td>7개 자동화 검증 도구 집합. PR마다 실행되어 품질 차단</td></tr>
+        <tr><td>IAM</td><td>AWS Identity and Access Management. 사용자·권한 관리</td></tr>
+        <tr><td>Idempotent</td><td>동일 요청 반복 실행해도 결과가 같은 특성. 중복 처리 방지</td></tr>
+        <tr><td>ISA-95</td><td>ERP·MES 간 공통 언어 정의 국제 표준 (IEC 62264)</td></tr>
+        <tr><td>k6</td><td>성능 테스트 도구. p95 임계값 초과 시 PR 차단</td></tr>
+        <tr><td>LOT</td><td>동일 조건으로 생산되는 의류 묶음 단위. Roll→LOT→Bundle→Carton→B/L</td></tr>
+        <tr><td>MES</td><td>Manufacturing Execution System. 제조실행시스템</td></tr>
+        <tr><td>MFA</td><td>Multi-Factor Authentication. 이중 인증</td></tr>
+        <tr><td>MFZ</td><td>Metal Free Zone. 금속 탐지 검사. 수출 법적 의무 (Needle Zero Policy)</td></tr>
+        <tr><td>Monorepo</td><td>여러 프로젝트를 단일 Git 저장소에서 관리하는 구조</td></tr>
+        <tr><td>MSW</td><td>Mock Service Worker. 브라우저 API 요청 가로채기·Mock 응답</td></tr>
+        <tr><td>OEE</td><td>Overall Equipment Effectiveness. 종합설비효율. 가동률×성능률×품질률</td></tr>
+        <tr><td>openapi-msw</td><td>OpenAPI spec.yaml에서 MSW 핸들러를 자동 생성하는 도구</td></tr>
+        <tr><td>Ply</td><td>재단 시 원단을 겹쳐 쌓은 각 레이어</td></tr>
+        <tr><td>PR</td><td>Pull Request. 코드 변경사항 검토 요청</td></tr>
+        <tr><td>Prisma</td><td>Node.js TypeScript ORM. DB 스키마를 코드로 관리</td></tr>
+        <tr><td>PWA</td><td>Progressive Web App. 오프라인 동작 가능한 웹앱</td></tr>
+        <tr><td>RBAC</td><td>Role-Based Access Control. 역할 기반 접근 제어</td></tr>
+        <tr><td>RDS</td><td>AWS Relational Database Service. 관리형 DB 서비스</td></tr>
+        <tr><td>릴렉싱</td><td>재단 전 원단을 이완시키는 공정. 수축 방지 목적</td></tr>
+        <tr><td>Roll</td><td>원단 한 롤. 바코드로 추적. LOT 역추적의 시작점</td></tr>
+        <tr><td>Row-Level Security</td><td>DB 레코드 단위 접근 권한 제어</td></tr>
+        <tr><td>Shading</td><td>다른 Roll 원단이 혼입될 때 발생하는 색상 차이 불량</td></tr>
+        <tr><td>SIT</td><td>System Integration Test. 시스템 통합 테스트</td></tr>
+        <tr><td>SMV</td><td>Standard Minute Value. 봉제 작업 표준 소요 시간(분)</td></tr>
+        <tr><td>SSOT</td><td>Single Source of Truth. 데이터의 유일한 원천</td></tr>
+        <tr><td>Stream A/B</td><td>프론트엔드·백엔드 독립 병렬 개발 패턴. 금요일 합류</td></tr>
+        <tr><td>Testcontainers</td><td>실제 Docker PostgreSQL로 통합 테스트하는 라이브러리</td></tr>
+        <tr><td>UAT</td><td>User Acceptance Test. 사용자 인수 테스트</td></tr>
+        <tr><td>Zod</td><td>TypeScript 스키마 검증 라이브러리. 외부 입력 런타임 검사</td></tr>
+        <tr><td>기술 부채</td><td>빠른 개발을 위한 임시방편 코드가 나중에 유지보수 비용을 증가시키는 현상</td></tr>
+        <tr><td>미싱기</td><td>재봉틀. 봉제 공정 핵심 기계</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function showPhase(id) {
+  document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('on'))
+  document.querySelectorAll('.pnav').forEach(n => {
+    n.classList.remove('on')
+    n.style.background = ''
+    n.style.color = ''
+    n.style.borderColor = ''
+  })
+  document.getElementById('p-' + id).classList.add('on')
+  const navs = document.querySelectorAll('.pnav')
+  const idx = ['overview','d14','w14','w58','w912','w1316','w1720','phase2','appendix'].indexOf(id)
+  if (idx >= 0 && navs[idx]) {
+    const color = navs[idx].dataset.color || '#1F3864'
+    navs[idx].classList.add('on')
+    navs[idx].style.background = color
+    navs[idx].style.color = '#fff'
+    navs[idx].style.borderColor = color
+  }
+}
+function toggleSec(hdr) {
+  const body = hdr.nextElementSibling
+  const chev = hdr.querySelector('.sec-chev')
+  const open = body.classList.toggle('open')
+  if (chev) chev.style.transform = open ? 'rotate(180deg)' : ''
+}
+function showFn(n) {
+  const items = document.querySelectorAll('.fn-item')
+  items.forEach(i => {
+    const num = i.querySelector('.fn-num')
+    if (num && parseInt(num.textContent) === n) {
+      i.style.background = 'var(--info-bg)'
+      i.style.borderRadius = '4px'
+      i.style.padding = '3px 6px'
+      setTimeout(() => { i.style.background = ''; i.style.padding = '3px 0' }, 2000)
+      i.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  })
+}
+
+document.querySelectorAll('.pnav').forEach((n, i) => {
+  const colors = ['#1F3864','#7F77DD','#1D9E75','#BA7517','#C00000','#1F3864','#166534','#5F5E5A','#444']
+  n.dataset.color = colors[i] || '#1F3864'
+})
+document.querySelectorAll('.sec-body.open').forEach(b => {
+  const chev = b.previousElementSibling.querySelector('.sec-chev')
+  if (chev) chev.style.transform = 'rotate(180deg)'
+})
+</script>
+</body>
+</html>

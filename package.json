@@ -1,0 +1,21 @@
+{
+  "name": "garment-oem-mes",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "build": "bun run --filter '*' build",
+    "test": "bun run --filter '*' test",
+    "test:e2e": "dredd packages/openapi/spec.yaml http://localhost:3000",
+    "perf": "k6 run tests/k6/factory-kpi.js",
+    "validate": "bash scripts/domain-validate.sh",
+    "generate-msw": "bun run --cwd packages/openapi generate-msw",
+    "generate-types": "bun run --cwd packages/openapi generate-types"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

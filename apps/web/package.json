@@ -1,0 +1,25 @@
+{
+  "name": "@garment-mes/web",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@garment-mes/domain": "workspace:*",
+    "@garment-mes/openapi": "workspace:*",
+    "@tanstack/react-query": "^5.0.0",
+    "i18next": "^23.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-i18next": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "msw": "^2.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}

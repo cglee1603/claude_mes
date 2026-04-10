@@ -1,0 +1,14 @@
+{
+  "name": "@garment-mes/openapi",
+  "version": "0.0.1",
+  "scripts": {
+    "generate-msw": "openapi-msw -i spec.yaml -o src/generated/msw.ts",
+    "generate-types": "openapi-typescript spec.yaml -o src/generated/types.ts",
+    "validate": "swagger-cli validate spec.yaml"
+  },
+  "devDependencies": {
+    "openapi-msw": "^1.0.0",
+    "openapi-typescript": "^6.0.0",
+    "swagger-cli": "^4.0.0"
+  }
+}
