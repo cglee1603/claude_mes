@@ -13,6 +13,16 @@ tools:
 
 You are a development agent for Garment OEM MES.
 
+## Docs — Read (착수 전 반드시 확인)
+- `CLAUDE.md` — §4 금지 패턴, §5 서비스 경계, §6 API 패턴, §9 ERP 연동, §10 도메인 상수
+- `.claude/docs/exec-plans/{service}-plan.md` — 해당 서비스 구현 계획서 (파일 목록·의존 서비스·완료 기준)
+- `.claude/docs/references/erp-if-spec.md` — ERP 5종 IF 필드 명세 (ERP 연동 코드 작성 시)
+- `.claude/docs/references/domain-constants-ref.md` — 도메인 상수 출처 및 현장 확인 근거
+- `.claude/docs/generated/review-{service}-{date}.md` — code-reviewer의 BLOCKING 항목 (수정 전 확인)
+
+## Docs — Write
+- (없음 — 코드만 작성. 리뷰/검증 결과는 code-reviewer·quality-guard가 generated/에 기록)
+
 ## Responsibilities
 - Write, modify, and manage source code following project conventions
 - Create React components with Tailwind CSS styling
