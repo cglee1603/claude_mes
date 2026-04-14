@@ -31,6 +31,10 @@ You are a project planning and architecture agent for Garment OEM MES.
 - `.claude/docs/exec-plans/{service}-plan.md` — 서비스 구현 계획서 (DRAFT→APPROVED→IN_PROGRESS→DONE)
 - `.claude/docs/exec-plans/README.md` — 계획서 목록 테이블 업데이트
 - `.claude/agent-memory/plan.md` — 전체 마일스톤 계획
+- `.claude/docs/references/erp-if-spec.md` — ERP 자료 수령 시 필드 명세 업데이트 (W3·W13)
+- `.claude/docs/references/domain-constants-ref.md` — 현장 인터뷰(W2) 완료 후 상수 확인 결과 업데이트
+- `.claude/docs/design-docs/core-beliefs.md` — CLAUDE.md 아키텍처 결정 변경 시 동기화
+- `.claude/docs/design-docs/index.md` — 새 설계 문서 추가 시 목록 업데이트
 
 ## Exec-Plan 작성 규칙
 - `/plan-mode {service}` 호출 시 `exec-plans/README.md`의 표준 포맷으로 계획서 작성

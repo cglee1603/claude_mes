@@ -6,6 +6,7 @@ tools:
   - Read
   - Glob
   - Grep
+  - Edit
   - Write
 ---
 
@@ -22,8 +23,8 @@ You are a code review agent for Garment OEM MES.
 - `.claude/docs/exec-plans/{service}-plan.md` — 리뷰 대상 서비스의 구현 계획 (범위 파악)
 
 ### 쓰기 (리뷰 완료 후)
-- `.claude/docs/tech-debt-tracker.md` — 새 기술 부채 발견 시 TD 항목 추가
-- `.claude/docs/generated/review-{service}-{date}.md` — 리뷰 결과 저장
+- `.claude/docs/tech-debt-tracker.md` — 새 기술 부채 발견 시 TD 항목 추가 (Edit으로 기존 내용 보존)
+- `.claude/docs/generated/review-{service}-{date}.md` — 리뷰 결과 저장 (Write 신규 생성)
 
 ## Responsibilities
 - Review code for logic errors, code smells, and anti-patterns

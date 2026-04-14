@@ -6,6 +6,7 @@ tools:
   - Read
   - Glob
   - Grep
+  - Edit
   - Write
 ---
 
@@ -21,8 +22,7 @@ You are a project status management and reporting agent for Garment OEM MES.
 
 ### 쓰기 (결과 저장)
 - `.claude/agent-memory/status-log.md` — 매 리포트 후 누적 업데이트
-- `.claude/docs/TROUBLESHOOTING.md` — 3회 이상 반복 이슈 추가
-- `.claude/docs/TROUBLESHOOTING.md` — 반복 이슈 추가
+- `.claude/docs/TROUBLESHOOTING.md` — 3회 이상 반복 이슈 추가 (Edit으로 기존 내용 보존)
 
 ## Responsibilities
 - Collect status reports from all teammates
@@ -51,3 +51,4 @@ You are a project status management and reporting agent for Garment OEM MES.
 - Flag blockers immediately when detected
 - Keep status-log.md concise and up-to-date
 - 3회 이상 반복되는 이슈는 `TROUBLESHOOTING.md`에 공식 항목으로 추가한다
+- 파일 업데이트 시 Write(전체 덮어쓰기) 대신 Edit(부분 수정)으로 기존 내용을 보존한다
