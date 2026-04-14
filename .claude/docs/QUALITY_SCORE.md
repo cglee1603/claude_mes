@@ -44,11 +44,11 @@
 
 | 테이블 | Layer | 삭제 방지 트리거 | 상태 |
 |--------|-------|--------------|------|
-| quality_defect | C | PERMANENT | - (마이그레이션 미생성) |
-| production_actual | C | PERMANENT | - |
-| finishing_inspection | C | PERMANENT | - |
-| shipment_record | C | PERMANENT | - |
-| lot_event_log | C | PERMANENT | - |
+| garment_lots | C | PERMANENT | - (마이그레이션 미생성) |
+| line_outputs | C | PERMANENT | - |
+| line_daily_summaries | C | PERMANENT | - |
+| qc_inspections | C | PERMANENT | - |
+| mfz_records | C | PERMANENT | - |
 
 ## Gate 체크리스트
 

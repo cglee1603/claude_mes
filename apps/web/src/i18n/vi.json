@@ -51,11 +51,15 @@
   "warehouse": {
     "receive": {
       "title": "Nhập vải",
+      "subtitle": "Đăng ký nhập cuộn vải và xem lịch sử nhập gần đây",
       "materialCode": "Mã vật liệu",
       "supplierCode": "Mã nhà cung cấp",
       "receivedQty": "Số lượng nhập",
       "rollCount": "Số cuộn",
+      "rollNo": "Số cuộn",
       "colorCode": "Mã màu",
+      "weight": "Trọng lượng (kg)",
+      "width": "Khổ vải (cm)",
       "inspectionStatus": "Trạng thái kiểm tra",
       "inspectionDate": "Ngày kiểm tra",
       "register": "Đăng ký nhập kho",
@@ -64,81 +68,179 @@
       "threshold": "Tiêu chuẩn đạt",
       "result": "Kết quả kiểm tra",
       "pass": "Đạt",
-      "fail": "Không đạt"
+      "fail": "Không đạt",
+      "recentReceipts": "Nhập kho gần đây",
+      "supplier": "Nhà cung cấp"
     },
     "history": {
       "title": "Lịch sử nhập kho",
+      "subtitle": "Tìm kiếm và lọc lịch sử nhập kho",
       "receiptNo": "Số phiếu nhập",
       "receivedDate": "Ngày nhập",
       "totalRolls": "Tổng cuộn",
       "totalQty": "Tổng số lượng",
-      "inspectionResult": "Kết quả kiểm tra"
+      "inspectionResult": "Kết quả kiểm tra",
+      "rollNo": "Số cuộn",
+      "materialCode": "Mã vật liệu",
+      "supplier": "Nhà cung cấp",
+      "colorCode": "Mã màu",
+      "weight": "Trọng lượng (kg)",
+      "width": "Khổ vải (cm)",
+      "searchPlaceholder": "Tìm theo số cuộn hoặc mã vật liệu"
     },
     "dashboard": {
       "title": "Bảng điều khiển kho",
+      "subtitle": "Tổng quan tình trạng kho",
       "totalStock": "Tổng tồn kho",
       "pendingInspection": "Chờ kiểm tra",
       "relaxingMaterial": "Đang ủ vải",
       "readyForCutting": "Sẵn sàng cắt",
       "stockByMaterial": "Tồn kho theo vật liệu",
-      "recentReceipts": "Nhập kho gần đây"
+      "recentReceipts": "Nhập kho gần đây",
+      "todayReceived": "Nhập hôm nay",
+      "relaxationPending": "Chờ ủ vải",
+      "fourPointFailRate": "Tỷ lệ không đạt 4 điểm",
+      "summaryTable": "Tồn kho theo vật liệu",
+      "rolls": "cuộn"
     }
   },
   "relaxation": {
     "plan": {
       "title": "Kế hoạch ủ vải",
+      "subtitle": "Tiến độ ủ vải và hẹn giờ",
       "materialType": "Loại vật liệu",
       "startTime": "Thời gian bắt đầu",
       "endTime": "Thời gian kết thúc",
+      "expectedEnd": "Dự kiến kết thúc",
       "duration": "Thời gian ủ (giờ)",
+      "requiredHours": "Thời gian cần thiết (h)",
       "location": "Vị trí lưu trữ",
-      "status": "Trạng thái"
+      "status": "Trạng thái",
+      "rollNo": "Số cuộn",
+      "remaining": "Còn lại",
+      "IN_PROGRESS": "Đang thực hiện",
+      "COMPLETED": "Hoàn thành",
+      "PENDING": "Chờ"
     },
     "material": {
       "title": "Thời gian ủ theo vật liệu",
+      "subtitle": "Thời gian ủ bắt buộc theo loại vật liệu",
       "cotton": "Cotton (COTTON)",
       "linen": "Vải lanh (LINEN)",
       "poly": "Polyester (POLY)",
       "wool": "Len (WOOL)",
-      "hours": "Giờ"
+      "hours": "Giờ",
+      "materialName": "Tên vật liệu",
+      "code": "Mã",
+      "requiredHours": "Thời gian bắt buộc (h)"
     },
     "complete": {
       "title": "Thông báo hoàn thành ủ vải",
+      "subtitle": "Tình trạng hoàn thành và thông báo ủ vải",
       "completed": "Đã hoàn thành",
       "pending": "Đang thực hiện",
-      "overdue": "Quá hạn"
+      "overdue": "Quá hạn",
+      "rollNo": "Số cuộn",
+      "materialType": "Loại vật liệu",
+      "completedAt": "Hoàn thành lúc",
+      "notificationStatus": "Trạng thái thông báo",
+      "SENT": "Đã gửi",
+      "PENDING": "Chờ",
+      "FAILED": "Thất bại"
     }
   },
   "cutting": {
     "title": "Cắt",
     "createLot": {
       "title": "Tạo LOT",
+      "subtitle": "Tạo LOT mới dựa trên đơn hàng ERP",
       "erpOrderNo": "Số đơn hàng ERP",
+      "erpOrderId": "Đơn hàng ERP",
       "styleCode": "Mã kiểu dáng",
       "colorCode": "Mã màu",
       "orderQty": "Số lượng đơn",
-      "lotQty": "Số lượng LOT"
+      "lotQty": "Số lượng LOT",
+      "lotPreview": "Xem trước số LOT",
+      "selectOrder": "Chọn đơn hàng",
+      "create": "Tạo LOT"
     },
     "createBundle": {
       "title": "Tạo Bundle",
+      "subtitle": "Thêm bundle vào LOT",
       "lotNo": "Số LOT",
+      "selectLot": "Chọn LOT",
       "bundleNo": "Số Bundle",
       "qty": "Số lượng",
+      "qtyRange": "Phạm vi số lượng: 80~150",
       "rollId": "ID cuộn",
-      "shadingGroup": "Nhóm bóng vải"
+      "selectRoll": "Chọn cuộn vải",
+      "shadingGroup": "Nhóm bóng vải",
+      "shadingWarning": "Rủi ro bóng vải: Các cuộn khác nhau có thể bị trộn lẫn trong cùng LOT+màu",
+      "bundleList": "Danh sách Bundle",
+      "create": "Tạo Bundle",
+      "noBundles": "Chưa tạo bundle nào"
     },
     "markerEfficiency": {
       "title": "Hiệu quả sơ đồ",
+      "subtitle": "Kiểm tra hiệu quả sơ đồ theo kiểu dáng",
       "markerNo": "Số sơ đồ",
       "efficiency": "Hiệu quả (%)",
       "fabricUsed": "Vải đã dùng",
-      "waste": "Hao phí"
+      "waste": "Hao phí",
+      "style": "Kiểu dáng",
+      "avgEfficiency": "Hiệu quả trung bình"
+    },
+    "lotList": {
+      "title": "Danh sách LOT",
+      "subtitle": "Xem tình trạng LOT cắt",
+      "filterStatus": "Lọc theo trạng thái",
+      "buyer": "Khách hàng",
+      "createdAt": "Ngày tạo",
+      "actualQty": "Số lượng thực tế"
+    },
+    "lotTrace": {
+      "title": "Theo dõi LOT",
+      "subtitle": "Theo dõi toàn bộ lịch sử quy trình của LOT",
+      "selectLot": "Chọn LOT",
+      "timeline": "Dòng thời gian quy trình",
+      "step": {
+        "cutting": "Cắt",
+        "readyForSew": "Chờ may",
+        "sewn": "May",
+        "qc": "Kiểm tra chất lượng",
+        "passedQc": "Đạt QC",
+        "readyPack": "Chờ đóng gói",
+        "shipped": "Đã xuất hàng"
+      },
+      "current": "Bước hiện tại",
+      "completed": "Hoàn thành",
+      "pending": "Chờ"
+    },
+    "shadingCheck": {
+      "title": "Kiểm tra bóng vải",
+      "subtitle": "Kiểm tra độ lệch màu vải theo LOT",
+      "colorSwatch": "Mẫu màu",
+      "riskLevel": "Mức rủi ro",
+      "safe": "An toàn",
+      "warning": "Cảnh báo",
+      "danger": "Nguy hiểm",
+      "rollA": "Cuộn A",
+      "rollB": "Cuộn B"
     },
     "shadingRisk": {
       "title": "Rủi ro bóng vải",
       "risk": "Rủi ro",
       "safe": "An toàn",
       "warning": "Cảnh báo"
+    },
+    "dashboard": {
+      "title": "Bảng điều khiển cắt",
+      "subtitle": "Tổng quan tình trạng quy trình cắt",
+      "totalLots": "Tổng LOT",
+      "activeLots": "LOT đang thực hiện",
+      "todayBundles": "Bundle hôm nay",
+      "avgMarkerEff": "Hiệu quả sơ đồ TB",
+      "lotStatusChart": "Phân bố trạng thái LOT"
     }
   },
   "sewing": {
@@ -234,7 +336,11 @@
       "title": "Túi Polybag",
       "bagType": "Loại túi",
       "qty": "Số lượng",
-      "sealed": "Đã niêm phong"
+      "sealed": "Đã niêm phong",
+      "folding": "Gấp xong",
+      "insertBag": "Cho vào túi Polybag",
+      "sticker": "Dán nhãn",
+      "hanger": "Gắn móc treo"
     },
     "mfz": {
       "title": "Phát hiện kim loại (MFZ)",
@@ -243,7 +349,8 @@
       "passed": "Đạt",
       "hold": "Tạm giữ",
       "inspector": "Kiểm tra viên",
-      "machine": "Số máy phát hiện"
+      "machine": "Số máy phát hiện",
+      "alertTitle": "Phát hiện kim loại! Cách ly LOT ngay lập tức"
     },
     "carton": {
       "title": "Đóng thùng",
@@ -278,24 +385,42 @@
   "admin": {
     "line": {
       "title": "Quản lý chuyền may",
+      "subtitle": "Đăng ký và quản lý chuyền may",
       "lineCode": "Mã chuyền",
       "lineName": "Tên chuyền",
+      "factory": "Nhà máy",
       "capacity": "Công suất",
-      "isActive": "Đang hoạt động"
+      "workerCount": "Số công nhân",
+      "isActive": "Đang hoạt động",
+      "inactive": "Không hoạt động",
+      "addLine": "Thêm chuyền",
+      "editLine": "Sửa chuyền"
     },
     "machine": {
       "title": "Quản lý máy may",
+      "subtitle": "Đăng ký máy và quản lý phân công chuyền",
       "machineCode": "Mã máy",
       "machineType": "Loại máy",
       "lineAssigned": "Chuyền được phân công",
-      "isActive": "Đang hoạt động"
+      "brand": "Thương hiệu",
+      "serialNo": "Số sê-ri",
+      "isActive": "Đang hoạt động",
+      "addMachine": "Thêm máy",
+      "editMachine": "Sửa máy",
+      "status_ACTIVE": "Đang hoạt động",
+      "status_MAINTENANCE": "Đang bảo trì",
+      "status_BROKEN": "Hỏng"
     },
     "smv": {
       "title": "Quản lý SMV",
+      "subtitle": "Thời gian may tiêu chuẩn theo kiểu dáng (M-2: không được hardcode)",
       "styleCode": "Mã kiểu dáng",
       "operation": "Thao tác",
       "smvValue": "Giá trị SMV",
-      "updatedBy": "Người cập nhật"
+      "updatedBy": "Người cập nhật",
+      "updatedAt": "Ngày cập nhật",
+      "addSmv": "Thêm SMV",
+      "editSmv": "Sửa SMV"
     },
     "erp": {
       "title": "Đồng bộ ERP",

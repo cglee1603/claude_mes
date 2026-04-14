@@ -14,7 +14,7 @@ interface DataTableProps<T> {
   keyField?: keyof T
 }
 
-export function DataTable<T extends Record<string, unknown>>({
+export function DataTable<T extends object>({
   columns,
   data,
   loading = false,
@@ -56,7 +56,7 @@ export function DataTable<T extends Record<string, unknown>>({
         <tbody className="bg-white divide-y divide-gray-200">
           {data.map((row, idx) => (
             <tr
-              key={keyField ? String(row[keyField as string]) : idx}
+              key={keyField ? String((row as Record<string, unknown>)[keyField as string]) : idx}
               className="hover:bg-gray-50"
             >
               {columns.map((col) => (
@@ -66,7 +66,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 >
                   {col.render
                     ? col.render(row)
-                    : String(row[col.key as string] ?? '')}
+                    : String((row as Record<string, unknown>)[col.key as string] ?? '')}
                 </td>
               ))}
             </tr>

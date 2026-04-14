@@ -51,11 +51,15 @@
   "warehouse": {
     "receive": {
       "title": "Fabric Receipt",
+      "subtitle": "Register fabric rolls and view recent receipts",
       "materialCode": "Material Code",
       "supplierCode": "Supplier Code",
       "receivedQty": "Received Qty",
       "rollCount": "Roll Count",
+      "rollNo": "Roll No.",
       "colorCode": "Color Code",
+      "weight": "Weight (kg)",
+      "width": "Width (cm)",
       "inspectionStatus": "Inspection Status",
       "inspectionDate": "Inspection Date",
       "register": "Register Receipt",
@@ -64,81 +68,179 @@
       "threshold": "Pass Threshold",
       "result": "Inspection Result",
       "pass": "Pass",
-      "fail": "Fail"
+      "fail": "Fail",
+      "recentReceipts": "Recent Receipts",
+      "supplier": "Supplier"
     },
     "history": {
       "title": "Receipt History",
+      "subtitle": "Search and filter receipt history",
       "receiptNo": "Receipt No.",
       "receivedDate": "Received Date",
       "totalRolls": "Total Rolls",
       "totalQty": "Total Qty",
-      "inspectionResult": "Inspection Result"
+      "inspectionResult": "Inspection Result",
+      "rollNo": "Roll No.",
+      "materialCode": "Material Code",
+      "supplier": "Supplier",
+      "colorCode": "Color Code",
+      "weight": "Weight (kg)",
+      "width": "Width (cm)",
+      "searchPlaceholder": "Search by roll no. or material code"
     },
     "dashboard": {
       "title": "Warehouse Dashboard",
+      "subtitle": "Warehouse status overview",
       "totalStock": "Total Stock",
       "pendingInspection": "Pending Inspection",
       "relaxingMaterial": "Relaxing",
       "readyForCutting": "Ready for Cutting",
       "stockByMaterial": "Stock by Material",
-      "recentReceipts": "Recent Receipts"
+      "recentReceipts": "Recent Receipts",
+      "todayReceived": "Today Received",
+      "relaxationPending": "Relaxation Pending",
+      "fourPointFailRate": "4-Point Fail Rate",
+      "summaryTable": "Stock by Material Summary",
+      "rolls": "rolls"
     }
   },
   "relaxation": {
     "plan": {
       "title": "Relaxation Plan",
+      "subtitle": "Relaxation progress and timer",
       "materialType": "Material Type",
       "startTime": "Start Time",
       "endTime": "End Time",
+      "expectedEnd": "Expected End",
       "duration": "Duration (hrs)",
+      "requiredHours": "Required Hours (h)",
       "location": "Storage Location",
-      "status": "Status"
+      "status": "Status",
+      "rollNo": "Roll No.",
+      "remaining": "Remaining",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "PENDING": "Pending"
     },
     "material": {
       "title": "Relaxation Hours by Material",
+      "subtitle": "Required relaxation hours per material type",
       "cotton": "Cotton (COTTON)",
       "linen": "Linen (LINEN)",
       "poly": "Polyester (POLY)",
       "wool": "Wool (WOOL)",
-      "hours": "Hours"
+      "hours": "Hours",
+      "materialName": "Material Name",
+      "code": "Code",
+      "requiredHours": "Required Hours (h)"
     },
     "complete": {
       "title": "Relaxation Complete Alert",
+      "subtitle": "Relaxation completion and notification status",
       "completed": "Completed",
       "pending": "In Progress",
-      "overdue": "Overdue"
+      "overdue": "Overdue",
+      "rollNo": "Roll No.",
+      "materialType": "Material Type",
+      "completedAt": "Completed At",
+      "notificationStatus": "Notification Status",
+      "SENT": "Sent",
+      "PENDING": "Pending",
+      "FAILED": "Failed"
     }
   },
   "cutting": {
     "title": "Cutting",
     "createLot": {
       "title": "Create LOT",
+      "subtitle": "Create a new LOT based on ERP order",
       "erpOrderNo": "ERP Order No.",
+      "erpOrderId": "ERP Order",
       "styleCode": "Style Code",
       "colorCode": "Color Code",
       "orderQty": "Order Qty",
-      "lotQty": "LOT Qty"
+      "lotQty": "LOT Qty",
+      "lotPreview": "LOT No. Preview",
+      "selectOrder": "Select an order",
+      "create": "Create LOT"
     },
     "createBundle": {
       "title": "Create Bundle",
+      "subtitle": "Add bundles to a LOT",
       "lotNo": "LOT No.",
+      "selectLot": "Select a LOT",
       "bundleNo": "Bundle No.",
       "qty": "Qty",
+      "qtyRange": "Qty range: 80~150",
       "rollId": "Roll ID",
-      "shadingGroup": "Shading Group"
+      "selectRoll": "Select a roll",
+      "shadingGroup": "Shading Group",
+      "shadingWarning": "Shading risk: Different rolls may be mixed in the same LOT+color",
+      "bundleList": "Bundle List",
+      "create": "Create Bundle",
+      "noBundles": "No bundles created"
     },
     "markerEfficiency": {
       "title": "Marker Efficiency",
+      "subtitle": "Check marker efficiency by style",
       "markerNo": "Marker No.",
       "efficiency": "Efficiency (%)",
       "fabricUsed": "Fabric Used",
-      "waste": "Waste"
+      "waste": "Waste",
+      "style": "Style",
+      "avgEfficiency": "Avg Efficiency"
+    },
+    "lotList": {
+      "title": "LOT List",
+      "subtitle": "View cutting LOT status",
+      "filterStatus": "Filter by Status",
+      "buyer": "Buyer",
+      "createdAt": "Created At",
+      "actualQty": "Actual Qty"
+    },
+    "lotTrace": {
+      "title": "LOT Trace",
+      "subtitle": "Track full process history of a LOT",
+      "selectLot": "Select a LOT",
+      "timeline": "Process Timeline",
+      "step": {
+        "cutting": "Cutting",
+        "readyForSew": "Ready for Sew",
+        "sewn": "Sewing",
+        "qc": "QC",
+        "passedQc": "Passed QC",
+        "readyPack": "Ready to Pack",
+        "shipped": "Shipped"
+      },
+      "current": "Current Step",
+      "completed": "Completed",
+      "pending": "Pending"
+    },
+    "shadingCheck": {
+      "title": "Shading Check",
+      "subtitle": "Check fabric color deviation by LOT",
+      "colorSwatch": "Color Swatch",
+      "riskLevel": "Risk Level",
+      "safe": "Safe",
+      "warning": "Warning",
+      "danger": "Danger",
+      "rollA": "Roll A",
+      "rollB": "Roll B"
     },
     "shadingRisk": {
       "title": "Shading Risk",
       "risk": "Risk",
       "safe": "Safe",
       "warning": "Warning"
+    },
+    "dashboard": {
+      "title": "Cutting Dashboard",
+      "subtitle": "Overview of cutting process status",
+      "totalLots": "Total LOTs",
+      "activeLots": "Active LOTs",
+      "todayBundles": "Today's Bundles",
+      "avgMarkerEff": "Avg Marker Efficiency",
+      "lotStatusChart": "LOT Status Distribution"
     }
   },
   "sewing": {
@@ -234,7 +336,11 @@
       "title": "Polybag",
       "bagType": "Bag Type",
       "qty": "Qty",
-      "sealed": "Sealed"
+      "sealed": "Sealed",
+      "folding": "Folding Complete",
+      "insertBag": "Polybag Insert",
+      "sticker": "Sticker Applied",
+      "hanger": "Hanger Attached"
     },
     "mfz": {
       "title": "Metal Detection (MFZ)",
@@ -243,7 +349,8 @@
       "passed": "Passed",
       "hold": "Hold",
       "inspector": "Inspector",
-      "machine": "Detector No."
+      "machine": "Detector No.",
+      "alertTitle": "Metal Detected! LOT Quarantine Immediately"
     },
     "carton": {
       "title": "Carton Packing",
@@ -278,24 +385,42 @@
   "admin": {
     "line": {
       "title": "Production Line Management",
+      "subtitle": "Register and manage production lines",
       "lineCode": "Line Code",
       "lineName": "Line Name",
+      "factory": "Factory",
       "capacity": "Capacity",
-      "isActive": "Active"
+      "workerCount": "Workers",
+      "isActive": "Active",
+      "inactive": "Inactive",
+      "addLine": "Add Line",
+      "editLine": "Edit Line"
     },
     "machine": {
       "title": "Sewing Machine Management",
+      "subtitle": "Register machines and manage line assignments",
       "machineCode": "Machine Code",
       "machineType": "Machine Type",
       "lineAssigned": "Assigned Line",
-      "isActive": "Active"
+      "brand": "Brand",
+      "serialNo": "Serial No.",
+      "isActive": "Active",
+      "addMachine": "Add Machine",
+      "editMachine": "Edit Machine",
+      "status_ACTIVE": "Active",
+      "status_MAINTENANCE": "Maintenance",
+      "status_BROKEN": "Broken"
     },
     "smv": {
       "title": "SMV Management",
+      "subtitle": "Standard Minute Value by style (M-2: no hardcoding)",
       "styleCode": "Style Code",
       "operation": "Operation",
       "smvValue": "SMV Value",
-      "updatedBy": "Updated By"
+      "updatedBy": "Updated By",
+      "updatedAt": "Updated At",
+      "addSmv": "Add SMV",
+      "editSmv": "Edit SMV"
     },
     "erp": {
       "title": "ERP Synchronization",
