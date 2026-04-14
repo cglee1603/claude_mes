@@ -1,7 +1,7 @@
 # exec-plans — 실행 계획 저장소
 
-> 작성 주체: `orchestrator` 에이전트 (`/plan-mode` 실행 시)
-> 읽기 주체: 모든 에이전트 (작업 착수 전 해당 서비스 계획서 확인)
+> 작성 주체: `planner` 에이전트 (`/plan-mode` 실행 시)
+> 읽기 주체: `orchestrator`, `dev-deployer`, `code-reviewer`, `quality-guard` (작업 착수 전 해당 서비스 계획서 확인)
 
 ---
 
