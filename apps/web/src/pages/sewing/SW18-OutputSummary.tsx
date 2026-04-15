@@ -43,6 +43,11 @@ export function SW18OutputSummaryPage() {
     ? (summaries.reduce((s, r) => s + r.efficiencyPercent, 0) / summaries.length).toFixed(1)
     : '0.0'
 
+  // UPH = 60min / SAM * workers  (mock: SAM 5min, avg 20 workers/line)
+  const SAM = 5
+  const avgWorkers = 20
+  const uph = Math.round((60 / SAM) * avgWorkers)
+
   const columns: Column<LineSummary>[] = [
     { key: 'lineCode', header: t('common.lineNo') },
     {
@@ -91,8 +96,8 @@ export function SW18OutputSummaryPage() {
         }
       />
 
-      {/* 4 KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 5 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <KpiCard
           label={t('sewing.summary.totalOutput')}
           value={totalOutput.toLocaleString()}
@@ -120,6 +125,13 @@ export function SW18OutputSummaryPage() {
           unit="%"
           trend="up"
           color="green"
+        />
+        <KpiCard
+          label="UPH"
+          value={uph}
+          unit="pcs/hr"
+          trend="neutral"
+          color="blue"
         />
       </div>
 

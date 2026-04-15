@@ -13,9 +13,18 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
+type Priority = 'CRITICAL' | 'HIGH' | 'MEDIUM'
+
+const PRIORITY_BADGE: Record<Priority, string> = {
+  CRITICAL: 'bg-red-600 text-white',
+  HIGH:     'bg-orange-500 text-white',
+  MEDIUM:   'bg-gray-500 text-white',
+}
+
 interface SubItem {
   label: string
   path: string
+  priority?: Priority
 }
 
 interface NavGroup {
@@ -70,11 +79,11 @@ const NAV_GROUPS: NavGroup[] = [
     path: '/sewing',
     icon: Shirt,
     children: [
-      { label: 'SW-14 투입 계획', path: '/sewing/plan' },
-      { label: 'SW-15 라인 레이아웃', path: '/sewing/layout' },
-      { label: 'SW-16 기계 상태', path: '/sewing/machine' },
-      { label: 'SW-17 팀 실적 입력', path: '/sewing/output' },
-      { label: 'SW-18 팀 실적 요약', path: '/sewing/summary' },
+      { label: 'SW-14 투입 계획', path: '/sewing/plan', priority: 'CRITICAL' },
+      { label: 'SW-15 라인 레이아웃', path: '/sewing/layout', priority: 'CRITICAL' },
+      { label: 'SW-16 기계 상태', path: '/sewing/machine', priority: 'HIGH' },
+      { label: 'SW-17 팀 실적 입력', path: '/sewing/output', priority: 'CRITICAL' },
+      { label: 'SW-18 팀 실적 요약', path: '/sewing/summary', priority: 'CRITICAL' },
     ],
   },
   {
@@ -83,14 +92,14 @@ const NAV_GROUPS: NavGroup[] = [
     path: '/quality',
     icon: CheckSquare,
     children: [
-      { label: 'QC-25 인라인 검사', path: '/quality/inline-inspect' },
-      { label: 'QC-26 인라인 결과', path: '/quality/inline-result' },
-      { label: 'QC-27 최종 검사', path: '/quality/final-inspect' },
-      { label: 'QC-28 최종 결과', path: '/quality/final-result' },
-      { label: 'QC-29 포장 검사', path: '/quality/packing-inspect' },
-      { label: 'QC-30 출하 검사', path: '/quality/shipping-inspect' },
-      { label: 'QC-31 DHU 트렌드', path: '/quality/dhu-trend' },
-      { label: 'QC-32 품질 대시보드', path: '/quality/dashboard' },
+      { label: 'QC-25 인라인 검사', path: '/quality/inline-inspect', priority: 'CRITICAL' },
+      { label: 'QC-26 인라인 결과', path: '/quality/inline-result', priority: 'HIGH' },
+      { label: 'QC-27 최종 검사', path: '/quality/final-inspect', priority: 'CRITICAL' },
+      { label: 'QC-28 최종 결과', path: '/quality/final-result', priority: 'CRITICAL' },
+      { label: 'QC-29 포장 검사', path: '/quality/packing-inspect', priority: 'CRITICAL' },
+      { label: 'QC-30 출하 검사', path: '/quality/shipping-inspect', priority: 'HIGH' },
+      { label: 'QC-31 DHU 트렌드', path: '/quality/dhu-trend', priority: 'CRITICAL' },
+      { label: 'QC-32 품질 대시보드', path: '/quality/dashboard', priority: 'CRITICAL' },
     ],
   },
   {
@@ -99,10 +108,10 @@ const NAV_GROUPS: NavGroup[] = [
     path: '/finishing',
     icon: Archive,
     children: [
-      { label: 'FP-19 태깅', path: '/finishing/tag' },
-      { label: 'FP-20 Polybag', path: '/finishing/polybag' },
-      { label: 'FP-21 금속 검출 (MFZ)', path: '/finishing/mfz' },
-      { label: 'FP-22 Carton 포장', path: '/finishing/carton' },
+      { label: 'FP-19 태깅', path: '/finishing/tag', priority: 'HIGH' },
+      { label: 'FP-20 Polybag', path: '/finishing/polybag', priority: 'HIGH' },
+      { label: 'FP-21 금속 검출 (MFZ)', path: '/finishing/mfz', priority: 'HIGH' },
+      { label: 'FP-22 Carton 포장', path: '/finishing/carton', priority: 'HIGH' },
     ],
   },
   {
@@ -185,14 +194,19 @@ export function Sidebar() {
                       key={child.path}
                       to={child.path}
                       className={({ isActive }) =>
-                        `block px-3 py-2 rounded-md text-xs transition-colors ${
+                        `flex items-center justify-between px-3 py-2 rounded-md text-xs transition-colors ${
                           isActive
                             ? 'bg-primary-700 text-white font-medium'
                             : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
                         }`
                       }
                     >
-                      {child.label}
+                      <span className="truncate">{child.label}</span>
+                      {child.priority && (
+                        <span className={`ml-1 flex-shrink-0 px-1 py-0.5 rounded text-[9px] font-bold leading-none ${PRIORITY_BADGE[child.priority]}`}>
+                          {child.priority === 'CRITICAL' ? 'C' : child.priority === 'HIGH' ? 'H' : 'M'}
+                        </span>
+                      )}
                     </NavLink>
                   ))}
                 </div>

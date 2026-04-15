@@ -10,6 +10,7 @@ interface KpiData {
   avgDhu: number
   mfzDetections: number
   lineUtilization: number
+  otd: number
   lines: LineEfficiency[]
 }
 
@@ -31,6 +32,7 @@ const mockKpi: KpiData = {
   avgDhu: 2.8,
   mfzDetections: 3,
   lineUtilization: 87.5,
+  otd: 95.3,
   lines: [
     { lineId: 'L001', lineCode: 'LINE-A', lineName: 'A Line', targetQty: 1000, actualQty: 920, efficiency: 92.0, oee: 85.1, defectRate: 2.1 },
     { lineId: 'L002', lineCode: 'LINE-B', lineName: 'B Line', targetQty: 800, actualQty: 710, efficiency: 88.8, oee: 80.5, defectRate: 3.2 },
@@ -102,7 +104,7 @@ export function AD23KPIPage() {
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         <KpiCard
           label={t('analytics.kpi.oee')}
           value={kpi.oee}
@@ -144,6 +146,13 @@ export function AD23KPIPage() {
           unit="%"
           trend="up"
           color="blue"
+        />
+        <KpiCard
+          label="OTD"
+          value={kpi.otd}
+          unit="%"
+          trend={kpi.otd >= 95 ? 'up' : 'down'}
+          color={kpi.otd >= 95 ? 'green' : 'red'}
         />
       </div>
 
