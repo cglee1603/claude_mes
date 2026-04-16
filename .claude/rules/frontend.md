@@ -18,11 +18,16 @@ PWA 오프라인 2시간(OFFLINE_MAX_HOURS) 지원.
 ```
 apps/web/src/
 ├── components/
-│   ├── common/       # Button, Table, Modal, Form, StatusBadge
-│   ├── grid/         # MesGrid (AG Grid 래퍼), GridToolbar, ColumnSettingPanel
-│   ├── dashboard/    # DashboardCanvas, GridWidget, WidgetSelector
+│   ├── common/       # Button, KpiCard, PageHeader, StatusBadge 등 + MesGrid re-export
+│   ├── grid/         # MesGrid.tsx (AG Grid v35 래퍼 — 실제 구현체)
 │   └── layout/       # Header, Sidebar, MainLayout
-├── pages/            # 33개 화면 + Dashboard, MyPage
+├── context/
+│   └── MyMenuContext.tsx  # 워크스페이스 상태 + localStorage 영속성
+├── pages/
+│   ├── dashboard/    # DashboardPage.tsx — 다중 대시보드 (탭 기반)
+│   ├── my-menu/      # MyMenuPage.tsx, WorkspacePage.tsx
+│   ├── mypage/       # MyPage.tsx
+│   └── …(33개 업무 화면)
 ├── hooks/            # TanStack Query 커스텀 훅
 ├── mocks/            # MSW 핸들러 (자동생성 — 수동 작성 금지 H-1)
 ├── services/         # API 호출 함수
@@ -104,40 +109,77 @@ export async function recordLineOutput(
 }
 ```
 
-### 7. AG Grid — 표준 그리드 컴포넌트
+### 7. AG Grid — 표준 그리드 컴포넌트 (구현 완료)
 
 모든 시트형(목록·실적·검사) 화면은 AG Grid를 사용한다.
+**현재 구현체**: `apps/web/src/components/grid/MesGrid.tsx`
+
+#### 핵심 구현 패턴 (AG Grid v35)
 
 ```typescript
-// components/grid/MesGrid.tsx — 공통 래퍼
+// components/grid/MesGrid.tsx
+import { ModuleRegistry, AllCommunityModule, type ColDef } from 'ag-grid-community'
 import { AgGridReact } from 'ag-grid-react'
-import { useGridLayout } from '../../hooks/useGridLayout'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-alpine.css'
 
-interface MesGridProps {
-  gridKey: string          // 레이아웃 저장 키 (예: 'WH-01-grid')
-  columnDefs: ColDef[]
-  rowData: unknown[]
-  onGridReady?: (api: GridApi) => void
+// ⚠️ 모듈 등록은 반드시 파일 최상위 레벨에서 호출 — 컴포넌트 내부 금지
+ModuleRegistry.registerModules([AllCommunityModule])
+
+export interface Column<T = object> {
+  key: keyof T | string
+  header: string
+  render?: (row: T) => React.ReactNode
+  width?: number
 }
 
-export function MesGrid({ gridKey, columnDefs, rowData, onGridReady }: MesGridProps) {
-  const { columnState, saveColumnState } = useGridLayout(gridKey)
+// 제네릭 제약: T extends object (Record<string, unknown> 금지 — TS 오류 발생)
+export function MesGrid<T extends object>({
+  columns, data, loading = false, height = 400,
+}: {
+  columns: Column<T>[]
+  data: T[]
+  loading?: boolean
+  height?: number
+}) {
+  const colDefs: ColDef[] = columns.map(col => ({
+    field: col.key as string,
+    headerName: col.header,
+    width: col.width,
+    cellRenderer: col.render
+      ? (params: { data: T }) => col.render!(params.data as T)
+      : undefined,
+  }))
 
   return (
-    <AgGridReact
-      columnDefs={columnDefs}
-      rowData={rowData}
-      onGridReady={e => {
-        if (columnState) e.api.applyColumnState({ state: columnState, applyOrder: true })
-        onGridReady?.(e.api)
-      }}
-      onColumnResized={e => saveColumnState(e.api.getColumnState())}
-      onColumnMoved={e => saveColumnState(e.api.getColumnState())}
-      onColumnVisible={e => saveColumnState(e.api.getColumnState())}
-    />
+    <div className="ag-theme-alpine" style={{ height, width: '100%' }}>
+      {loading
+        ? <div className="flex items-center justify-center h-full text-gray-400 text-sm">로딩 중...</div>
+        : <AgGridReact columnDefs={colDefs} rowData={data} />
+      }
+    </div>
   )
 }
 ```
+
+#### 사용 방법 (기존 DataTable 대체)
+```typescript
+// ✅ MesGrid 사용 (모든 시트형 화면 표준)
+import { MesGrid } from '@/components/common'  // common/index.ts에서 re-export
+
+const columns: Column<RowType>[] = [
+  { key: 'lotNo',   header: 'LOT 번호', width: 120 },
+  { key: 'status',  header: '상태',      render: row => <StatusBadge status={row.status} /> },
+]
+<MesGrid columns={columns} data={rows} loading={isLoading} height={500} />
+
+// ❌ DataTable 사용 금지 (레거시 — 삭제 예정)
+```
+
+#### 주의사항
+- `ModuleRegistry.registerModules([AllCommunityModule])` 누락 시 컬럼/데이터 미표시 (런타임 무증상 실패)
+- `T extends object` — `Record<string, unknown>` 으로 바꾸면 TypeScript 오류 발생
+- `ColDef[]` (비제네릭) 사용 — `ColDef<T>[]` 사용 시 `field` 타입 오류
 
 #### 컬럼 가로 사이즈 저장 규칙
 - `onColumnResized` 이벤트에서 `columnState` 자동 저장 (디바운스 500ms)
@@ -177,27 +219,70 @@ export function useGridLayout(gridKey: string) {
 
 ---
 
-### 8. 대시보드 (Dashboard)
+### 8. 다중 대시보드 (Dashboard) — 구현 완료
 
-개인화 대시보드: 사용자가 원하는 화면·위젯을 그리드 형태로 배치 후 저장.
+**파일**: `apps/web/src/pages/dashboard/DashboardPage.tsx`
 
-```
-레이아웃 구성:
-- 12컬럼 그리드 기반 (React Grid Layout 또는 AG Grid 커스텀)
-- 위젯 유형: 미니 화면 임베드, KPI 카드, 차트, AG Grid 요약
-- 배치(위치·크기)를 JSON으로 직렬화 → DB 저장
-- 저장된 레이아웃 불러오기 (복수 개, 이름 부여 가능)
-```
+#### 아키텍처
+- **탭 기반** 다중 대시보드: 기본 프리셋 3개 + 사용자 생성 레이아웃 무제한
+- **localStorage 영속** (`mes-dashboards` 키) — 프리셋은 코드에 고정, 사용자 레이아웃만 저장
+- 4컬럼 CSS Grid: `gridTemplateColumns: 'repeat(4, 1fr)'`
 
+#### 타입 구조
 ```typescript
-// 대시보드 레이아웃 저장 API
-// POST /api/user/layout
-// { layoutKey: 'dashboard-main', layoutName: '공장 현황', layoutData: { widgets: [...] } }
-//
-// widget 예시:
-// { id: 'w1', screenCode: 'WH-03', x: 0, y: 0, w: 6, h: 4 }   — 창고 대시보드 임베드
-// { id: 'w2', screenCode: 'AD-23', x: 6, y: 0, w: 6, h: 4 }   — 공장장 대시보드 임베드
+interface Widget {
+  id: string
+  type: KpiWidgetType | ScreenWidgetType  // 'kpi-oee' | 'screen:AD-23' 등
+  title: string
+  colSpan: 1 | 2 | 3 | 4   // 가로 칸 수
+  rowSpan: 1 | 2 | 3        // 세로 칸 수
+}
+
+interface DashboardLayout {
+  id: string
+  name: string
+  widgets: Widget[]
+  isPreset: boolean   // true = 삭제 불가 기본 제공 (preset-default, preset-analysis, preset-quality)
+}
 ```
+
+#### localStorage 패턴
+```typescript
+const STORAGE_KEY = 'mes-dashboards'
+
+// 로드: 프리셋(코드 고정) + 사용자 레이아웃(localStorage)
+function loadLayouts(): DashboardLayout[] {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
+  const userLayouts = saved.filter((l: DashboardLayout) => !l.isPreset)
+  return [...DEFAULT_PRESETS, ...userLayouts]
+}
+
+// 저장: 사용자 레이아웃만 localStorage에 저장 (프리셋 제외)
+function saveLayouts(layouts: DashboardLayout[]) {
+  const userLayouts = layouts.filter(l => !l.isPreset)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(userLayouts))
+}
+```
+
+#### 신규 대시보드 생성 플로우
+1. 탭 바 우측 `+ 새 대시보드` 클릭
+2. 인라인 이름 입력 → Enter
+3. `isPreset: false` 로 생성 → localStorage 저장
+4. 빈 캔버스 + 위젯 선택 모달 자동 오픈
+5. 위젯 추가 후 저장 → 레이아웃 영속
+
+#### 위젯 유형
+| 유형 prefix | 설명 | 예시 |
+|------------|------|------|
+| `kpi-*` | KPI 카드·표 | `kpi-oee`, `kpi-dhu`, `lot-status` |
+| `screen:*` | 실제 화면 임베드 | `screen:AD-23`, `screen:QC-32` |
+
+#### 화면 임베드 확장 시
+`ScreenEmbedContent` 컴포넌트의 switch 문에 케이스 추가:
+```typescript
+case 'screen:WH-03': return <WH03DashboardPage />
+```
+`SCREEN_WIDGETS` 배열에도 항목 추가 (위젯 선택 모달에 노출).
 
 ---
 
@@ -242,7 +327,81 @@ GET    /api/user/layouts                  — 전체 레이아웃 목록
 
 ---
 
-### 11. 33개 화면 목록
+### 11. 내 메뉴 (My Menu / Workspace) — 구현 완료
+
+**파일**: `apps/web/src/context/MyMenuContext.tsx`, `apps/web/src/pages/my-menu/`
+**라우트**: `/my-menu` (목록), `/my-menu/:id` (편집/뷰)
+
+#### 개념
+여러 화면을 하나의 레이아웃으로 합쳐 저장하는 워크스페이스 시스템.
+개별 화면 북마크가 아닌 **복합 레이아웃** 단위로 관리.
+
+#### 타입 구조
+```typescript
+// apps/web/src/context/MyMenuContext.tsx
+interface WorkspacePanel {
+  id: string
+  screenCode: string    // 'WH-01' ~ 'AD-24' (33개 화면 코드)
+  title: string
+  colSpan: 1 | 2 | 3 | 4
+  rowSpan: 1 | 2 | 3
+}
+
+interface Workspace {
+  id: string       // 'ws-{timestamp}'
+  name: string     // 사용자 지정 이름
+  panels: WorkspacePanel[]
+}
+```
+
+#### Context API
+```typescript
+const { workspaces, addWorkspace, updateWorkspace, renameWorkspace, deleteWorkspace, getWorkspace } = useMyMenu()
+
+// 워크스페이스 생성 (반환값으로 즉시 navigate 가능)
+const ws = addWorkspace('아침 체크')
+navigate(`/my-menu/${ws.id}`)
+
+// 패널 레이아웃 저장
+updateWorkspace(id, panels)
+```
+
+#### localStorage 영속
+- 저장 키: `mes-my-workspaces`
+- `MyMenuProvider`를 `App.tsx`의 `<Routes>` 전체를 감싸도록 배치 (현재 적용 완료)
+
+#### 사이드바 표시 규칙
+- `Sidebar.tsx`에서 `useMyMenu()` 훅으로 워크스페이스 목록 자동 반영
+- 각 워크스페이스 → `/my-menu/:id` NavLink
+- 탭 하단 `+ 새 레이아웃` → `/my-menu`
+
+#### 화면 임베드 (WorkspacePage)
+33개 모든 화면이 `React.lazy()`로 등록되어 있어 패널로 추가 가능:
+```typescript
+// 새 화면을 SCREEN_COMPONENTS 맵에 추가할 때
+'XX-99': lazy(() => import('../category/XX99-Screen').then(m => ({ default: m.XX99Page }))),
+```
+
+---
+
+### 12. i18n 네임스페이스 목록
+
+현재 구현된 번역 키 네임스페이스:
+| 네임스페이스 | 파일 위치 | 설명 |
+|------------|---------|------|
+| `nav.*` | `ko/en/vi.json` | 사이드바 메뉴 레이블 |
+| `myMenu.*` | `ko/en/vi.json` | 내 메뉴 화면 전체 |
+| `dashboard.*` | `ko/en/vi.json` | 대시보드 화면 |
+| `mypage.*` | `ko/en/vi.json` | 마이페이지 화면 |
+| `common.*` | `ko/en/vi.json` | 공통 버튼·레이블 |
+| `admin.*` | `ko/en/vi.json` | 관리자 화면 |
+| `warehouse/relaxation/cutting/…` | `ko/en/vi.json` | 각 업무 도메인 |
+
+**새 화면 추가 시 반드시 3개 파일(ko/en/vi.json) 모두에 키 추가.**
+
+---
+
+### 13. 화면 전체 목록
 | 그룹 | 화면 |
 |------|------|
 | 창고 | WH-01(원단입고), WH-02(이력조회), WH-03(대시보드) |
@@ -253,4 +412,4 @@ GET    /api/user/layouts                  — 전체 레이아웃 목록
 | 완성·포장 | FP-19(태깅), FP-20(Polybag), FP-21(MFZ), FP-22(Carton) |
 | 분석 | AD-23(공장장대시보드), AD-24(WIP조회) |
 | Admin | 생산라인, 기계, SMV, ERP동기화, 수명주기, QC기준, **권한관리(Admin-P)**, **백업관리(Admin-B)** |
-| 개인화 | **대시보드(커스텀)**, **마이페이지** |
+| 개인화 | **다중 대시보드** (`/dashboard`), **마이페이지** (`/mypage`), **내 메뉴** (`/my-menu`, `/my-menu/:id`) |
