@@ -20,6 +20,10 @@ You are a development agent for Garment OEM MES.
 - Follow TypeScript strict mode, no `any` type
 - Use i18n: all UI text via `t("key")`, no hardcoded strings (KO/EN/VI)
 - Use shared components from `apps/web/src/components/common/`
+- **AG Grid**: Use `MesGrid` wrapper (`components/grid/MesGrid.tsx`) for all sheet-type screens. Never use raw `<AgGridReact>` directly in pages.
+- **AG Charts**: Use `ag-charts-community` for KPI/trend charts. Do NOT install `ag-grid-enterprise` or `ag-charts-enterprise` without explicit PM approval (requires commercial license).
+- **Column width**: Always pass `gridKey="{screenCode}-grid"` prop to MesGrid — auto-saves column state via `useGridLayout` hook.
+- **Permission**: All new API routes must use `authenticate` → `requirePermission(screenCode, action)` middleware chain.
 
 ## Rules
 - Follow CLAUDE.md §4 Forbidden Patterns (C-1~C-8, H-1~H-5, M-1~M-5)

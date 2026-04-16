@@ -19,9 +19,11 @@ garment-oem-mes/   (프로젝트 루트)
 │   │   ├── src/
 │   │   │   ├── components/
 │   │   │   │   ├── common/          # Button, Table, Modal, StatusBadge 등
+│   │   │   │   ├── grid/            # MesGrid (AG Grid 래퍼), GridToolbar
+│   │   │   │   ├── dashboard/       # DashboardCanvas, GridWidget, WidgetSelector
 │   │   │   │   └── layout/          # Header, Sidebar, MainLayout
-│   │   │   ├── pages/               # 33개 화면 (WH/RX/SC/SW/QC/FP/AD/Admin)
-│   │   │   ├── hooks/               # TanStack Query 커스텀 훅
+│   │   │   ├── pages/               # 33개 화면 + Dashboard + MyPage + Admin-P + Admin-B
+│   │   │   ├── hooks/               # TanStack Query 커스텀 훅, useGridLayout
 │   │   │   ├── mocks/               # MSW 핸들러 (spec.yaml 자동생성 — 수동작성 금지)
 │   │   │   ├── services/            # API 호출 함수 (fetch 래퍼)
 │   │   │   ├── i18n/                # ko.json · en.json · vi.json
@@ -65,9 +67,9 @@ garment-oem-mes/   (프로젝트 루트)
 │   │
 │   └── db/                          # 데이터베이스
 │       ├── prisma/
-│       │   ├── schema.prisma        # Layer A~D 전체 테이블 정의
-│       │   ├── migrations/          # Prisma 마이그레이션 + Layer C 트리거 SQL
-│       │   └── seed/                # 시드 데이터 (바이어·QC기준·라인·기계)
+│       │   ├── schema.prisma        # Layer A~D 전체 테이블 정의 (⚠️ 파일 미생성 — TD-015)
+│       │   ├── migrations/          # Prisma 마이그레이션 + Layer C 트리거 SQL (비어있음)
+│       │   └── seed/                # 시드 데이터 (바이어·QC기준·라인·기계) (비어있음)
 │       └── package.json
 │
 ├── .claude/
@@ -188,6 +190,8 @@ OptimizationService ── 독립 (라인밸런싱)
 | `middleware.md` | `apps/api/src/middleware/**` |
 | `exception.md` | `packages/domain/src/errors/**` |
 | `migration.md` | `packages/db/prisma/migrations/**` |
+| `permission.md` | `apps/api/src/middleware/permission*.ts`, `apps/api/src/services/permission*.ts` |
+| `backup.md` | `apps/api/src/jobs/backup*.ts`, `apps/api/src/jobs/integrity*.ts` |
 
 ---
 
@@ -203,3 +207,7 @@ OptimizationService ── 독립 (라인밸런싱)
 | 완성·포장 | FP-19~22 | 태깅 · Polybag · MFZ 검사 · Carton |
 | 분석 | AD-23~24 | 공장장 대시보드 · WIP 조회 |
 | Admin | Admin 1~6 | 라인 · 기계 · SMV · ERP동기화 · 수명주기 · QC기준 |
+| Admin 확장 | Admin-P | 권한 관리 (화면 권한 매트릭스 · 부서 · 역할) |
+| Admin 확장 | Admin-B | DB 백업 관리 (백업 현황 · 무결성 체크 · 수동 스냅샷) |
+| 개인화 | Dashboard | 사용자 커스텀 대시보드 (위젯 기반 · 레이아웃 저장) |
+| 개인화 | MyPage | 프로필 · 레이아웃 목록 · 내 권한 조회 |

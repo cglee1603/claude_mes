@@ -11,7 +11,7 @@
 
 ## 현재 상태
 
-> D-14 사전구축 단계. 모든 서비스 미착수 (2026-04-10 기준)
+> D-14 사전구축 단계. 모든 서비스 미착수 (2026-04-16 기준)
 
 | 서비스 | Repository | Service | Controller | Zod Schema | Test | 등급 |
 |--------|-----------|---------|------------|-----------|------|------|
@@ -24,6 +24,9 @@
 | OrderRepository | - | - | - | - | - | **D** |
 | OptimizationService | - | - | - | - | - | **D** |
 | ERPSyncService | - | - | - | - | - | **D** |
+| PermissionService | - | - | - | - | - | **D** |
+| BackupService | - | - | - | - | - | **D** |
+| UserLayoutService | - | - | - | - | - | **D** |
 
 ## 서비스 구현 체크리스트
 
@@ -64,8 +67,10 @@
 
 ### Gate 3 (W17): 통합
 - [ ] ERP Mock 연동 완료
-- [ ] 33개 화면 기능 완성
+- [ ] 33개 화면 + Dashboard + MyPage 기능 완성
 - [ ] fast-check 6개 속성 테스트 통과
+- [ ] 권한 관리(Admin-P) 화면 및 PermissionService 완성
+- [ ] DB 백업 Job 3계층 동작 확인
 
 ### Gate 4 (W20): 출시 준비
 - [ ] 전 서비스 등급 B 이상
