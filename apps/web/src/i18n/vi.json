@@ -138,7 +138,8 @@
       "allRoles": "Tất cả vai trò",
       "allDepts": "Tất cả phòng ban",
       "noDept": "Chưa phân công",
-      "unsaved": "Chưa lưu"
+      "unsaved": "Chưa lưu",
+      "searchName": "Tìm kiếm theo tên..."
     },
     "backup": {
       "title": "Quản lý sao lưu DB",

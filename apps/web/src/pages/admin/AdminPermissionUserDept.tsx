@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Save, UserCircle2, ChevronDown, Plus, X } from 'lucide-react'
+import { Save, UserCircle2, ChevronDown, Plus, X, Search } from 'lucide-react'
 
 /* ── 목업 데이터 ─────────────────────────────────── */
 export const INITIAL_DEPARTMENTS = [
@@ -87,6 +87,7 @@ export function UserDeptAssignment({
 }) {
   const { t } = useTranslation()
   const [users, setUsers]       = useState<MockUser[]>(MOCK_USERS)
+  const [searchName, setSearchName]   = useState('')
   const [filterRole, setFilterRole] = useState('전체')
   const [filterDept, setFilterDept] = useState('전체')
   const [saved, setSaved]       = useState(false)
@@ -111,9 +112,10 @@ export function UserDeptAssignment({
   }
 
   const filtered = users.filter(u => {
+    const nameMatch = !searchName.trim() || u.name.toLowerCase().includes(searchName.trim().toLowerCase())
     const roleMatch = filterRole === '전체' || u.role === filterRole
     const deptMatch = filterDept === '전체' || u.deptIds.includes(filterDept)
-    return roleMatch && deptMatch
+    return nameMatch && roleMatch && deptMatch
   })
 
   return (
@@ -126,7 +128,18 @@ export function UserDeptAssignment({
 
       {/* 필터 + 저장 */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* 이름 검색 */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchName}
+              onChange={e => setSearchName(e.target.value)}
+              placeholder={t('admin.permission.searchName')}
+              className="input text-sm pl-8 w-40"
+            />
+          </div>
           <div className="relative">
             <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
               className="input text-sm pr-8 appearance-none">

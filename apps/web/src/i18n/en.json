@@ -138,7 +138,8 @@
       "allRoles": "All Roles",
       "allDepts": "All Departments",
       "noDept": "Unassigned",
-      "unsaved": "Unsaved"
+      "unsaved": "Unsaved",
+      "searchName": "Search by name..."
     },
     "backup": {
       "title": "DB Backup Management",

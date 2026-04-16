@@ -138,7 +138,8 @@
       "allRoles": "전체 역할",
       "allDepts": "전체 부서",
       "noDept": "부서 미배정",
-      "unsaved": "미저장"
+      "unsaved": "미저장",
+      "searchName": "이름 검색..."
     },
     "backup": {
       "title": "DB 백업 관리",
