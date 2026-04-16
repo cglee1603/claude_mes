@@ -90,6 +90,28 @@ function RolePermissionMatrix() {
     }))
   }
 
+  // 현재 필터된 화면 기준으로 해당 컬럼 전체 토글
+  // 모두 체크 → 전체 해제 / 하나라도 미체크 → 전체 체크
+  function toggleColumn(role: RoleCode, action: Action) {
+    const target = selectedGroup === ALL_GROUPS ? screens : screens.filter(s => s.group === selectedGroup)
+    const allChecked = target.every(s => s.perms[role][action])
+    const targetCodes = new Set(target.map(s => s.screenCode))
+    setScreens(prev => prev.map(s => {
+      if (!targetCodes.has(s.screenCode)) return s
+      return { ...s, perms: { ...s.perms, [role]: { ...s.perms[role], [action]: !allChecked } } }
+    }))
+  }
+
+  function isColumnAllChecked(role: RoleCode, action: Action) {
+    const target = selectedGroup === ALL_GROUPS ? screens : screens.filter(s => s.group === selectedGroup)
+    return target.length > 0 && target.every(s => s.perms[role][action])
+  }
+
+  function isColumnPartialChecked(role: RoleCode, action: Action) {
+    const target = selectedGroup === ALL_GROUPS ? screens : screens.filter(s => s.group === selectedGroup)
+    return target.some(s => s.perms[role][action]) && !target.every(s => s.perms[role][action])
+  }
+
   function handleSave() { setSaved(true); setTimeout(() => setSaved(false), 3000) }
 
   const filtered = selectedGroup === ALL_GROUPS ? screens : screens.filter(s => s.group === selectedGroup)
@@ -132,11 +154,29 @@ function RolePermissionMatrix() {
             </tr>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th colSpan={2} />
-              {ROLES.map(r => ACTIONS.map(a => (
-                <th key={`${r}-${a}`} className="text-center py-1.5 text-gray-500 font-medium border-l first:border-l-gray-200 border-l-gray-100 w-10">
-                  {a.slice(0, 1)}
-                </th>
-              )))}
+              {ROLES.map(r => ACTIONS.map(a => {
+                const allChecked     = isColumnAllChecked(r, a)
+                const partialChecked = isColumnPartialChecked(r, a)
+                return (
+                  <th key={`${r}-${a}`} className="text-center py-1.5 border-l first:border-l-gray-200 border-l-gray-100 w-10">
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-gray-500 font-medium text-[10px]">{a.slice(0, 1)}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleColumn(r, a)}
+                        title={t('admin.permission.toggleColumn', { role: t(ROLE_I18N_KEY[r]), action: a })}
+                        className={`w-4 h-4 rounded transition-colors border ${
+                          allChecked
+                            ? 'bg-green-500 border-green-500 hover:bg-green-600'
+                            : partialChecked
+                            ? 'bg-yellow-400 border-yellow-400 hover:bg-yellow-500'
+                            : 'bg-white border-gray-300 hover:border-primary-400 hover:bg-primary-50'
+                        }`}
+                      />
+                    </div>
+                  </th>
+                )
+              }))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">

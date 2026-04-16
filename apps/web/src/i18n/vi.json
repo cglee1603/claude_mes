@@ -144,6 +144,7 @@
       "deptCodePlaceholder": "VD: CUTTING",
       "deptName": "Tên phòng ban",
       "deptNamePlaceholder": "VD: Bộ phận cắt",
+      "toggleColumn": "Chọn tất cả — {{role}} {{action}}",
       "userDeptSaved": "Đã lưu cài đặt phòng ban.",
       "userDeptHint": "Nhấn Lưu sau khi thay đổi. Các hàng chưa lưu được tô màu xanh.",
       "allRoles": "Tất cả vai trò",

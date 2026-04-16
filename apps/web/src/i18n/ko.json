@@ -144,6 +144,7 @@
       "deptCodePlaceholder": "예) CUTTING",
       "deptName": "부서명",
       "deptNamePlaceholder": "예) 재단부",
+      "toggleColumn": "{{role}} — {{action}} 전체 토글",
       "userDeptSaved": "부서 설정이 저장되었습니다.",
       "userDeptHint": "변경 후 저장 버튼을 눌러야 반영됩니다. 미저장 항목은 파란색으로 표시됩니다.",
       "allRoles": "전체 역할",

@@ -144,6 +144,7 @@
       "deptCodePlaceholder": "e.g. CUTTING",
       "deptName": "Department Name",
       "deptNamePlaceholder": "e.g. Cutting Dept.",
+      "toggleColumn": "Toggle all — {{role}} {{action}}",
       "userDeptSaved": "Department assignments saved.",
       "userDeptHint": "Click Save after making changes. Unsaved rows are highlighted in blue.",
       "allRoles": "All Roles",
