@@ -169,7 +169,19 @@ style={{
 - 내 메뉴: `t('myMenu.*')` 네임스페이스
 - 새 텍스트 추가 시 반드시 `ko.json`, `en.json`, `vi.json` 3개 파일에 동시 추가
 
+### localStorage 키 체계 전체 요약
+
+| 기능 | 저장 키 | 훅 |
+|------|--------|-----|
+| 다중 대시보드 레이아웃 | `mes-dashboards` | `loadLayouts()` / `saveLayouts()` (DashboardPage 내장) |
+| 내 메뉴 워크스페이스 | `mes-my-workspaces` | `useMyMenu()` (MyMenuContext) |
+| 그리드 컬럼 상태 | `mes-grid:{screenCode}` | `useGridLayout(screenCode)` |
+| 페이지 필터·정렬 | `mes-filters:{pageKey}` | `usePageFilters(pageKey, defaults)` |
+
+> `useLocalStorage`, `useGridLayout`, `usePageFilters` 훅 구현 패턴 → `frontend.md §13` 참조
+
 ### 금지 사항
 - `localStorage`를 직접 읽지 않고 반드시 `loadLayouts()` / `useMyMenu()` 경유
 - 프리셋 레이아웃(`isPreset: true`)을 localStorage에 저장하지 않음
 - `WorkspacePage`의 `SCREEN_COMPONENTS` 외부에서 화면 컴포넌트를 직접 import하여 패널 렌더링 금지
+- `localStorage.getItem` / `localStorage.setItem` 직접 호출 금지 — 반드시 `useLocalStorage` 훅 경유
