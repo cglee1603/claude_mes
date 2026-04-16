@@ -1,11 +1,11 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState, useRef, lazy, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common'
 import { useMyMenu, ALL_SCREENS, type WorkspacePanel } from '@/context/MyMenuContext'
 import {
   Settings2, Save, Plus, X, ChevronLeft, ChevronRight,
-  Monitor, ArrowLeft, ExternalLink,
+  Monitor, ArrowLeft, ExternalLink, Pencil, Check,
 } from 'lucide-react'
 
 /* ── 화면 코드 → 실제 컴포넌트 매핑 ─────────────── */
@@ -223,13 +223,16 @@ export function WorkspacePage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { getWorkspace, updateWorkspace } = useMyMenu()
+  const { getWorkspace, updateWorkspace, renameWorkspace } = useMyMenu()
 
   const workspace = id ? getWorkspace(id) : undefined
   const [panels, setPanels] = useState<WorkspacePanel[]>(workspace?.panels ?? [])
   const [isEdit, setIsEdit] = useState(panels.length === 0)
   const [showPicker, setShowPicker] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
+  const [isRenaming, setIsRenaming] = useState(false)
+  const [renameValue, setRenameValue] = useState(workspace?.name ?? '')
+  const renameInputRef = useRef<HTMLInputElement>(null)
 
   if (!workspace) {
     return (
@@ -279,6 +282,18 @@ export function WorkspacePage() {
       : p))
   }
 
+  function startRename() {
+    setRenameValue(workspace?.name ?? '')
+    setIsRenaming(true)
+    setTimeout(() => renameInputRef.current?.focus(), 0)
+  }
+
+  function commitRename() {
+    const trimmed = renameValue.trim()
+    if (trimmed && id) renameWorkspace(id, trimmed)
+    setIsRenaming(false)
+  }
+
   function handleSave() {
     if (id) updateWorkspace(id, panels)
     setIsEdit(false)
@@ -294,7 +309,42 @@ export function WorkspacePage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        title={workspace.name}
+        title={
+          isRenaming ? (
+            <div className="flex items-center gap-2">
+              <input
+                ref={renameInputRef}
+                type="text"
+                value={renameValue}
+                onChange={e => setRenameValue(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') commitRename()
+                  if (e.key === 'Escape') setIsRenaming(false)
+                }}
+                onBlur={commitRename}
+                className="input text-lg font-bold py-1 w-56"
+              />
+              <button type="button" onMouseDown={e => { e.preventDefault(); commitRename() }}
+                className="p-1 text-green-600 hover:text-green-700">
+                <Check className="w-4 h-4" />
+              </button>
+              <button type="button" onMouseDown={e => { e.preventDefault(); setIsRenaming(false) }}
+                className="p-1 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={startRename}
+              className="flex items-center gap-2 group hover:text-primary-600 transition-colors"
+              title={t('myMenu.rename')}
+            >
+              <span>{workspace.name}</span>
+              <Pencil className="w-4 h-4 text-gray-300 group-hover:text-primary-400 transition-colors" />
+            </button>
+          )
+        }
         subtitle={`${panels.length} ${t('myMenu.screenAdd')}`}
         actions={
           <div className="flex items-center gap-2">

@@ -70,7 +70,8 @@
     "searchScreen": "Search screens...",
     "openNewTab": "Open in new tab",
     "panelCount": "",
-    "screenAdd": "Add Screen"
+    "screenAdd": "Add Screen",
+    "rename": "Rename"
   },
   "dashboard": {
     "title": "My Dashboard",

@@ -70,7 +70,8 @@
     "searchScreen": "화면 검색...",
     "openNewTab": "새 탭에서 열기",
     "panelCount": "개",
-    "screenAdd": "화면 추가"
+    "screenAdd": "화면 추가",
+    "rename": "이름 변경"
   },
   "dashboard": {
     "title": "내 대시보드",

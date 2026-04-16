@@ -70,7 +70,8 @@
     "searchScreen": "Tìm kiếm màn hình...",
     "openNewTab": "Mở trong tab mới",
     "panelCount": "",
-    "screenAdd": "Thêm màn hình"
+    "screenAdd": "Thêm màn hình",
+    "rename": "Đổi tên"
   },
   "dashboard": {
     "title": "Bảng điều khiển của tôi",
