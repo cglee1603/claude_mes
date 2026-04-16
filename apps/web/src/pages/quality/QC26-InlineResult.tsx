@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common/PageHeader'
-import { DataTable, type Column } from '@/components/common/DataTable'
+import { MesGrid } from '@/components/common'
+import type { Column } from '@/components/common'
 import { StatusBadge } from '@/components/common/StatusBadge'
 
 interface InlineResult {
@@ -95,10 +96,9 @@ export function QC26InlineResultPage() {
       )}
 
       <div className="card">
-        <DataTable<InlineResult>
+        <MesGrid<InlineResult>
           columns={columns}
           data={MOCK_RESULTS}
-          keyField="id"
         />
       </div>
     </div>

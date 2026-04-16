@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, StatusBadge, DataTable } from '@/components/common'
+import { PageHeader, StatusBadge, MesGrid } from '@/components/common'
 import type { Column } from '@/components/common'
 
 type LotStatus =
@@ -173,10 +173,9 @@ export function AD24WIPPage() {
 
       {/* LOT Detail Table */}
       <div className="card">
-        <DataTable<WipLot>
+        <MesGrid<WipLot>
           columns={columns}
           data={filteredLots}
-          keyField="id"
         />
       </div>
     </div>

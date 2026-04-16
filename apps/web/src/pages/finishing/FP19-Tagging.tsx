@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common/PageHeader'
-import { DataTable, Column } from '@/components/common/DataTable'
+import { MesGrid } from '@/components/common'
+import type { Column } from '@/components/common'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { KpiCard } from '@/components/common/KpiCard'
 
@@ -171,7 +172,7 @@ export function FP19TaggingPage() {
       {/* History Table */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Tag History</h3>
-        <DataTable columns={columns} data={MOCK_HISTORY} keyField="id" />
+        <MesGrid columns={columns} data={MOCK_HISTORY} />
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, KpiCard, DataTable } from '@/components/common'
+import { PageHeader, KpiCard, MesGrid } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface KpiData {
@@ -161,10 +161,9 @@ export function AD23KPIPage() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           {t('analytics.kpi.lineEfficiency')}
         </h3>
-        <DataTable<LineEfficiency>
+        <MesGrid<LineEfficiency>
           columns={lineColumns}
           data={kpi.lines}
-          keyField="lineId"
         />
       </div>
     </div>

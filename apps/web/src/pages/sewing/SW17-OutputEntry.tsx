@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common/PageHeader'
-import { DataTable, type Column } from '@/components/common/DataTable'
+import { MesGrid } from '@/components/common'
+import type { Column } from '@/components/common'
 
 interface OutputEntry {
   id: string
@@ -260,10 +261,9 @@ export function SW17OutputEntryPage() {
         <h3 className="text-sm font-semibold text-gray-900 mb-3">
           {t('sewing.output.title')} ({entries.length})
         </h3>
-        <DataTable<OutputEntry & Record<string, unknown>>
+        <MesGrid<OutputEntry & Record<string, unknown>>
           columns={columns as Column<OutputEntry & Record<string, unknown>>[]}
           data={entries as (OutputEntry & Record<string, unknown>)[]}
-          keyField="id"
         />
       </div>
     </div>

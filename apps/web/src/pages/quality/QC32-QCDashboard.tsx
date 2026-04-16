@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common/PageHeader'
 import { KpiCard } from '@/components/common/KpiCard'
-import { DataTable, type Column } from '@/components/common/DataTable'
+import { MesGrid } from '@/components/common'
+import type { Column } from '@/components/common'
 
 interface DefectDistribution {
   defectType: string
@@ -144,10 +145,9 @@ export function QC32QCDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-900 mb-4">
             {t('quality.dashboard.recentResults')}
           </h3>
-          <DataTable<RecentResult>
+          <MesGrid<RecentResult>
             columns={recentColumns}
             data={MOCK_RECENT}
-            keyField="id"
           />
         </div>
       </div>

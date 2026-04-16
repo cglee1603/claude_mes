@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common/PageHeader'
-import { DataTable, Column } from '@/components/common/DataTable'
+import { MesGrid } from '@/components/common'
+import type { Column } from '@/components/common'
 import { KpiCard } from '@/components/common/KpiCard'
 
 interface CartonRecord {
@@ -236,7 +237,7 @@ export function FP22CartonPage() {
       {/* Carton List */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Carton List</h3>
-        <DataTable columns={columns} data={MOCK_CARTONS} keyField="id" />
+        <MesGrid columns={columns} data={MOCK_CARTONS} />
       </div>
     </div>
   )

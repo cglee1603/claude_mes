@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable } from '@/components/common'
+import { PageHeader, MesGrid } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface Bundle {
@@ -174,10 +174,9 @@ export function SC08BundleCreatePage() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           {t('cutting.createBundle.bundleList')}
         </h3>
-        <DataTable<Bundle>
+        <MesGrid<Bundle>
           columns={columns}
           data={MOCK_BUNDLES}
-          keyField="id"
         />
       </div>
     </div>

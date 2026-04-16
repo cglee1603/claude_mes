@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable } from '@/components/common'
+import { PageHeader, MesGrid } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface SmvEntry {
@@ -84,10 +84,9 @@ export function AdminSMVPage() {
       />
 
       <div className="card">
-        <DataTable<SmvEntry>
+        <MesGrid<SmvEntry>
           columns={columns}
           data={mockSmv}
-          keyField="id"
         />
       </div>
 

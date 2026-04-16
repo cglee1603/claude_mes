@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable, StatusBadge } from '@/components/common'
+import { PageHeader, MesGrid, StatusBadge } from '@/components/common'
 import type { Column } from '@/components/common'
 
 type LotStatus =
@@ -99,10 +99,9 @@ export function SC10LotListPage() {
       />
 
       <div className="card">
-        <DataTable<Record<string, unknown>>
+        <MesGrid<Record<string, unknown>>
           columns={columns}
           data={filteredLots as unknown as Record<string, unknown>[]}
-          keyField={'id' as keyof Record<string, unknown>}
         />
       </div>
     </div>

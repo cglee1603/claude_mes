@@ -60,9 +60,12 @@ import { AdminBackupPage } from './pages/admin/AdminBackup'
 // Personal
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { MyPage } from './pages/mypage/MyPage'
+import { MyMenuPage } from './pages/my-menu/MyMenuPage'
+import { MyMenuProvider } from './context/MyMenuContext'
 
 export default function App() {
   return (
+    <MyMenuProvider>
     <Routes>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Navigate to="/analytics/kpi" replace />} />
@@ -150,7 +153,9 @@ export default function App() {
         {/* Personal */}
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="mypage" element={<MyPage />} />
+        <Route path="my-menu" element={<MyMenuPage />} />
       </Route>
     </Routes>
+    </MyMenuProvider>
   )
 }

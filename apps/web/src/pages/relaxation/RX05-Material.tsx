@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/common/PageHeader'
-import { DataTable, type Column } from '../../components/common/DataTable'
+import { MesGrid } from '../../components/common'
+import type { Column } from '../../components/common'
 
 interface MaterialHoursRow {
   id: string
@@ -45,7 +46,7 @@ export function RX05MaterialPage() {
       />
 
       <div className="card">
-        <DataTable<MaterialHoursRow> columns={columns} data={MATERIAL_HOURS} keyField="id" />
+        <MesGrid<MaterialHoursRow> columns={columns} data={MATERIAL_HOURS} />
       </div>
     </div>
   )

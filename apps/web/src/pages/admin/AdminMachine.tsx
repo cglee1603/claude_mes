@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable, StatusBadge } from '@/components/common'
+import { PageHeader, MesGrid, StatusBadge } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface SewMachine {
@@ -108,10 +108,9 @@ export function AdminMachinePage() {
       />
 
       <div className="card">
-        <DataTable<SewMachine>
+        <MesGrid<SewMachine>
           columns={columns}
           data={mockMachines}
-          keyField="id"
         />
       </div>
 

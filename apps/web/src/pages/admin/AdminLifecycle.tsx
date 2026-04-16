@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable } from '@/components/common'
+import { PageHeader, MesGrid } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface LayerStats {
@@ -163,10 +163,9 @@ export function AdminLifecyclePage() {
         <h3 className="text-sm font-semibold text-gray-900 mb-3">
           {t('admin.lifecycle.archiveSchedule')} (30일 이내)
         </h3>
-        <DataTable<ArchiveScheduleItem>
+        <MesGrid<ArchiveScheduleItem>
           columns={scheduleColumns}
           data={MOCK_ARCHIVE_SCHEDULE}
-          keyField="id"
         />
       </div>
 

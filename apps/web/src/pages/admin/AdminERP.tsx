@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable, StatusBadge } from '@/components/common'
+import { PageHeader, MesGrid, StatusBadge } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface ERPSyncItem {
@@ -136,19 +136,17 @@ export function AdminERPPage() {
 
       <div className="card">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">IF 동기화 현황</h3>
-        <DataTable<ERPSyncItem>
+        <MesGrid<ERPSyncItem>
           columns={syncColumns}
           data={MOCK_SYNC_ITEMS}
-          keyField="id"
         />
       </div>
 
       <div className="card">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">동기화 이력 (최근 5건)</h3>
-        <DataTable<SyncHistoryItem>
+        <MesGrid<SyncHistoryItem>
           columns={historyColumns}
           data={MOCK_HISTORY}
-          keyField="id"
         />
       </div>
     </div>

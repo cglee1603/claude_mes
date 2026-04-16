@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable } from '@/components/common'
+import { PageHeader, MesGrid } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface QCConfig {
@@ -81,10 +81,9 @@ export function AdminQCConfigPage() {
       </div>
 
       <div className="card">
-        <DataTable<QCConfig>
+        <MesGrid<QCConfig>
           columns={columns}
           data={MOCK_QC_CONFIGS}
-          keyField="id"
         />
       </div>
 

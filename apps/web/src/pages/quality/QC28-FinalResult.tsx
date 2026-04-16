@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common/PageHeader'
-import { DataTable, type Column } from '@/components/common/DataTable'
+import { MesGrid } from '@/components/common'
+import type { Column } from '@/components/common'
 
 type Verdict = 'PASS' | 'FAIL'
 
@@ -108,10 +109,9 @@ export function QC28FinalResultPage() {
 
       {/* Summary table */}
       <div className="card">
-        <DataTable<FinalResult>
+        <MesGrid<FinalResult>
           columns={columns}
           data={MOCK_RESULTS}
-          keyField="id"
         />
       </div>
     </div>

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/common/PageHeader'
-import { DataTable, type Column } from '../../components/common/DataTable'
+import { MesGrid } from '../../components/common'
+import type { Column } from '../../components/common'
 import { StatusBadge } from '../../components/common/StatusBadge'
 
 interface HistoryRow {
@@ -105,7 +106,7 @@ export function WH02HistoryPage() {
             </select>
           </div>
         </div>
-        <DataTable<HistoryRow> columns={columns} data={filtered} keyField="id" />
+        <MesGrid<HistoryRow> columns={columns} data={filtered} />
       </div>
     </div>
   )

@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/common/PageHeader'
 import { KpiCard } from '../../components/common/KpiCard'
-import { DataTable, type Column } from '../../components/common/DataTable'
+import { MesGrid } from '../../components/common'
+import type { Column } from '../../components/common'
 
 interface StockSummaryRow {
   id: string
@@ -104,7 +105,7 @@ export function WH03DashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           {t('warehouse.dashboard.summaryTable')}
         </h2>
-        <DataTable<StockSummaryRow> columns={columns} data={MOCK_SUMMARY} keyField="id" />
+        <MesGrid<StockSummaryRow> columns={columns} data={MOCK_SUMMARY} />
       </div>
     </div>
   )

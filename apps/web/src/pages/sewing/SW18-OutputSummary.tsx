@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common/PageHeader'
 import { KpiCard } from '@/components/common/KpiCard'
-import { DataTable, type Column } from '@/components/common/DataTable'
+import { MesGrid } from '@/components/common'
+import type { Column } from '@/components/common'
 
 interface LineSummary {
   lineId: string
@@ -140,10 +141,9 @@ export function SW18OutputSummaryPage() {
         <h3 className="text-sm font-semibold text-gray-900 mb-3">
           {selectedDate} - {t('sewing.plan.line')} {t('sewing.summary.title')}
         </h3>
-        <DataTable<LineSummary & Record<string, unknown>>
+        <MesGrid<LineSummary & Record<string, unknown>>
           columns={columns as Column<LineSummary & Record<string, unknown>>[]}
           data={summaries as (LineSummary & Record<string, unknown>)[]}
-          keyField="lineId"
         />
       </div>
     </div>

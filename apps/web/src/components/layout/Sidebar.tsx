@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Package,
@@ -13,8 +13,11 @@ import {
   ChevronDown,
   ChevronRight,
   LayoutDashboard,
-  User,
+  Star,
+  ExternalLink,
+  Settings2,
 } from 'lucide-react'
+import { useMyMenu } from '@/context/MyMenuContext'
 
 type Priority = 'CRITICAL' | 'HIGH' | 'MEDIUM'
 
@@ -158,18 +161,21 @@ const NAV_GROUPS: NavGroup[] = [
 export function Sidebar() {
   const { t } = useTranslation()
   const location = useLocation()
+  const navigate = useNavigate()
+  const { pinnedScreens } = useMyMenu()
 
-  // 현재 경로에 해당하는 그룹을 초기 열림 상태로 설정
   const initialOpen = NAV_GROUPS.reduce<Record<string, boolean>>((acc, g) => {
     acc[g.key] = location.pathname.startsWith(g.path)
     return acc
-  }, {})
+  }, { myMenu: location.pathname === '/my-menu' || pinnedScreens.length > 0 })
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(initialOpen)
 
   function toggle(key: string) {
     setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }))
   }
+
+  const isMyMenuOpen = openGroups['myMenu']
 
   return (
     <aside className="w-56 min-h-screen bg-gray-900 flex flex-col">
@@ -178,13 +184,86 @@ export function Sidebar() {
         <p className="text-gray-400 text-xs mt-0.5">OEM MES</p>
       </div>
       <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+
+        {/* ── 내 메뉴 ───────────────────────────────── */}
+        <div>
+          <button
+            type="button"
+            onClick={() => toggle('myMenu')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+              location.pathname === '/my-menu'
+                ? 'bg-gray-700 text-white'
+                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+            }`}
+          >
+            <Star className="w-4 h-4 flex-shrink-0 text-yellow-400" />
+            <span className="flex-1 text-left">내 메뉴</span>
+            {pinnedScreens.length > 0 && (
+              <span className="text-[10px] bg-yellow-500 text-white rounded-full px-1.5 font-bold mr-1">
+                {pinnedScreens.length}
+              </span>
+            )}
+            {isMyMenuOpen
+              ? <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+              : <ChevronRight className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+            }
+          </button>
+
+          {isMyMenuOpen && (
+            <div className="mt-0.5 ml-3 border-l border-gray-700 pl-2 space-y-0.5">
+              {/* 관리 링크 */}
+              <NavLink
+                to="/my-menu"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-colors ${
+                    isActive
+                      ? 'bg-primary-700 text-white font-medium'
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                  }`
+                }
+              >
+                <Settings2 className="w-3 h-3" />
+                <span>메뉴 관리</span>
+              </NavLink>
+
+              {/* 즐겨찾기 화면 목록 */}
+              {pinnedScreens.length === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/my-menu')}
+                  className="w-full text-left px-3 py-2 text-xs text-gray-500 hover:text-gray-300"
+                >
+                  + 화면 추가하기
+                </button>
+              ) : (
+                pinnedScreens.map(s => (
+                  <NavLink
+                    key={s.code}
+                    to={s.path}
+                    className={({ isActive }) =>
+                      `flex items-center justify-between px-3 py-2 rounded-md text-xs transition-colors ${
+                        isActive
+                          ? 'bg-primary-700 text-white font-medium'
+                          : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                      }`
+                    }
+                  >
+                    <span className="truncate">{s.title}</span>
+                    <span className="text-[9px] text-gray-500 font-mono flex-shrink-0 ml-1">{s.code}</span>
+                  </NavLink>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── 기존 네비게이션 그룹 ───────────────────── */}
         {NAV_GROUPS.map(({ key, label, path, icon: Icon, children }) => {
           const isGroupActive = location.pathname.startsWith(path)
           const isOpen = openGroups[key]
 
           return (
             <div key={key}>
-              {/* Group header */}
               <button
                 type="button"
                 onClick={() => toggle(key)}
@@ -202,7 +281,6 @@ export function Sidebar() {
                 }
               </button>
 
-              {/* Sub items */}
               {isOpen && (
                 <div className="mt-0.5 ml-3 border-l border-gray-700 pl-2 space-y-0.5">
                   {children.map((child) => (
@@ -231,6 +309,24 @@ export function Sidebar() {
           )
         })}
       </nav>
+
+      {/* 하단 내 메뉴 바로가기 */}
+      <div className="px-2 py-3 border-t border-gray-700">
+        <NavLink
+          to="/my-menu"
+          className={({ isActive }) =>
+            `flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-colors ${
+              isActive ? 'bg-primary-700 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+            }`
+          }
+        >
+          <Star className="w-3.5 h-3.5 text-yellow-400" />
+          <span>내 메뉴 관리</span>
+          {pinnedScreens.length > 0 && (
+            <ExternalLink className="w-3 h-3 ml-auto" />
+          )}
+        </NavLink>
+      </div>
     </aside>
   )
 }

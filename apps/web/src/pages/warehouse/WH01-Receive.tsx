@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/common/PageHeader'
-import { DataTable, type Column } from '../../components/common/DataTable'
+import { MesGrid } from '../../components/common'
+import type { Column } from '../../components/common'
 import { StatusBadge } from '../../components/common/StatusBadge'
 
 interface ReceiveFormData {
@@ -162,7 +163,7 @@ export function WH01ReceivePage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           {t('warehouse.receive.recentReceipts')}
         </h2>
-        <DataTable<ReceiptRow> columns={columns} data={MOCK_RECEIPTS} keyField="id" />
+        <MesGrid<ReceiptRow> columns={columns} data={MOCK_RECEIPTS} />
       </div>
     </div>
   )

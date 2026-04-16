@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, DataTable, StatusBadge } from '@/components/common'
+import { PageHeader, MesGrid, StatusBadge } from '@/components/common'
 import type { Column } from '@/components/common'
 
 interface ProductionLine {
@@ -96,10 +96,9 @@ export function AdminLinePage() {
       />
 
       <div className="card">
-        <DataTable<ProductionLine>
+        <MesGrid<ProductionLine>
           columns={columns}
           data={mockLines}
-          keyField="id"
         />
       </div>
 

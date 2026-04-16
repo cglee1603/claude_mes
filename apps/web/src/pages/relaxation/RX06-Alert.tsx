@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/common/PageHeader'
-import { DataTable, type Column } from '../../components/common/DataTable'
+import { MesGrid } from '../../components/common'
+import type { Column } from '../../components/common'
 import { StatusBadge } from '../../components/common/StatusBadge'
 
 interface AlertRow {
@@ -69,7 +70,7 @@ export function RX06AlertPage() {
       />
 
       <div className="card">
-        <DataTable<AlertRow> columns={columns} data={MOCK_ALERTS} keyField="id" />
+        <MesGrid<AlertRow> columns={columns} data={MOCK_ALERTS} />
       </div>
     </div>
   )

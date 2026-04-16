@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/common/PageHeader'
-import { DataTable, type Column } from '../../components/common/DataTable'
+import { MesGrid } from '../../components/common'
+import type { Column } from '../../components/common'
 import { StatusBadge } from '../../components/common/StatusBadge'
 
 interface RelaxationPlanRow {
@@ -102,7 +103,7 @@ export function RX04PlanPage() {
       />
 
       <div className="card">
-        <DataTable<RelaxationPlanRow> columns={columns} data={MOCK_PLANS} keyField="id" />
+        <MesGrid<RelaxationPlanRow> columns={columns} data={MOCK_PLANS} />
       </div>
     </div>
   )
