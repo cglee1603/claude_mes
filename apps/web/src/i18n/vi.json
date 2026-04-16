@@ -131,7 +131,14 @@
       "notice": "Tiêu chí quyền sẽ được xác nhận sau — cài đặt hiện tại là giá trị mặc định, cần thiết lập lại trước khi vận hành.",
       "roleTab": "Quyền theo vai trò",
       "deptTab": "Quản lý phòng ban",
-      "addDept": "Thêm phòng ban"
+      "userDeptTab": "Phân công phòng ban theo người dùng",
+      "addDept": "Thêm phòng ban",
+      "userDeptSaved": "Đã lưu cài đặt phòng ban.",
+      "userDeptHint": "Nhấn Lưu sau khi thay đổi. Các hàng chưa lưu được tô màu xanh.",
+      "allRoles": "Tất cả vai trò",
+      "allDepts": "Tất cả phòng ban",
+      "noDept": "Chưa phân công",
+      "unsaved": "Chưa lưu"
     },
     "backup": {
       "title": "Quản lý sao lưu DB",

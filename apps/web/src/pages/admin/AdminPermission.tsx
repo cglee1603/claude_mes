@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader, StatusBadge } from '@/components/common'
-import { Shield, ChevronDown, Save, Users, Building2 } from 'lucide-react'
+import { Shield, ChevronDown, Save, Users, Building2, UserCog } from 'lucide-react'
+import { UserDeptAssignment } from './AdminPermissionUserDept'
 
 /* ── 목업 데이터 ─────────────────────────────────── */
 const ROLES = ['factory_manager', 'line_manager', 'qc_inspector', 'warehouse', 'admin'] as const
@@ -260,7 +261,13 @@ function DepartmentManager() {
 }
 
 /* ── 메인 컴포넌트 ───────────────────────────────── */
-type PermTabKey = 'role' | 'department'
+type PermTabKey = 'role' | 'department' | 'userDept'
+
+const TAB_META: { key: PermTabKey; icon: React.ReactNode; labelKey: string }[] = [
+  { key: 'role',       icon: <Shield className="w-4 h-4" />,   labelKey: 'admin.permission.roleTab' },
+  { key: 'department', icon: <Building2 className="w-4 h-4" />, labelKey: 'admin.permission.deptTab' },
+  { key: 'userDept',   icon: <UserCog className="w-4 h-4" />,  labelKey: 'admin.permission.userDeptTab' },
+]
 
 export function AdminPermissionPage() {
   const { t } = useTranslation()
@@ -281,7 +288,7 @@ export function AdminPermissionPage() {
       {/* 탭 */}
       <div className="border-b border-gray-200">
         <nav className="flex gap-1 -mb-px">
-          {([['role', t('admin.permission.roleTab')], ['department', t('admin.permission.deptTab')]] as [PermTabKey, string][]).map(([key, label]) => (
+          {TAB_META.map(({ key, icon, labelKey }) => (
             <button
               key={key}
               type="button"
@@ -292,8 +299,8 @@ export function AdminPermissionPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              {key === 'role' ? <Shield className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}
-              {label}
+              {icon}
+              {t(labelKey)}
             </button>
           ))}
         </nav>
@@ -301,6 +308,7 @@ export function AdminPermissionPage() {
 
       {tab === 'role'       && <RolePermissionMatrix />}
       {tab === 'department' && <DepartmentManager />}
+      {tab === 'userDept'   && <UserDeptAssignment />}
     </div>
   )
 }

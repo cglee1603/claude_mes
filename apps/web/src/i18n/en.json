@@ -131,7 +131,14 @@
       "notice": "Permission criteria TBD — current settings are defaults and should be reconfigured before go-live.",
       "roleTab": "Role Permissions",
       "deptTab": "Department Management",
-      "addDept": "Add Department"
+      "userDeptTab": "User Department Assignment",
+      "addDept": "Add Department",
+      "userDeptSaved": "Department assignments saved.",
+      "userDeptHint": "Click Save after making changes. Unsaved rows are highlighted in blue.",
+      "allRoles": "All Roles",
+      "allDepts": "All Departments",
+      "noDept": "Unassigned",
+      "unsaved": "Unsaved"
     },
     "backup": {
       "title": "DB Backup Management",
