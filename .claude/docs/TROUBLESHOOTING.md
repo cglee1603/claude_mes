@@ -52,6 +52,27 @@ bunx prisma generate
 ### 9. JWT 인증 401 반환
 - **원인**: 토큰 만료 또는 `JWT_SECRET` 불일치.
 - **해결**: `.env`의 `JWT_SECRET` 확인. 토큰 재발급. RBAC 역할 매핑 점검 (`middleware/auth.ts`).
+- RBAC 역할명: `admin`, `factory_manager`, `line_manager`, `qc_inspector`, `warehouse` (구버전 ADMIN/MANAGER 금지)
+
+### 20. AG Grid 컬럼 레이아웃이 저장되지 않음
+- **원인**: `layoutKey`가 화면 코드 형식 (`{screenCode}-grid`)이 아닌 경우, 또는 `/api/user/layout` API 미등록.
+- **해결**: MesGrid 컴포넌트의 `gridKey` prop이 `WH-01-grid` 형식인지 확인. `useGridLayout` 훅의 API 엔드포인트 확인.
+
+### 21. AG Grid 라이선스 오류 (`AG Grid Enterprise license key not found`)
+- **원인**: `ag-grid-enterprise` 사용 시 라이선스 키 미설정.
+- **해결**: Community 패키지 (`ag-grid-community`, `ag-charts-community`)만 사용하거나, 라이선스 키를 `LicenseManager.setLicenseKey(key)` 로 설정. Gantt 차트는 `ag-charts-enterprise` 라이선스 필요.
+
+### 22. AG Charts Gantt 차트 미표시
+- **원인**: `ag-charts-enterprise` 패키지 미설치 또는 라이선스 미설정.
+- **해결**: Phase 2에서 처리 예정. Phase 1은 `ag-charts-community` 기본 차트만 사용.
+
+### 23. 권한 거부 (403 FORBIDDEN)
+- **원인**: `screen_permissions` 테이블에 해당 screenCode+action 미등록, 또는 사용자 역할에 권한 미부여.
+- **해결**: Admin-P 화면에서 해당 화면의 역할 권한 확인. DB에서 `screen_permissions` → `role_permissions` 조회.
+
+### 24. DB 백업 Job 실패 (`pg_dump: error`)
+- **원인**: `DATABASE_URL` 미설정 또는 pg_dump 미설치.
+- **해결**: `BACKUP_S3_BUCKET`, `RDS_INSTANCE_ID` 환경변수 확인. ECS Task에 `postgresql-client` 패키지 포함 여부 확인.
 
 ---
 

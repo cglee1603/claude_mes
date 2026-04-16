@@ -18,6 +18,13 @@
 | TD-007 | Layer C 테이블 트리거 마이그레이션 미생성 | 데이터 보호 | 높음 | open | 2026-04-10 | |
 | TD-008 | tsconfig.json 패키지별 미작성 | 빌드 | 중간 | open | 2026-04-10 | |
 | TD-009 | openapi.yaml 초기 스펙 미생성 | API 문서 | 중간 | open | 2026-04-10 | |
+| TD-010 | AG Grid 패키지 미설치 (ag-grid-community, ag-charts-community) | 프론트엔드 | 높음 | open | 2026-04-16 | |
+| TD-011 | 권한 관리 시스템 미구현 (PermissionService, screen_permissions) | 인증/인가 | 높음 | open | 2026-04-16 | |
+| TD-012 | DB 백업 Job 미구현 (rds-snapshot, logical-backup, integrity-check) | 인프라 | 높음 | open | 2026-04-16 | |
+| TD-013 | 사용자 레이아웃 저장 API 미구현 (user_layout_preferences) | 프론트엔드 | 중간 | open | 2026-04-16 | |
+| TD-014 | 대시보드·마이페이지 화면 미구현 | 프론트엔드 | 중간 | open | 2026-04-16 | |
+| TD-015 | packages/db/prisma/schema.prisma 파일 없음 (디렉토리만 존재) | 데이터 보호 | 높음 | open | 2026-04-16 | |
+| TD-016 | packages/domain/src 하위 디렉토리 존재하나 소스 파일 없음 | 도메인 | 높음 | open | 2026-04-16 | |
 
 ## 우선순위 기준
 - **높음**: 기능 누락 또는 보안 위험. 다음 스프린트에 반드시 해결.

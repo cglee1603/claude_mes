@@ -63,6 +63,7 @@ OptimizationService (독립)
 | 레이어 | 기술 |
 |--------|------|
 | Frontend | React 18, TanStack React Query, i18next (KO/EN/VI), MSW (자동생성), Vite, bun |
+| 그리드·차트 | **ag-grid-community** (시트형 화면 표준), **ag-charts-community** (KPI/추세 차트) — 무료. ag-charts-enterprise(Gantt)는 Phase 2 라이선스 검토 |
 | Backend | Node.js 20 LTS, bun, Express |
 | Database | PostgreSQL 15 (AWS RDS ap-southeast-1) |
 | ORM | Prisma (타입 안전 스키마) |
@@ -71,6 +72,8 @@ OptimizationService (독립)
 | API 명세 | OpenAPI 3.0 spec.yaml (SSOT — W5 확정, 수정 시 generate-msw 즉시 재실행) |
 | 타입 공유 | TypeScript strict 모드 + ISA-95 WorkOrder 상속 |
 | 오프라인 | PWA, IndexedDB 큐잉, Background Sync (OFFLINE_MAX_HOURS=2h) |
+| 권한 | DB 동적 권한 매트릭스 (User→Department→Role→ScreenPermission 계층) |
+| 백업 | AWS RDS PITR(30일) + 주간 스냅샷 + 월간 pg_dump→S3, 주간 무결성 체크 Job |
 | CI/CD | GitHub Actions: ci.yml, contract.yml, perf.yml, claude-review.yml |
 
 ---
