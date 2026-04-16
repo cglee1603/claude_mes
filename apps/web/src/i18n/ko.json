@@ -45,7 +45,78 @@
     "adminSmv": "SMV 관리",
     "adminErp": "ERP 동기화",
     "adminLifecycle": "데이터 수명주기",
-    "adminQcConfig": "QC 기준"
+    "adminQcConfig": "QC 기준",
+    "adminPermission": "권한 관리",
+    "adminBackup": "DB 백업",
+    "personal": "개인화",
+    "dashboard": "내 대시보드",
+    "mypage": "마이페이지"
+  },
+  "dashboard": {
+    "title": "내 대시보드",
+    "subtitle": "자주 사용하는 화면을 한 눈에 배치하세요",
+    "editLayout": "레이아웃 편집",
+    "saveLayout": "레이아웃 저장",
+    "addWidget": "위젯 추가",
+    "editModeHint": "위젯을 추가·제거하고 저장하면 다음 접속 시 그대로 복원됩니다."
+  },
+  "mypage": {
+    "title": "마이페이지",
+    "tab": {
+      "profile": "프로필",
+      "layout": "레이아웃 관리",
+      "permission": "내 권한",
+      "notification": "알림 설정"
+    },
+    "profile": {
+      "info": "기본 정보",
+      "name": "이름",
+      "email": "이메일",
+      "role": "역할",
+      "department": "부서",
+      "language": "언어",
+      "changePassword": "비밀번호 변경",
+      "currentPassword": "현재 비밀번호",
+      "newPassword": "새 비밀번호",
+      "confirmPassword": "비밀번호 확인",
+      "saved": "변경사항이 저장되었습니다."
+    },
+    "layout": {
+      "hint": "저장된 그리드·대시보드 레이아웃을 관리합니다. ★ 표시가 기본 레이아웃입니다.",
+      "default": "기본",
+      "empty": "저장된 레이아웃이 없습니다."
+    },
+    "permission": {
+      "hint": "현재 계정에 부여된 화면별 접근 권한입니다. 변경은 관리자에게 문의하세요.",
+      "screen": "화면",
+      "view": "조회",
+      "create": "등록",
+      "update": "수정",
+      "delete": "삭제",
+      "adminNote": "권한 변경은 관리자 > 권한 관리 화면에서 처리됩니다."
+    },
+    "notification": {
+      "settings": "알림 설정",
+      "mfzAlert": "MFZ 검출 알림",
+      "dhuThreshold": "DHU 임계값 초과 알림",
+      "erpSync": "ERP 동기화 완료 알림",
+      "backupResult": "DB 백업 결과 알림"
+    }
+  },
+  "admin": {
+    "permission": {
+      "title": "권한 관리",
+      "subtitle": "화면별 역할·부서 접근 권한을 설정합니다",
+      "notice": "권한 기준은 차후 확정 예정입니다. 현재 설정은 초기값으로 운영 전 재설정이 필요합니다.",
+      "roleTab": "역할별 권한",
+      "deptTab": "부서 관리",
+      "addDept": "부서 추가"
+    },
+    "backup": {
+      "title": "DB 백업 관리",
+      "subtitle": "3계층 백업 현황 조회 및 수동 스냅샷 실행",
+      "manualSnapshot": "수동 스냅샷 실행"
+    }
   },
   "common": {
     "save": "저장",

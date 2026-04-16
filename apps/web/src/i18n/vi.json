@@ -45,7 +45,78 @@
     "adminSmv": "Quản lý SMV",
     "adminErp": "Đồng bộ ERP",
     "adminLifecycle": "Vòng đời dữ liệu",
-    "adminQcConfig": "Cấu hình QC"
+    "adminQcConfig": "Cấu hình QC",
+    "adminPermission": "Quản lý quyền",
+    "adminBackup": "Sao lưu DB",
+    "personal": "Cá nhân",
+    "dashboard": "Bảng điều khiển",
+    "mypage": "Trang cá nhân"
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển của tôi",
+    "subtitle": "Sắp xếp các màn hình thường dùng theo ý muốn",
+    "editLayout": "Chỉnh sửa bố cục",
+    "saveLayout": "Lưu bố cục",
+    "addWidget": "Thêm widget",
+    "editModeHint": "Thêm hoặc xóa widget và lưu — sẽ được khôi phục vào lần đăng nhập tiếp theo."
+  },
+  "mypage": {
+    "title": "Trang cá nhân",
+    "tab": {
+      "profile": "Hồ sơ",
+      "layout": "Bố cục",
+      "permission": "Quyền của tôi",
+      "notification": "Thông báo"
+    },
+    "profile": {
+      "info": "Thông tin cá nhân",
+      "name": "Tên",
+      "email": "Email",
+      "role": "Vai trò",
+      "department": "Phòng ban",
+      "language": "Ngôn ngữ",
+      "changePassword": "Đổi mật khẩu",
+      "currentPassword": "Mật khẩu hiện tại",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "saved": "Đã lưu thay đổi."
+    },
+    "layout": {
+      "hint": "Quản lý bố cục lưới và bảng điều khiển đã lưu. ★ là bố cục mặc định.",
+      "default": "Mặc định",
+      "empty": "Chưa có bố cục nào được lưu."
+    },
+    "permission": {
+      "hint": "Quyền truy cập màn hình được cấp cho tài khoản của bạn. Liên hệ quản trị để thay đổi.",
+      "screen": "Màn hình",
+      "view": "Xem",
+      "create": "Tạo",
+      "update": "Sửa",
+      "delete": "Xóa",
+      "adminNote": "Thay đổi quyền được thực hiện tại Admin > Quản lý quyền."
+    },
+    "notification": {
+      "settings": "Cài đặt thông báo",
+      "mfzAlert": "Cảnh báo phát hiện MFZ",
+      "dhuThreshold": "Cảnh báo vượt ngưỡng DHU",
+      "erpSync": "Đồng bộ ERP hoàn tất",
+      "backupResult": "Kết quả sao lưu DB"
+    }
+  },
+  "admin": {
+    "permission": {
+      "title": "Quản lý quyền",
+      "subtitle": "Cấu hình quyền truy cập màn hình theo vai trò và phòng ban",
+      "notice": "Tiêu chí quyền sẽ được xác nhận sau — cài đặt hiện tại là giá trị mặc định, cần thiết lập lại trước khi vận hành.",
+      "roleTab": "Quyền theo vai trò",
+      "deptTab": "Quản lý phòng ban",
+      "addDept": "Thêm phòng ban"
+    },
+    "backup": {
+      "title": "Quản lý sao lưu DB",
+      "subtitle": "Theo dõi trạng thái sao lưu 3 tầng và kích hoạt snapshot thủ công",
+      "manualSnapshot": "Snapshot thủ công"
+    }
   },
   "common": {
     "save": "Lưu",

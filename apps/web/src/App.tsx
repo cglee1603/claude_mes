@@ -54,6 +54,12 @@ import { AdminSMVPage } from './pages/admin/AdminSMV'
 import { AdminERPPage } from './pages/admin/AdminERP'
 import { AdminLifecyclePage } from './pages/admin/AdminLifecycle'
 import { AdminQCConfigPage } from './pages/admin/AdminQCConfig'
+import { AdminPermissionPage } from './pages/admin/AdminPermission'
+import { AdminBackupPage } from './pages/admin/AdminBackup'
+
+// Personal
+import { DashboardPage } from './pages/dashboard/DashboardPage'
+import { MyPage } from './pages/mypage/MyPage'
 
 export default function App() {
   return (
@@ -137,7 +143,13 @@ export default function App() {
           <Route path="erp" element={<AdminERPPage />} />
           <Route path="lifecycle" element={<AdminLifecyclePage />} />
           <Route path="qc-config" element={<AdminQCConfigPage />} />
+          <Route path="permission" element={<AdminPermissionPage />} />
+          <Route path="backup" element={<AdminBackupPage />} />
         </Route>
+
+        {/* Personal */}
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="mypage" element={<MyPage />} />
       </Route>
     </Routes>
   )

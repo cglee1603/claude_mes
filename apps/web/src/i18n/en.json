@@ -45,7 +45,78 @@
     "adminSmv": "SMV Management",
     "adminErp": "ERP Sync",
     "adminLifecycle": "Data Lifecycle",
-    "adminQcConfig": "QC Config"
+    "adminQcConfig": "QC Config",
+    "adminPermission": "Permission",
+    "adminBackup": "DB Backup",
+    "personal": "Personal",
+    "dashboard": "My Dashboard",
+    "mypage": "My Page"
+  },
+  "dashboard": {
+    "title": "My Dashboard",
+    "subtitle": "Arrange frequently used screens at a glance",
+    "editLayout": "Edit Layout",
+    "saveLayout": "Save Layout",
+    "addWidget": "Add Widget",
+    "editModeHint": "Add or remove widgets and save — they will be restored next time you log in."
+  },
+  "mypage": {
+    "title": "My Page",
+    "tab": {
+      "profile": "Profile",
+      "layout": "Layout",
+      "permission": "My Permissions",
+      "notification": "Notifications"
+    },
+    "profile": {
+      "info": "Profile Info",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "department": "Department",
+      "language": "Language",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "saved": "Changes saved."
+    },
+    "layout": {
+      "hint": "Manage saved grid and dashboard layouts. ★ marks the default layout.",
+      "default": "Default",
+      "empty": "No saved layouts."
+    },
+    "permission": {
+      "hint": "Screen-level permissions granted to your account. Contact admin to change.",
+      "screen": "Screen",
+      "view": "View",
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete",
+      "adminNote": "Permission changes are handled in Admin > Permission Management."
+    },
+    "notification": {
+      "settings": "Notification Settings",
+      "mfzAlert": "MFZ Detection Alert",
+      "dhuThreshold": "DHU Threshold Alert",
+      "erpSync": "ERP Sync Complete",
+      "backupResult": "DB Backup Result"
+    }
+  },
+  "admin": {
+    "permission": {
+      "title": "Permission Management",
+      "subtitle": "Configure screen access by role and department",
+      "notice": "Permission criteria TBD — current settings are defaults and should be reconfigured before go-live.",
+      "roleTab": "Role Permissions",
+      "deptTab": "Department Management",
+      "addDept": "Add Department"
+    },
+    "backup": {
+      "title": "DB Backup Management",
+      "subtitle": "Monitor 3-tier backup status and trigger manual snapshots",
+      "manualSnapshot": "Manual Snapshot"
+    }
   },
   "common": {
     "save": "Save",

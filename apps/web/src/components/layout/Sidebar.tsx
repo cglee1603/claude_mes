@@ -12,6 +12,8 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
+  LayoutDashboard,
+  User,
 } from 'lucide-react'
 
 type Priority = 'CRITICAL' | 'HIGH' | 'MEDIUM'
@@ -131,12 +133,24 @@ const NAV_GROUPS: NavGroup[] = [
     path: '/admin',
     icon: Settings,
     children: [
-      { label: 'nav.adminLine', path: '/admin/line' },
-      { label: 'nav.adminMachine', path: '/admin/machine' },
-      { label: 'nav.adminSmv', path: '/admin/smv' },
-      { label: 'nav.adminErp', path: '/admin/erp' },
-      { label: 'nav.adminLifecycle', path: '/admin/lifecycle' },
-      { label: 'nav.adminQcConfig', path: '/admin/qc-config' },
+      { label: 'nav.adminLine',       path: '/admin/line' },
+      { label: 'nav.adminMachine',    path: '/admin/machine' },
+      { label: 'nav.adminSmv',        path: '/admin/smv' },
+      { label: 'nav.adminErp',        path: '/admin/erp' },
+      { label: 'nav.adminLifecycle',  path: '/admin/lifecycle' },
+      { label: 'nav.adminQcConfig',   path: '/admin/qc-config' },
+      { label: 'nav.adminPermission', path: '/admin/permission' },
+      { label: 'nav.adminBackup',     path: '/admin/backup' },
+    ],
+  },
+  {
+    key: 'personal',
+    label: 'nav.personal',
+    path: '/dashboard',
+    icon: LayoutDashboard,
+    children: [
+      { label: 'nav.dashboard', path: '/dashboard' },
+      { label: 'nav.mypage',    path: '/mypage' },
     ],
   },
 ]
