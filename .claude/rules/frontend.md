@@ -92,7 +92,9 @@ async function enqueueOfflineAction(action: OfflineAction) {
 ### 5. 컴포넌트 규칙
 - 함수형 컴포넌트만 사용 (class 컴포넌트 금지)
 - Props 인터페이스: `interface {Component}Props`
-- 300줄 초과 시 분리
+- **파일당 최대 200줄** — 초과 시 서브 컴포넌트·훅으로 분리 (모든 파일 적용)
+  - 예: `DashboardPage.tsx` → `DashboardTabBar.tsx`, `DashboardCanvas.tsx`, `useWidgets.ts`
+  - 예: `WorkspacePage.tsx` → `WorkspacePanel.tsx`, `ScreenSelector.tsx`
 
 ### 6. API 서비스 함수 패턴
 ```typescript
@@ -401,7 +403,203 @@ updateWorkspace(id, panels)
 
 ---
 
-### 13. 화면 전체 목록
+### 13. localStorage 레이아웃 영속 훅
+
+모든 화면의 레이아웃(컬럼 크기, 필터, 정렬 등)은 사용자 로컬에 저장되어
+다음 접속 시 동일한 상태로 복원된다.
+**3개 훅**으로 역할 분리 (파일당 ≤200줄 준수).
+
+---
+
+#### 13-1. `useLocalStorage<T>` — 기본 localStorage 훅
+
+```typescript
+// hooks/useLocalStorage.ts
+import { useState, useCallback } from 'react'
+
+export function useLocalStorage<T>(key: string, initialValue: T) {
+  const [stored, setStored] = useState<T>(() => {
+    try {
+      const item = localStorage.getItem(key)
+      return item ? (JSON.parse(item) as T) : initialValue
+    } catch {
+      return initialValue
+    }
+  })
+
+  const setValue = useCallback((value: T | ((prev: T) => T)) => {
+    setStored(prev => {
+      const next = typeof value === 'function' ? (value as (p: T) => T)(prev) : value
+      try {
+        localStorage.setItem(key, JSON.stringify(next))
+      } catch { /* 용량 초과 무시 */ }
+      return next
+    })
+  }, [key])
+
+  const remove = useCallback(() => {
+    localStorage.removeItem(key)
+    setStored(initialValue)
+  }, [key, initialValue])
+
+  return [stored, setValue, remove] as const
+}
+```
+
+---
+
+#### 13-2. `useGridLayout` — AG Grid 컬럼 상태 영속
+
+```typescript
+// hooks/useGridLayout.ts
+import { useCallback } from 'react'
+import type { ColumnState } from 'ag-grid-community'
+import { useLocalStorage } from './useLocalStorage'
+
+// 저장 키 형식: 'mes-grid:{screenCode}'  (예: 'mes-grid:WH-02', 'mes-grid:SC-10')
+export function useGridLayout(screenCode: string) {
+  const key = `mes-grid:${screenCode}`
+  const [columnState, setColumnState] = useLocalStorage<ColumnState[] | null>(key, null)
+
+  // AgGridReact onGridReady 에서 호출 → 저장된 컬럼 상태 복원
+  const restoreColumnState = useCallback((api: { applyColumnState: Function }) => {
+    if (columnState) {
+      api.applyColumnState({ state: columnState, applyOrder: true })
+    }
+  }, [columnState])
+
+  // onColumnResized / onColumnMoved / onColumnVisible 에서 호출 → 즉시 저장
+  const saveColumnState = useCallback((api: { getColumnState: () => ColumnState[] }) => {
+    setColumnState(api.getColumnState())
+  }, [setColumnState])
+
+  return { restoreColumnState, saveColumnState }
+}
+```
+
+**사용 예**:
+```typescript
+// pages/warehouse/WH02HistoryPage.tsx
+import { useGridLayout } from '@/hooks/useGridLayout'
+
+function WH02HistoryPage() {
+  const { restoreColumnState, saveColumnState } = useGridLayout('WH-02')
+
+  return (
+    <MesGridWithLayout
+      screenCode="WH-02"
+      columns={columns}
+      data={rows}
+      onGridReady={e => restoreColumnState(e.api)}
+      onColumnChanged={e => saveColumnState(e.api)}
+    />
+  )
+}
+```
+
+**저장 키 규칙**:
+| 화면 | 저장 키 |
+|------|--------|
+| WH-02 원단 이력 | `mes-grid:WH-02` |
+| SC-10 재단 LOT 목록 | `mes-grid:SC-10` |
+| QC-25 인라인 검사 | `mes-grid:QC-25` |
+| Admin 생산라인 | `mes-grid:Admin-Line` |
+
+---
+
+#### 13-3. `usePageFilters<T>` — 페이지 필터·정렬 상태 영속
+
+```typescript
+// hooks/usePageFilters.ts
+import { useLocalStorage } from './useLocalStorage'
+
+// 저장 키 형식: 'mes-filters:{pageKey}'  (예: 'mes-filters:WH-02', 'mes-filters:SC-07')
+export function usePageFilters<T extends object>(pageKey: string, defaults: T) {
+  const key = `mes-filters:${pageKey}`
+  const [filters, setFilters, resetFilters] = useLocalStorage<T>(key, defaults)
+
+  // 부분 업데이트 헬퍼 — 한 필드만 바꿀 때 사용
+  const updateFilter = <K extends keyof T>(field: K, value: T[K]) => {
+    setFilters(prev => ({ ...prev, [field]: value }))
+  }
+
+  return { filters, setFilters, updateFilter, resetFilters }
+}
+```
+
+**사용 예**:
+```typescript
+// pages/warehouse/WH02HistoryPage.tsx
+interface WH02Filters {
+  dateFrom: string
+  dateTo: string
+  materialCode: string
+  status: string
+}
+
+const DEFAULT_FILTERS: WH02Filters = {
+  dateFrom: '', dateTo: '', materialCode: '', status: 'ALL'
+}
+
+function WH02HistoryPage() {
+  const { filters, updateFilter, resetFilters } = usePageFilters<WH02Filters>('WH-02', DEFAULT_FILTERS)
+
+  return (
+    <>
+      <FilterBar
+        dateFrom={filters.dateFrom}
+        onDateFromChange={v => updateFilter('dateFrom', v)}
+        onReset={resetFilters}
+      />
+      <MesGrid columns={columns} data={filteredRows} />
+    </>
+  )
+}
+```
+
+---
+
+#### 13-4. 통합 패턴 — 그리드 + 필터 동시 저장
+
+화면에서 그리드 컬럼 상태와 필터 상태를 모두 저장해야 하는 경우:
+
+```typescript
+// 두 훅을 함께 사용
+function SC10CuttingListPage() {
+  const { restoreColumnState, saveColumnState } = useGridLayout('SC-10')
+  const { filters, updateFilter } = usePageFilters<SC10Filters>('SC-10', DEFAULT_FILTERS)
+
+  // ...
+}
+```
+
+- 그리드 컬럼 상태: `mes-grid:SC-10`
+- 필터 상태: `mes-filters:SC-10`
+- 두 키는 독립적으로 저장됨 (충돌 없음)
+
+---
+
+#### 13-5. 모듈화 분리 기준 (≤200줄/파일)
+
+| 파일 크기 | 조치 |
+|---------|------|
+| ≤200줄 | 유지 |
+| 200~300줄 | 서브 컴포넌트·훅 분리 계획 수립 |
+| 300줄+ | 즉시 분리 필수 |
+
+**분리 패턴**:
+```
+DashboardPage.tsx (메인 레이아웃만)
+├── DashboardTabBar.tsx   (탭 UI + 신규 생성 입력)
+├── DashboardCanvas.tsx   (위젯 그리드)
+├── WidgetCard.tsx        (개별 위젯 카드)
+├── WidgetSelector.tsx    (위젯 선택 모달)
+└── useDashboard.ts       (상태·localStorage 로직)
+```
+
+---
+
+### 14. 화면 전체 목록
 | 그룹 | 화면 |
 |------|------|
 | 창고 | WH-01(원단입고), WH-02(이력조회), WH-03(대시보드) |
