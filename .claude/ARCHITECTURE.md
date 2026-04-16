@@ -18,11 +18,16 @@ garment-oem-mes/   (프로젝트 루트)
 │   ├── web/                         # Stream A — React 18 프론트엔드
 │   │   ├── src/
 │   │   │   ├── components/
-│   │   │   │   ├── common/          # Button, Table, Modal, StatusBadge 등
-│   │   │   │   ├── grid/            # MesGrid (AG Grid 래퍼), GridToolbar
-│   │   │   │   ├── dashboard/       # DashboardCanvas, GridWidget, WidgetSelector
+│   │   │   │   ├── common/          # Button, KpiCard, PageHeader, StatusBadge + MesGrid re-export
+│   │   │   │   ├── grid/            # MesGrid.tsx (AG Grid v35 래퍼 — AllCommunityModule 등록)
 │   │   │   │   └── layout/          # Header, Sidebar, MainLayout
-│   │   │   ├── pages/               # 33개 화면 + Dashboard + MyPage + Admin-P + Admin-B
+│   │   │   ├── context/
+│   │   │   │   └── MyMenuContext.tsx  # 워크스페이스 상태·localStorage 영속 (MyMenuProvider)
+│   │   │   ├── pages/
+│   │   │   │   ├── dashboard/       # DashboardPage.tsx — 탭 기반 다중 대시보드
+│   │   │   │   ├── my-menu/         # MyMenuPage.tsx (목록), WorkspacePage.tsx (편집)
+│   │   │   │   ├── mypage/          # MyPage.tsx
+│   │   │   │   └── …(33개 업무 화면)
 │   │   │   ├── hooks/               # TanStack Query 커스텀 훅, useGridLayout
 │   │   │   ├── mocks/               # MSW 핸들러 (spec.yaml 자동생성 — 수동작성 금지)
 │   │   │   ├── services/            # API 호출 함수 (fetch 래퍼)
@@ -192,6 +197,7 @@ OptimizationService ── 독립 (라인밸런싱)
 | `migration.md` | `packages/db/prisma/migrations/**` |
 | `permission.md` | `apps/api/src/middleware/permission*.ts`, `apps/api/src/services/permission*.ts` |
 | `backup.md` | `apps/api/src/jobs/backup*.ts`, `apps/api/src/jobs/integrity*.ts` |
+| `personalization.md` | `apps/web/src/pages/dashboard/**`, `apps/web/src/pages/my-menu/**`, `apps/web/src/context/MyMenuContext.tsx` |
 
 ---
 
@@ -209,5 +215,6 @@ OptimizationService ── 독립 (라인밸런싱)
 | Admin | Admin 1~6 | 라인 · 기계 · SMV · ERP동기화 · 수명주기 · QC기준 |
 | Admin 확장 | Admin-P | 권한 관리 (화면 권한 매트릭스 · 부서 · 역할) |
 | Admin 확장 | Admin-B | DB 백업 관리 (백업 현황 · 무결성 체크 · 수동 스냅샷) |
-| 개인화 | Dashboard | 사용자 커스텀 대시보드 (위젯 기반 · 레이아웃 저장) |
+| 개인화 | Dashboard | **다중 대시보드** — 탭 기반, localStorage 영속, 프리셋 3개 + 사용자 생성 무제한 |
 | 개인화 | MyPage | 프로필 · 레이아웃 목록 · 내 권한 조회 |
+| 개인화 | 내 메뉴 | **워크스페이스** — 복수 화면 합성 레이아웃, `/my-menu/:id`, localStorage 영속 |
