@@ -25,7 +25,19 @@
       "Bash(unzip -q \"/c/works/workspace/claude_code/claude_mes/etc_doc/MES_DevPlan_Part3.docx\" -d part3)",
       "Read(//tmp/**)",
       "Bash(python3 -c ':*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(npm run:*)",
+      "Bash(curl -s \"https://registry.npmjs.org/ag-grid-community/latest\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('ag-grid-community version:', d.get\\('version',''\\)\\); desc=d.get\\('description',''\\); print\\('desc:', desc[:200]\\)\")",
+      "Bash(curl -s \"https://registry.npmjs.org/ag-grid-enterprise/latest\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('version:', d.get\\('version',''\\)\\); kw=d.get\\('keywords',[]\\); print\\('keywords:', kw[:20]\\)\")",
+      "Bash(curl -s \"https://registry.npmjs.org/ag-charts-community/latest\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('ag-charts-community version:', d.get\\('version',''\\)\\); print\\('desc:', d.get\\('description',''\\)[:200]\\)\")",
+      "Bash(curl -s \"https://registry.npmjs.org/ag-charts-enterprise/latest\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('ag-charts-enterprise version:', d.get\\('version',''\\)\\); print\\('desc:', d.get\\('description',''\\)[:200]\\)\")",
+      "Bash(cat packages/db/prisma/schema.prisma)",
+      "Bash(ls packages/domain/src/)",
+      "Bash(ls packages/openapi/src/)"
     ]
   }
 }
