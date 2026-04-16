@@ -50,7 +50,27 @@
     "adminBackup": "Sao lưu DB",
     "personal": "Cá nhân",
     "dashboard": "Bảng điều khiển",
-    "mypage": "Trang cá nhân"
+    "mypage": "Trang cá nhân",
+    "myMenu": "Menu của tôi",
+    "newLayout": "Bố cục mới"
+  },
+  "myMenu": {
+    "title": "Menu của tôi",
+    "subtitle": "Kết hợp nhiều màn hình thành một bố cục, lưu lại và truy cập nhanh từ thanh bên.",
+    "createBtn": "Tạo bố cục mới",
+    "namePlaceholder": "Nhập tên bố cục (VD: Kiểm tra sáng, Giám sát chất lượng)",
+    "emptyTitle": "Chưa có bố cục nào được lưu.",
+    "emptyHint": "Nhập tên ở trên và tạo bố cục mới.",
+    "noPanels": "Chưa có màn hình nào được thêm.",
+    "openEdit": "Mở / Chỉnh sửa",
+    "backToList": "Quay lại Menu của tôi",
+    "addScreen": "Thêm màn hình",
+    "editLayout": "Chỉnh sửa bố cục",
+    "startEdit": "Bắt đầu chỉnh sửa bố cục",
+    "searchScreen": "Tìm kiếm màn hình...",
+    "openNewTab": "Mở trong tab mới",
+    "panelCount": "",
+    "screenAdd": "Thêm màn hình"
   },
   "dashboard": {
     "title": "Bảng điều khiển của tôi",

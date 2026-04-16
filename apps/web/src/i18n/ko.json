@@ -50,7 +50,27 @@
     "adminBackup": "DB 백업",
     "personal": "개인화",
     "dashboard": "내 대시보드",
-    "mypage": "마이페이지"
+    "mypage": "마이페이지",
+    "myMenu": "내 메뉴",
+    "newLayout": "새 레이아웃"
+  },
+  "myMenu": {
+    "title": "내 메뉴",
+    "subtitle": "여러 화면을 하나의 레이아웃으로 합쳐 저장하고 사이드바에서 빠르게 접근하세요.",
+    "createBtn": "새 레이아웃 만들기",
+    "namePlaceholder": "레이아웃 이름 입력 (예: 아침 체크, 품질 모니터링)",
+    "emptyTitle": "저장된 레이아웃이 없습니다.",
+    "emptyHint": "위에서 이름을 입력하고 새 레이아웃을 만들어 보세요.",
+    "noPanels": "화면이 추가되지 않았습니다.",
+    "openEdit": "열기 / 편집",
+    "backToList": "내 메뉴로 돌아가기",
+    "addScreen": "화면 추가",
+    "editLayout": "레이아웃 편집",
+    "startEdit": "레이아웃 편집 시작",
+    "searchScreen": "화면 검색...",
+    "openNewTab": "새 탭에서 열기",
+    "panelCount": "개",
+    "screenAdd": "화면 추가"
   },
   "dashboard": {
     "title": "내 대시보드",

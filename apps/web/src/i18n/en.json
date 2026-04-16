@@ -50,7 +50,27 @@
     "adminBackup": "DB Backup",
     "personal": "Personal",
     "dashboard": "My Dashboard",
-    "mypage": "My Page"
+    "mypage": "My Page",
+    "myMenu": "My Menu",
+    "newLayout": "New Layout"
+  },
+  "myMenu": {
+    "title": "My Menu",
+    "subtitle": "Combine multiple screens into a single layout, save it, and access quickly from the sidebar.",
+    "createBtn": "Create New Layout",
+    "namePlaceholder": "Enter layout name (e.g. Morning Check, Quality Monitor)",
+    "emptyTitle": "No saved layouts.",
+    "emptyHint": "Enter a name above and create a new layout.",
+    "noPanels": "No screens added yet.",
+    "openEdit": "Open / Edit",
+    "backToList": "Back to My Menu",
+    "addScreen": "Add Screen",
+    "editLayout": "Edit Layout",
+    "startEdit": "Start Editing Layout",
+    "searchScreen": "Search screens...",
+    "openNewTab": "Open in new tab",
+    "panelCount": "",
+    "screenAdd": "Add Screen"
   },
   "dashboard": {
     "title": "My Dashboard",

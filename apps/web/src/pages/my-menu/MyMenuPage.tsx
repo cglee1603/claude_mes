@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common'
 import { useMyMenu } from '@/context/MyMenuContext'
 import { LayoutDashboard, Plus, Trash2, Edit2, ExternalLink, Check, X } from 'lucide-react'
 
 export function MyMenuPage() {
+  const { t } = useTranslation()
   const { workspaces, addWorkspace, renameWorkspace, deleteWorkspace } = useMyMenu()
   const navigate = useNavigate()
   const [newName, setNewName] = useState('')
@@ -12,7 +14,7 @@ export function MyMenuPage() {
   const [editingName, setEditingName] = useState('')
 
   function handleCreate() {
-    const name = newName.trim() || `내 레이아웃 ${workspaces.length + 1}`
+    const name = newName.trim() || `${t('myMenu.title')} ${workspaces.length + 1}`
     const ws = addWorkspace(name)
     setNewName('')
     navigate(`/my-menu/${ws.id}`)
@@ -26,15 +28,15 @@ export function MyMenuPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="내 메뉴"
-        subtitle="여러 화면을 하나의 레이아웃으로 합쳐 저장하고 사이드바에서 빠르게 접근하세요."
+        title={t('myMenu.title')}
+        subtitle={t('myMenu.subtitle')}
       />
 
       {/* 새 레이아웃 만들기 */}
       <div className="card flex items-center gap-3">
         <input
           type="text"
-          placeholder="레이아웃 이름 입력 (예: 아침 체크, 품질 모니터링)"
+          placeholder={t('myMenu.namePlaceholder')}
           value={newName}
           onChange={e => setNewName(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleCreate()}
@@ -46,7 +48,7 @@ export function MyMenuPage() {
           className="btn-primary flex items-center gap-2 text-sm flex-shrink-0"
         >
           <Plus className="w-4 h-4" />
-          새 레이아웃 만들기
+          {t('myMenu.createBtn')}
         </button>
       </div>
 
@@ -54,8 +56,8 @@ export function MyMenuPage() {
       {workspaces.length === 0 ? (
         <div className="border-2 border-dashed border-gray-200 rounded-xl py-16 text-center">
           <LayoutDashboard className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm text-gray-400 mb-1">저장된 레이아웃이 없습니다.</p>
-          <p className="text-xs text-gray-300">위에서 이름을 입력하고 새 레이아웃을 만들어 보세요.</p>
+          <p className="text-sm text-gray-400 mb-1">{t('myMenu.emptyTitle')}</p>
+          <p className="text-xs text-gray-300">{t('myMenu.emptyHint')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -92,7 +94,7 @@ export function MyMenuPage() {
                       type="button"
                       onClick={() => { setEditingId(ws.id); setEditingName(ws.name) }}
                       className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
-                      title="이름 변경"
+                      title={t('common.edit')}
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
@@ -100,7 +102,7 @@ export function MyMenuPage() {
                       type="button"
                       onClick={() => deleteWorkspace(ws.id)}
                       className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-500"
-                      title="삭제"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -111,7 +113,7 @@ export function MyMenuPage() {
               {/* 패널 미리보기 */}
               <div className="mb-3 min-h-[48px]">
                 {ws.panels.length === 0 ? (
-                  <p className="text-xs text-gray-400">화면이 추가되지 않았습니다.</p>
+                  <p className="text-xs text-gray-400">{t('myMenu.noPanels')}</p>
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {ws.panels.map(p => (
@@ -131,7 +133,7 @@ export function MyMenuPage() {
                   className="flex-1 btn-primary text-xs flex items-center justify-center gap-1.5"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  열기 / 편집
+                  {t('myMenu.openEdit')}
                 </button>
               </div>
             </div>

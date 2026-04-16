@@ -146,7 +146,7 @@ export function Sidebar() {
             }`}
           >
             <Star className="w-4 h-4 flex-shrink-0 text-yellow-400" />
-            <span className="flex-1 text-left">내 메뉴</span>
+            <span className="flex-1 text-left">{t('nav.myMenu')}</span>
             {workspaces.length > 0 && (
               <span className="text-[10px] bg-yellow-500/80 text-white rounded-full px-1.5 font-bold mr-0.5">
                 {workspaces.length}
@@ -176,7 +176,7 @@ export function Sidebar() {
                   <span className="truncate">{ws.name}</span>
                   {ws.panels.length > 0 && (
                     <span className="text-[9px] text-gray-500 flex-shrink-0 ml-1">
-                      {ws.panels.length}개
+                      {ws.panels.length}{t('myMenu.panelCount')}
                     </span>
                   )}
                 </NavLink>
@@ -194,7 +194,7 @@ export function Sidebar() {
                 }
               >
                 <Plus className="w-3 h-3" />
-                <span>새 레이아웃</span>
+                <span>{t('nav.newLayout')}</span>
               </NavLink>
             </div>
           )}

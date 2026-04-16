@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common'
 import { useMyMenu, ALL_SCREENS, type WorkspacePanel } from '@/context/MyMenuContext'
 import {
@@ -65,6 +66,7 @@ function ScreenPanel({
   onResizeCol: (id: string, d: -1 | 1) => void
   onResizeRow: (id: string, d: -1 | 1) => void
 }) {
+  const { t } = useTranslation()
   const Comp = SCREEN_COMPONENTS[panel.screenCode]
 
   return (
@@ -90,7 +92,7 @@ function ScreenPanel({
               target="_blank"
               rel="noreferrer"
               className="p-1 text-gray-300 hover:text-primary-500"
-              title="새 탭에서 열기"
+              title={t('myMenu.openNewTab')}
             >
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
@@ -115,14 +117,14 @@ function ScreenPanel({
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
           <span className="text-gray-300 mx-0.5">|</span>
-          <span className="text-gray-400">가로</span>
+          <span className="text-gray-400">W</span>
           <button type="button" disabled={panel.colSpan <= 1} onClick={() => onResizeCol(panel.id, -1)}
             className="px-1.5 py-0.5 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30">−</button>
           <span className="font-semibold text-gray-700 w-4 text-center">{panel.colSpan}</span>
           <button type="button" disabled={panel.colSpan >= 4} onClick={() => onResizeCol(panel.id, 1)}
             className="px-1.5 py-0.5 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30">+</button>
           <span className="text-gray-300 mx-0.5">|</span>
-          <span className="text-gray-400">세로</span>
+          <span className="text-gray-400">H</span>
           <button type="button" disabled={panel.rowSpan <= 1} onClick={() => onResizeRow(panel.id, -1)}
             className="px-1.5 py-0.5 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30">−</button>
           <span className="font-semibold text-gray-700 w-4 text-center">{panel.rowSpan}</span>
@@ -134,12 +136,12 @@ function ScreenPanel({
       {/* 화면 콘텐츠 */}
       <div className="flex-1 min-h-0 overflow-auto rounded border border-gray-100">
         {Comp ? (
-          <Suspense fallback={<div className="flex items-center justify-center h-32 text-gray-400 text-sm">로딩 중...</div>}>
+          <Suspense fallback={<div className="flex items-center justify-center h-32 text-gray-400 text-sm">{t('common.loading')}</div>}>
             <Comp />
           </Suspense>
         ) : (
           <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
-            <Monitor className="w-5 h-5 mr-2" />{panel.screenCode} 화면
+            <Monitor className="w-5 h-5 mr-2" />{panel.screenCode}
           </div>
         )}
       </div>
@@ -152,6 +154,7 @@ function ScreenPickerModal({ onAdd, onClose }: {
   onAdd: (code: string, title: string) => void
   onClose: () => void
 }) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const filtered = query.trim()
     ? ALL_SCREENS.filter(s => s.title.includes(query) || s.code.toLowerCase().includes(query.toLowerCase()))
@@ -162,14 +165,14 @@ function ScreenPickerModal({ onAdd, onClose }: {
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
           <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-            <Monitor className="w-5 h-5 text-primary-600" />화면 추가
+            <Monitor className="w-5 h-5 text-primary-600" />{t('myMenu.addScreen')}
           </h3>
           <button type="button" onClick={onClose}><X className="w-5 h-5 text-gray-400" /></button>
         </div>
         <input
           autoFocus
           type="text"
-          placeholder="화면 검색..."
+          placeholder={t('myMenu.searchScreen')}
           value={query}
           onChange={e => setQuery(e.target.value)}
           className="input text-sm mb-4 flex-shrink-0"
@@ -217,6 +220,7 @@ function ScreenItem({ screen, onAdd }: { screen: { code: string; title: string }
 
 /* ── 메인 워크스페이스 페이지 ───────────────────── */
 export function WorkspacePage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { getWorkspace, updateWorkspace } = useMyMenu()
@@ -230,9 +234,9 @@ export function WorkspacePage() {
   if (!workspace) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-3">
-        <p className="text-sm">레이아웃을 찾을 수 없습니다.</p>
+        <p className="text-sm">{t('common.noData')}</p>
         <button type="button" onClick={() => navigate('/my-menu')} className="btn-secondary text-sm flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" />내 메뉴로 돌아가기
+          <ArrowLeft className="w-4 h-4" />{t('myMenu.backToList')}
         </button>
       </div>
     )
@@ -278,7 +282,7 @@ export function WorkspacePage() {
   function handleSave() {
     if (id) updateWorkspace(id, panels)
     setIsEdit(false)
-    setSaveMsg('저장되었습니다.')
+    setSaveMsg(t('mypage.profile.saved'))
     setTimeout(() => setSaveMsg(''), 3000)
   }
 
@@ -291,7 +295,7 @@ export function WorkspacePage() {
     <div className="space-y-4">
       <PageHeader
         title={workspace.name}
-        subtitle={`${panels.length}개 화면 · 레이아웃을 자유롭게 구성하고 저장하세요.`}
+        subtitle={`${panels.length} ${t('myMenu.screenAdd')}`}
         actions={
           <div className="flex items-center gap-2">
             <button
@@ -299,21 +303,21 @@ export function WorkspacePage() {
               onClick={() => navigate('/my-menu')}
               className="btn-secondary text-sm flex items-center gap-1.5"
             >
-              <ArrowLeft className="w-4 h-4" />목록
+              <ArrowLeft className="w-4 h-4" />{t('myMenu.backToList')}
             </button>
             {isEdit ? (
               <>
                 <button type="button" onClick={() => setShowPicker(true)} className="btn-secondary text-sm flex items-center gap-1.5">
-                  <Plus className="w-4 h-4" />화면 추가
+                  <Plus className="w-4 h-4" />{t('myMenu.addScreen')}
                 </button>
                 <button type="button" onClick={handleSave} className="btn-primary text-sm flex items-center gap-1.5">
-                  <Save className="w-4 h-4" />저장
+                  <Save className="w-4 h-4" />{t('common.save')}
                 </button>
-                <button type="button" onClick={handleCancel} className="btn-secondary text-sm">취소</button>
+                <button type="button" onClick={handleCancel} className="btn-secondary text-sm">{t('common.cancel')}</button>
               </>
             ) : (
               <button type="button" onClick={() => setIsEdit(true)} className="btn-secondary text-sm flex items-center gap-1.5">
-                <Settings2 className="w-4 h-4" />레이아웃 편집
+                <Settings2 className="w-4 h-4" />{t('myMenu.editLayout')}
               </button>
             )}
           </div>
@@ -327,7 +331,7 @@ export function WorkspacePage() {
       {isEdit && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 text-sm text-blue-700 flex items-center gap-2">
           <Settings2 className="w-4 h-4 flex-shrink-0" />
-          화면을 추가하고 가로(1–4칸)·세로(1–3칸) 크기와 순서를 조절한 뒤 저장하세요.
+          {t('myMenu.addScreen')} · W(1–4) · H(1–3)
         </div>
       )}
 
@@ -354,14 +358,14 @@ export function WorkspacePage() {
             style={{ minHeight: '200px', gridColumn: 'span 2 / span 2' }}
           >
             <Plus className="w-6 h-6" />
-            <span className="text-sm">화면 추가</span>
+            <span className="text-sm">{t('myMenu.addScreen')}</span>
           </button>
         )}
         {!isEdit && panels.length === 0 && (
           <div className="col-span-4 text-center py-20 text-gray-400">
             <Monitor className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-            <p className="text-sm mb-3">추가된 화면이 없습니다.</p>
-            <button type="button" onClick={() => setIsEdit(true)} className="btn-secondary text-sm">레이아웃 편집 시작</button>
+            <p className="text-sm mb-3">{t('myMenu.noPanels')}</p>
+            <button type="button" onClick={() => setIsEdit(true)} className="btn-secondary text-sm">{t('myMenu.startEdit')}</button>
           </div>
         )}
       </div>

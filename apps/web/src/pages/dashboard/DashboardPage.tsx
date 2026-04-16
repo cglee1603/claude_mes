@@ -470,7 +470,7 @@ export function DashboardPage() {
   }
 
   function handleSave() {
-    setSaveMsg('레이아웃이 저장되었습니다.')
+    setSaveMsg(t('mypage.profile.saved'))
     setIsEditMode(false)
     setTimeout(() => setSaveMsg(''), 3000)
   }
@@ -509,7 +509,7 @@ export function DashboardPage() {
                   className="btn-secondary flex items-center gap-1.5 text-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  위젯 추가
+                  {t('dashboard.addWidget')}
                 </button>
                 <button
                   type="button"
@@ -520,18 +520,28 @@ export function DashboardPage() {
                   {t('dashboard.saveLayout')}
                 </button>
                 <button type="button" onClick={handleCancelEdit} className="btn-secondary text-sm">
-                  취소
+                  {t('common.cancel')}
                 </button>
               </>
             ) : (
-              <button
-                type="button"
-                onClick={() => setIsEditMode(true)}
-                className="btn-secondary flex items-center gap-1.5 text-sm"
-              >
-                <Settings2 className="w-4 h-4" />
-                {t('dashboard.editLayout')}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => { setIsEditMode(true); setShowWidgetPicker(true) }}
+                  className="btn-secondary flex items-center gap-1.5 text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  {t('dashboard.addWidget')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditMode(true)}
+                  className="btn-secondary flex items-center gap-1.5 text-sm"
+                >
+                  <Settings2 className="w-4 h-4" />
+                  {t('dashboard.editLayout')}
+                </button>
+              </>
             )}
           </div>
         }
@@ -577,7 +587,7 @@ export function DashboardPage() {
             style={{ minHeight: '160px' }}
           >
             <Plus className="w-6 h-6" />
-            <span className="text-sm">위젯 추가</span>
+            <span className="text-sm">{t('dashboard.addWidget')}</span>
           </button>
         )}
       </div>
