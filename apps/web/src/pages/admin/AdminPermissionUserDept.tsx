@@ -11,12 +11,12 @@ export const INITIAL_DEPARTMENTS = [
   { id: 'D005', code: 'FEATURE_TEST', name: '신규 기능 테스트' },  // 테스트용 부서
 ]
 
-export const ROLE_LABEL: Record<string, string> = {
-  factory_manager: '공장장',
-  line_manager:    '라인장',
-  qc_inspector:    'QC 검사원',
-  warehouse:       '창고 담당',
-  admin:           '관리자',
+export const ROLE_I18N_KEY: Record<string, string> = {
+  factory_manager: 'admin.permission.role.factory_manager',
+  line_manager:    'admin.permission.role.line_manager',
+  qc_inspector:    'admin.permission.role.qc_inspector',
+  warehouse:       'admin.permission.role.warehouse',
+  admin:           'admin.permission.role.admin',
 }
 
 interface MockUser {
@@ -38,7 +38,7 @@ const MOCK_USERS: MockUser[] = [
   { id: 'U008', name: '홍길동',      email: 'gdhong@factory.com',  role: 'admin',           deptIds: ['D004', 'D005'] },
 ]
 
-const ROLE_FILTER_OPTIONS = ['전체', ...Object.keys(ROLE_LABEL)]
+const ROLE_FILTER_OPTIONS = ['전체', ...Object.keys(ROLE_I18N_KEY)]
 
 /* ── 부서 추가 팝오버 ─────────────────────────────── */
 function DeptPopover({
@@ -144,7 +144,7 @@ export function UserDeptAssignment({
             <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
               className="input text-sm pr-8 appearance-none">
               {ROLE_FILTER_OPTIONS.map(r => (
-                <option key={r} value={r}>{r === '전체' ? t('admin.permission.allRoles') : ROLE_LABEL[r]}</option>
+                <option key={r} value={r}>{r === '전체' ? t('admin.permission.allRoles') : t(ROLE_I18N_KEY[r] ?? r)}</option>
               ))}
             </select>
             <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
@@ -180,7 +180,7 @@ export function UserDeptAssignment({
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
                   <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium">
-                    {ROLE_LABEL[user.role] ?? user.role}
+                    {ROLE_I18N_KEY[user.role] ? t(ROLE_I18N_KEY[user.role]) : user.role}
                   </span>
                   {changed.has(user.id) && (
                     <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">

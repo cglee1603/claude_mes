@@ -133,13 +133,31 @@
       "deptTab": "Department Management",
       "userDeptTab": "User Department Assignment",
       "addDept": "Add Department",
+      "roleSaved": "Permission settings saved.",
+      "screenCode": "Screen Code",
+      "screenName": "Screen Name",
+      "allowed": "Allow",
+      "denied": "Deny",
+      "userCount": "{{count}} users",
+      "active": "Active",
+      "deptCode": "Department Code",
+      "deptCodePlaceholder": "e.g. CUTTING",
+      "deptName": "Department Name",
+      "deptNamePlaceholder": "e.g. Cutting Dept.",
       "userDeptSaved": "Department assignments saved.",
       "userDeptHint": "Click Save after making changes. Unsaved rows are highlighted in blue.",
       "allRoles": "All Roles",
       "allDepts": "All Departments",
       "noDept": "Unassigned",
       "unsaved": "Unsaved",
-      "searchName": "Search by name..."
+      "searchName": "Search by name...",
+      "role": {
+        "factory_manager": "Factory Manager",
+        "line_manager": "Line Manager",
+        "qc_inspector": "QC Inspector",
+        "warehouse": "Warehouse",
+        "admin": "Admin"
+      }
     },
     "backup": {
       "title": "DB Backup Management",

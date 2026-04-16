@@ -8,12 +8,12 @@ import { UserDeptAssignment, INITIAL_DEPARTMENTS } from './AdminPermissionUserDe
 const ROLES = ['factory_manager', 'line_manager', 'qc_inspector', 'warehouse', 'admin'] as const
 type RoleCode = typeof ROLES[number]
 
-const ROLE_LABEL: Record<RoleCode, string> = {
-  factory_manager: '공장장',
-  line_manager:    '라인장',
-  qc_inspector:   'QC 검사원',
-  warehouse:       '창고 담당',
-  admin:           '관리자',
+const ROLE_I18N_KEY: Record<RoleCode, string> = {
+  factory_manager: 'admin.permission.role.factory_manager',
+  line_manager:    'admin.permission.role.line_manager',
+  qc_inspector:    'admin.permission.role.qc_inspector',
+  warehouse:       'admin.permission.role.warehouse',
+  admin:           'admin.permission.role.admin',
 }
 
 const ACTIONS = ['VIEW', 'CREATE', 'UPDATE', 'DELETE', 'EXPORT'] as const
@@ -72,63 +72,49 @@ const MOCK_DEPARTMENTS: Dept[] = [
 
 type ViewMode = 'role' | 'department'
 
+const ALL_GROUPS = '_ALL_'
+
 /* ── 역할별 권한 매트릭스 ─────────────────────────── */
 function RolePermissionMatrix() {
   const { t } = useTranslation()
   const [screens, setScreens] = useState(SCREENS)
   const [saved, setSaved] = useState(false)
-  const [selectedGroup, setSelectedGroup] = useState<string>('전체')
+  const [selectedGroup, setSelectedGroup] = useState(ALL_GROUPS)
 
-  const groups = ['전체', ...Array.from(new Set(SCREENS.map(s => s.group)))]
+  const groups = [ALL_GROUPS, ...Array.from(new Set(SCREENS.map(s => s.group)))]
 
   function togglePerm(screenCode: string, role: RoleCode, action: Action) {
     setScreens(prev => prev.map(s => {
       if (s.screenCode !== screenCode) return s
-      return {
-        ...s,
-        perms: {
-          ...s.perms,
-          [role]: { ...s.perms[role], [action]: !s.perms[role][action] },
-        },
-      }
+      return { ...s, perms: { ...s.perms, [role]: { ...s.perms[role], [action]: !s.perms[role][action] } } }
     }))
   }
 
-  function handleSave() {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
-  }
+  function handleSave() { setSaved(true); setTimeout(() => setSaved(false), 3000) }
 
-  const filtered = selectedGroup === '전체' ? screens : screens.filter(s => s.group === selectedGroup)
+  const filtered = selectedGroup === ALL_GROUPS ? screens : screens.filter(s => s.group === selectedGroup)
 
   return (
     <div className="space-y-4">
       {saved && (
         <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">
-          권한 설정이 저장되었습니다.
+          {t('admin.permission.roleSaved')}
         </div>
       )}
 
       <div className="flex items-center justify-between">
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           {groups.map(g => (
-            <button
-              key={g}
-              type="button"
-              onClick={() => setSelectedGroup(g)}
+            <button key={g} type="button" onClick={() => setSelectedGroup(g)}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                selectedGroup === g
-                  ? 'bg-primary-100 text-primary-700 font-medium'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {g}
+                selectedGroup === g ? 'bg-primary-100 text-primary-700 font-medium' : 'text-gray-500 hover:bg-gray-100'
+              }`}>
+              {g === ALL_GROUPS ? t('common.all') : g}
             </button>
           ))}
         </div>
         <button type="button" onClick={handleSave} className="btn-primary flex items-center gap-1.5 text-sm">
-          <Save className="w-4 h-4" />
-          {t('common.save')}
+          <Save className="w-4 h-4" />{t('common.save')}
         </button>
       </div>
 
@@ -136,56 +122,46 @@ function RolePermissionMatrix() {
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-4 py-3 font-semibold text-gray-700 w-28">화면 코드</th>
-              <th className="text-left px-3 py-3 font-semibold text-gray-700 w-36">화면명</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-700 w-28">{t('admin.permission.screenCode')}</th>
+              <th className="text-left px-3 py-3 font-semibold text-gray-700 w-36">{t('admin.permission.screenName')}</th>
               {ROLES.map(r => (
                 <th key={r} colSpan={ACTIONS.length} className="text-center px-2 py-3 font-semibold text-gray-700 border-l border-gray-200">
-                  {ROLE_LABEL[r]}
+                  {t(ROLE_I18N_KEY[r])}
                 </th>
               ))}
             </tr>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th colSpan={2} />
-              {ROLES.map(r =>
-                ACTIONS.map(a => (
-                  <th key={`${r}-${a}`} className="text-center py-1.5 text-gray-500 font-medium border-l first:border-l-gray-200 border-l-gray-100 w-10">
-                    {a.slice(0, 1)}
-                  </th>
-                ))
-              )}
+              {ROLES.map(r => ACTIONS.map(a => (
+                <th key={`${r}-${a}`} className="text-center py-1.5 text-gray-500 font-medium border-l first:border-l-gray-200 border-l-gray-100 w-10">
+                  {a.slice(0, 1)}
+                </th>
+              )))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.map(screen => (
               <tr key={screen.screenCode} className="hover:bg-gray-50">
-                <td className="px-4 py-2.5">
-                  <span className="font-mono text-gray-600 text-xs">{screen.screenCode}</span>
-                </td>
+                <td className="px-4 py-2.5"><span className="font-mono text-gray-600 text-xs">{screen.screenCode}</span></td>
                 <td className="px-3 py-2.5 text-gray-800">{screen.screenName}</td>
-                {ROLES.map(r =>
-                  ACTIONS.map(a => (
-                    <td key={`${r}-${a}`} className="text-center py-2.5 border-l border-gray-100">
-                      <button
-                        type="button"
-                        onClick={() => togglePerm(screen.screenCode, r, a)}
-                        className={`w-5 h-5 rounded transition-colors mx-auto block ${
-                          screen.perms[r][a]
-                            ? 'bg-green-500 hover:bg-green-600'
-                            : 'bg-gray-200 hover:bg-gray-300'
-                        }`}
-                        title={`${ROLE_LABEL[r]} — ${a}`}
-                      />
-                    </td>
-                  ))
-                )}
+                {ROLES.map(r => ACTIONS.map(a => (
+                  <td key={`${r}-${a}`} className="text-center py-2.5 border-l border-gray-100">
+                    <button type="button" onClick={() => togglePerm(screen.screenCode, r, a)}
+                      className={`w-5 h-5 rounded transition-colors mx-auto block ${
+                        screen.perms[r][a] ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                      title={`${t(ROLE_I18N_KEY[r])} — ${a}`}
+                    />
+                  </td>
+                )))}
               </tr>
             ))}
           </tbody>
         </table>
         <div className="px-4 py-2 text-xs text-gray-400 border-t border-gray-100 flex gap-4">
           <span>V=VIEW &nbsp;C=CREATE &nbsp;U=UPDATE &nbsp;D=DELETE &nbsp;E=EXPORT</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-500 inline-block" /> 허용</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> 거부</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-500 inline-block" /> {t('admin.permission.allowed')}</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> {t('admin.permission.denied')}</span>
         </div>
       </div>
     </div>
@@ -227,9 +203,9 @@ function DepartmentManager({ depts, setDepts }: {
             <div className="flex items-center gap-3">
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <Users className="w-3 h-3" />
-                {dept.userCount}명
+                {t('admin.permission.userCount', { count: dept.userCount ?? 0 })}
               </span>
-              <StatusBadge status="ACTIVE" label="활성" />
+              <StatusBadge status="ACTIVE" label={t('admin.permission.active')} />
               <button type="button" className="text-sm text-blue-600 hover:underline">
                 {t('common.edit')}
               </button>
@@ -244,14 +220,14 @@ function DepartmentManager({ depts, setDepts }: {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
             <h3 className="font-semibold text-gray-900">{t('admin.permission.addDept')}</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">부서 코드</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.permission.deptCode')}</label>
               <input type="text" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())}
-                className="input w-full" placeholder="예) CUTTING" />
+                className="input w-full" placeholder={t('admin.permission.deptCodePlaceholder')} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">부서명</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.permission.deptName')}</label>
               <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
-                className="input w-full" placeholder="예) 재단부" />
+                className="input w-full" placeholder={t('admin.permission.deptNamePlaceholder')} />
             </div>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => { setShowAdd(false); setNewCode(''); setNewName('') }}
