@@ -13,7 +13,7 @@
 
 | 영역 | 기술 |
 |------|------|
-| Frontend | React 18 · TanStack Query · i18next (KO/EN/VI) · MSW · Vite · bun |
+| Frontend | React 18 · TanStack Query · i18next (KO/EN/VI) · MSW · Vite · bun · **AG Grid (ag-grid-community)** · **AG Charts (ag-charts-community)** |
 | Backend | Node.js 20 LTS · Express · bun |
 | Database | PostgreSQL 15 (AWS RDS) · Prisma ORM |
 | 검증 | Zod (런타임) · TypeScript strict (컴파일타임) |
@@ -90,7 +90,9 @@ notifier → 팀 알림
 | `controller.md` | `apps/api/src/routes/**` | Zod 검증 필수(C-4), Dual-Endpoint 패턴, 에러 핸들러 위임 |
 | `schema.md` | `packages/domain/src/**` | Zod 스키마, ISA-95 WorkOrder 상속, TypeScript strict |
 | `test.md` | `**/*.test.ts` | TC(PostgreSQL Docker), fast-check 6개, Dredd, k6 p95 임계값 |
-| `frontend.md` | `apps/web/src/**` | MSW 자동생성만(H-1), i18next 필수, PWA 오프라인 2h |
+| `frontend.md` | `apps/web/src/**` | AG Grid 표준, 컬럼/레이아웃 저장, MSW 자동생성(H-1), i18next, PWA |
+| `permission.md` | `apps/api/src/middleware/permission*.ts` | 화면 권한 매트릭스, 부서/사용자 계층, DB 동적 관리 |
+| `backup.md` | `apps/api/src/jobs/backup*.ts` | RDS 백업 3계층, 무결성 체크 Job, Admin-B 화면 |
 | `erp.md` | `apps/api/src/erp/**` | 5종 IF 스테이징, 자재코드 드롭다운만(C-6), 임금 필드 금지 |
 | `domain.md` | `packages/domain/src/**` | 도메인 상수 정의, LOT 상태 전이 맵, Forbidden Pattern 검사 |
 | `data-lifecycle.md` | `apps/api/src/jobs/archive*` | Layer A/D 아카이브 cron, Layer C 삭제 방지 트리거 SQL |

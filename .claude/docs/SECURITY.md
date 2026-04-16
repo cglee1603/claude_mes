@@ -5,7 +5,7 @@
 - [ ] JWT 토큰 만료 시간 적정 설정 (`ACCESS_TOKEN_EXPIRE_MINUTES` — env.ts 경유)
 - [ ] `JWT_SECRET`은 `.env`에만 존재, 코드 하드코딩 금지 (32자 이상 랜덤값)
 - [ ] 비밀번호 해싱: `bcrypt` 또는 `argon2` 사용 (평문 저장 금지)
-- [ ] RBAC 5개 역할 구현: `ADMIN`, `MANAGER`, `OPERATOR`, `QUALITY`, `VIEWER`
+- [ ] RBAC 5개 역할 구현: `admin`, `factory_manager`, `line_manager`, `qc_inspector`, `warehouse` (permission.md §5 기준)
 - [ ] 인증 실패 시 구체적 원인 미노출 ("Invalid credentials"로 통일)
 - [ ] Dual-Endpoint 패턴: `/api/v1/...` (일반) + `/api/v1/display/...` (대형화면 읽기전용)
 
