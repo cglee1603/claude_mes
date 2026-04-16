@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader, StatusBadge } from '@/components/common'
 import { Shield, ChevronDown, Save, Users, Building2, UserCog } from 'lucide-react'
-import { UserDeptAssignment } from './AdminPermissionUserDept'
+import { UserDeptAssignment, INITIAL_DEPARTMENTS } from './AdminPermissionUserDept'
 
 /* ── 목업 데이터 ─────────────────────────────────── */
 const ROLES = ['factory_manager', 'line_manager', 'qc_inspector', 'warehouse', 'admin'] as const
@@ -61,11 +61,13 @@ const SCREENS: ScreenPerm[] = [
   },
 ]
 
-const MOCK_DEPARTMENTS = [
-  { id: 'D001', code: 'PRODUCTION', name: '생산부', userCount: 42 },
-  { id: 'D002', code: 'QC',         name: '품질관리부', userCount: 12 },
-  { id: 'D003', code: 'WAREHOUSE',  name: '자재창고부', userCount: 8 },
-  { id: 'D004', code: 'ADMIN',      name: '관리부', userCount: 5 },
+type Dept = { id: string; code: string; name: string; userCount?: number }
+
+const MOCK_DEPARTMENTS: Dept[] = [
+  ...INITIAL_DEPARTMENTS.map((d, i) => ({
+    ...d,
+    userCount: [42, 12, 8, 5, 1][i] ?? 0,
+  })),
 ]
 
 type ViewMode = 'role' | 'department'
@@ -191,10 +193,14 @@ function RolePermissionMatrix() {
 }
 
 /* ── 부서 관리 탭 ────────────────────────────────── */
-function DepartmentManager() {
+function DepartmentManager({ depts, setDepts }: {
+  depts: Dept[]
+  setDepts: React.Dispatch<React.SetStateAction<Dept[]>>
+}) {
   const { t } = useTranslation()
-  const [depts, setDepts] = useState(MOCK_DEPARTMENTS)
   const [showAdd, setShowAdd] = useState(false)
+  const [newCode, setNewCode] = useState('')
+  const [newName, setNewName] = useState('')
 
   return (
     <div className="space-y-4 max-w-xl">
@@ -239,19 +245,29 @@ function DepartmentManager() {
             <h3 className="font-semibold text-gray-900">{t('admin.permission.addDept')}</h3>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">부서 코드</label>
-              <input type="text" className="input w-full" placeholder="예) CUTTING" />
+              <input type="text" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())}
+                className="input w-full" placeholder="예) CUTTING" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">부서명</label>
-              <input type="text" className="input w-full" placeholder="예) 재단부" />
+              <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
+                className="input w-full" placeholder="예) 재단부" />
             </div>
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary text-sm">
-                {t('common.cancel')}
-              </button>
-              <button type="button" onClick={() => setShowAdd(false)} className="btn-primary text-sm">
-                {t('common.save')}
-              </button>
+              <button type="button" onClick={() => { setShowAdd(false); setNewCode(''); setNewName('') }}
+                className="btn-secondary text-sm">{t('common.cancel')}</button>
+              <button type="button"
+                disabled={!newCode.trim() || !newName.trim()}
+                onClick={() => {
+                  setDepts(prev => [...prev, {
+                    id: `D${String(Date.now()).slice(-4)}`,
+                    code: newCode.trim(),
+                    name: newName.trim(),
+                    userCount: 0,
+                  }])
+                  setShowAdd(false); setNewCode(''); setNewName('')
+                }}
+                className="btn-primary text-sm disabled:opacity-50">{t('common.save')}</button>
             </div>
           </div>
         </div>
@@ -272,6 +288,7 @@ const TAB_META: { key: PermTabKey; icon: React.ReactNode; labelKey: string }[] =
 export function AdminPermissionPage() {
   const { t } = useTranslation()
   const [tab, setTab] = useState<PermTabKey>('role')
+  const [depts, setDepts] = useState(MOCK_DEPARTMENTS)
 
   return (
     <div className="space-y-6">
@@ -307,8 +324,8 @@ export function AdminPermissionPage() {
       </div>
 
       {tab === 'role'       && <RolePermissionMatrix />}
-      {tab === 'department' && <DepartmentManager />}
-      {tab === 'userDept'   && <UserDeptAssignment />}
+      {tab === 'department' && <DepartmentManager depts={depts} setDepts={setDepts} />}
+      {tab === 'userDept'   && <UserDeptAssignment departments={depts} />}
     </div>
   )
 }
