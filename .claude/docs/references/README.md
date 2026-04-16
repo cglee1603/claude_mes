@@ -1,7 +1,7 @@
 # references — 외부 참조 자료
 
-> 작성 주체: `planner` (ERP 자료 수령·현장 인터뷰 완료 시), PM/리드 (초기 자료 제공)
-> 읽기 주체: `dev-deployer`, `code-reviewer`, `task-tracker`
+> 작성 주체: PM/리드 (수동), ERP 담당자 제공 자료
+> 읽기 주체: `code-reviewer`, `task-tracker`, `orchestrator`
 
 ---
 
