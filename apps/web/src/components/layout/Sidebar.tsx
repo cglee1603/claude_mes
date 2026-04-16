@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Package,
   Layers,
@@ -38,109 +39,110 @@ interface NavGroup {
 const NAV_GROUPS: NavGroup[] = [
   {
     key: 'warehouse',
-    label: '창고·입고',
+    label: 'nav.warehouse',
     path: '/warehouse',
     icon: Package,
     children: [
-      { label: 'WH-01 원단 입고', path: '/warehouse/receive' },
-      { label: 'WH-02 입고 이력', path: '/warehouse/history' },
-      { label: 'WH-03 창고 대시보드', path: '/warehouse/dashboard' },
+      { label: 'nav.wh01', path: '/warehouse/receive' },
+      { label: 'nav.wh02', path: '/warehouse/history' },
+      { label: 'nav.wh03', path: '/warehouse/dashboard' },
     ],
   },
   {
     key: 'relaxation',
-    label: '릴렉싱',
+    label: 'nav.relaxation',
     path: '/relaxation',
     icon: Layers,
     children: [
-      { label: 'RX-04 릴렉싱 계획', path: '/relaxation/plan' },
-      { label: 'RX-05 소재별 시간', path: '/relaxation/material' },
-      { label: 'RX-06 완료 알림', path: '/relaxation/alert' },
+      { label: 'nav.rx04', path: '/relaxation/plan' },
+      { label: 'nav.rx05', path: '/relaxation/material' },
+      { label: 'nav.rx06', path: '/relaxation/alert' },
     ],
   },
   {
     key: 'cutting',
-    label: '재단',
+    label: 'nav.cutting',
     path: '/cutting',
     icon: Scissors,
     children: [
-      { label: 'SC-07 LOT 생성', path: '/cutting/lot-create' },
-      { label: 'SC-08 Bundle 생성', path: '/cutting/bundle-create' },
-      { label: 'SC-09 마커 효율', path: '/cutting/marker' },
-      { label: 'SC-10 LOT 목록', path: '/cutting/lot-list' },
-      { label: 'SC-11 LOT 추적', path: '/cutting/lot-trace' },
-      { label: 'SC-12 쉐이딩 확인', path: '/cutting/shading' },
-      { label: 'SC-13 재단 대시보드', path: '/cutting/dashboard' },
+      { label: 'nav.sc07', path: '/cutting/lot-create' },
+      { label: 'nav.sc08', path: '/cutting/bundle-create' },
+      { label: 'nav.sc09', path: '/cutting/marker' },
+      { label: 'nav.sc10', path: '/cutting/lot-list' },
+      { label: 'nav.sc11', path: '/cutting/lot-trace' },
+      { label: 'nav.sc12', path: '/cutting/shading' },
+      { label: 'nav.sc13', path: '/cutting/dashboard' },
     ],
   },
   {
     key: 'sewing',
-    label: '봉제',
+    label: 'nav.sewing',
     path: '/sewing',
     icon: Shirt,
     children: [
-      { label: 'SW-14 투입 계획', path: '/sewing/plan', priority: 'CRITICAL' },
-      { label: 'SW-15 라인 레이아웃', path: '/sewing/layout', priority: 'CRITICAL' },
-      { label: 'SW-16 기계 상태', path: '/sewing/machine', priority: 'HIGH' },
-      { label: 'SW-17 팀 실적 입력', path: '/sewing/output', priority: 'CRITICAL' },
-      { label: 'SW-18 팀 실적 요약', path: '/sewing/summary', priority: 'CRITICAL' },
+      { label: 'nav.sw14', path: '/sewing/plan', priority: 'CRITICAL' },
+      { label: 'nav.sw15', path: '/sewing/layout', priority: 'CRITICAL' },
+      { label: 'nav.sw16', path: '/sewing/machine', priority: 'HIGH' },
+      { label: 'nav.sw17', path: '/sewing/output', priority: 'CRITICAL' },
+      { label: 'nav.sw18', path: '/sewing/summary', priority: 'CRITICAL' },
     ],
   },
   {
     key: 'quality',
-    label: '품질검사',
+    label: 'nav.quality',
     path: '/quality',
     icon: CheckSquare,
     children: [
-      { label: 'QC-25 인라인 검사', path: '/quality/inline-inspect', priority: 'CRITICAL' },
-      { label: 'QC-26 인라인 결과', path: '/quality/inline-result', priority: 'HIGH' },
-      { label: 'QC-27 최종 검사', path: '/quality/final-inspect', priority: 'CRITICAL' },
-      { label: 'QC-28 최종 결과', path: '/quality/final-result', priority: 'CRITICAL' },
-      { label: 'QC-29 포장 검사', path: '/quality/packing-inspect', priority: 'CRITICAL' },
-      { label: 'QC-30 출하 검사', path: '/quality/shipping-inspect', priority: 'HIGH' },
-      { label: 'QC-31 DHU 트렌드', path: '/quality/dhu-trend', priority: 'CRITICAL' },
-      { label: 'QC-32 품질 대시보드', path: '/quality/dashboard', priority: 'CRITICAL' },
+      { label: 'nav.qc25', path: '/quality/inline-inspect', priority: 'CRITICAL' },
+      { label: 'nav.qc26', path: '/quality/inline-result', priority: 'HIGH' },
+      { label: 'nav.qc27', path: '/quality/final-inspect', priority: 'CRITICAL' },
+      { label: 'nav.qc28', path: '/quality/final-result', priority: 'CRITICAL' },
+      { label: 'nav.qc29', path: '/quality/packing-inspect', priority: 'CRITICAL' },
+      { label: 'nav.qc30', path: '/quality/shipping-inspect', priority: 'HIGH' },
+      { label: 'nav.qc31', path: '/quality/dhu-trend', priority: 'CRITICAL' },
+      { label: 'nav.qc32', path: '/quality/dashboard', priority: 'CRITICAL' },
     ],
   },
   {
     key: 'finishing',
-    label: '완성·포장',
+    label: 'nav.finishing',
     path: '/finishing',
     icon: Archive,
     children: [
-      { label: 'FP-19 태깅', path: '/finishing/tag', priority: 'HIGH' },
-      { label: 'FP-20 Polybag', path: '/finishing/polybag', priority: 'HIGH' },
-      { label: 'FP-21 금속 검출 (MFZ)', path: '/finishing/mfz', priority: 'HIGH' },
-      { label: 'FP-22 Carton 포장', path: '/finishing/carton', priority: 'HIGH' },
+      { label: 'nav.fp19', path: '/finishing/tag', priority: 'HIGH' },
+      { label: 'nav.fp20', path: '/finishing/polybag', priority: 'HIGH' },
+      { label: 'nav.fp21', path: '/finishing/mfz', priority: 'HIGH' },
+      { label: 'nav.fp22', path: '/finishing/carton', priority: 'HIGH' },
     ],
   },
   {
     key: 'analytics',
-    label: '분석·현황',
+    label: 'nav.analytics',
     path: '/analytics',
     icon: BarChart2,
     children: [
-      { label: 'AD-23 공장장 대시보드', path: '/analytics/kpi' },
-      { label: 'AD-24 WIP 조회', path: '/analytics/wip' },
+      { label: 'nav.ad23', path: '/analytics/kpi' },
+      { label: 'nav.ad24', path: '/analytics/wip' },
     ],
   },
   {
     key: 'admin',
-    label: '관리자',
+    label: 'nav.admin',
     path: '/admin',
     icon: Settings,
     children: [
-      { label: '생산 라인', path: '/admin/line' },
-      { label: '재봉 기계', path: '/admin/machine' },
-      { label: 'SMV 관리', path: '/admin/smv' },
-      { label: 'ERP 동기화', path: '/admin/erp' },
-      { label: '데이터 수명주기', path: '/admin/lifecycle' },
-      { label: 'QC 기준', path: '/admin/qc-config' },
+      { label: 'nav.adminLine', path: '/admin/line' },
+      { label: 'nav.adminMachine', path: '/admin/machine' },
+      { label: 'nav.adminSmv', path: '/admin/smv' },
+      { label: 'nav.adminErp', path: '/admin/erp' },
+      { label: 'nav.adminLifecycle', path: '/admin/lifecycle' },
+      { label: 'nav.adminQcConfig', path: '/admin/qc-config' },
     ],
   },
 ]
 
 export function Sidebar() {
+  const { t } = useTranslation()
   const location = useLocation()
 
   // 현재 경로에 해당하는 그룹을 초기 열림 상태로 설정
@@ -179,7 +181,7 @@ export function Sidebar() {
                 }`}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
-                <span className="flex-1 text-left truncate">{label}</span>
+                <span className="flex-1 text-left truncate">{t(label)}</span>
                 {isOpen
                   ? <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
                   : <ChevronRight className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
@@ -201,7 +203,7 @@ export function Sidebar() {
                         }`
                       }
                     >
-                      <span className="truncate">{child.label}</span>
+                      <span className="truncate">{t(child.label)}</span>
                       {child.priority && (
                         <span className={`ml-1 flex-shrink-0 px-1 py-0.5 rounded text-[9px] font-bold leading-none ${PRIORITY_BADGE[child.priority]}`}>
                           {child.priority === 'CRITICAL' ? 'C' : child.priority === 'HIGH' ? 'H' : 'M'}
