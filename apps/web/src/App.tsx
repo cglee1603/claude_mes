@@ -61,6 +61,7 @@ import { AdminBackupPage } from './pages/admin/AdminBackup'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { MyPage } from './pages/mypage/MyPage'
 import { MyMenuPage } from './pages/my-menu/MyMenuPage'
+import { WorkspacePage } from './pages/my-menu/WorkspacePage'
 import { MyMenuProvider } from './context/MyMenuContext'
 
 export default function App() {
@@ -154,6 +155,7 @@ export default function App() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="mypage" element={<MyPage />} />
         <Route path="my-menu" element={<MyMenuPage />} />
+        <Route path="my-menu/:id" element={<WorkspacePage />} />
       </Route>
     </Routes>
     </MyMenuProvider>
