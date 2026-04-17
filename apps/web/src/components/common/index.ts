@@ -1,7 +1,7 @@
 export { StatusBadge } from './StatusBadge'
 export { PageHeader } from './PageHeader'
 export { DataTable } from './DataTable'
-export type { Column } from './DataTable'
+export type { Column } from '../grid/MesGrid'
 export { KpiCard } from './KpiCard'
 export { MesGrid } from '../grid/MesGrid'
 export type { Column as MesColumn } from '../grid/MesGrid'
