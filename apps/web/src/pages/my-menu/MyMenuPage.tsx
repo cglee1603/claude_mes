@@ -1,17 +1,40 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/common'
 import { useMyMenu } from '@/context/MyMenuContext'
-import { LayoutDashboard, Plus, Trash2, Edit2, ExternalLink, Check, X } from 'lucide-react'
+import type { Workspace, WorkspaceExportFile } from '@/context/MyMenuContext'
+import {
+  LayoutDashboard, Plus, Trash2, Edit2, ExternalLink,
+  Check, X, Download, Upload, FolderDown,
+} from 'lucide-react'
 
+/* ── Export 유틸 ─────────────────────────────────── */
+function buildExportFile(workspaces: Workspace[]): WorkspaceExportFile {
+  return { version: '1.0', exportedAt: new Date().toISOString(), workspaces }
+}
+
+function downloadJson(data: WorkspaceExportFile, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+/* ── 메인 컴포넌트 ───────────────────────────────── */
 export function MyMenuPage() {
   const { t } = useTranslation()
-  const { workspaces, addWorkspace, renameWorkspace, deleteWorkspace } = useMyMenu()
+  const { workspaces, addWorkspace, renameWorkspace, deleteWorkspace, importWorkspaces } = useMyMenu()
   const navigate = useNavigate()
+  const importRef = useRef<HTMLInputElement>(null)
+
   const [newName, setNewName] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
   function handleCreate() {
     const name = newName.trim() || `${t('myMenu.title')} ${workspaces.length + 1}`
@@ -25,12 +48,82 @@ export function MyMenuPage() {
     setEditingId(null)
   }
 
+  function handleExportOne(ws: Workspace) {
+    const filename = `workspace-${ws.name.replace(/\s+/g, '_')}.json`
+    downloadJson(buildExportFile([ws]), filename)
+  }
+
+  function handleExportAll() {
+    const filename = `my-workspaces-${new Date().toISOString().slice(0, 10)}.json`
+    downloadJson(buildExportFile(workspaces), filename)
+  }
+
+  function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const raw = JSON.parse(ev.target?.result as string) as WorkspaceExportFile
+        if (!Array.isArray(raw.workspaces)) throw new Error('invalid')
+        const added = importWorkspaces(raw.workspaces)
+        setImportMsg({ ok: true, text: t('myMenu.importSuccess', { n: added }) })
+      } catch {
+        setImportMsg({ ok: false, text: t('myMenu.importError') })
+      }
+      setTimeout(() => setImportMsg(null), 4000)
+      e.target.value = ''
+    }
+    reader.readAsText(file)
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title={t('myMenu.title')}
         subtitle={t('myMenu.subtitle')}
+        actions={
+          <div className="flex items-center gap-2">
+            {workspaces.length > 0 && (
+              <button
+                type="button"
+                onClick={handleExportAll}
+                className="btn-secondary flex items-center gap-1.5 text-sm"
+              >
+                <FolderDown className="w-4 h-4" />
+                {t('myMenu.exportAll')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => importRef.current?.click()}
+              className="btn-secondary flex items-center gap-1.5 text-sm"
+            >
+              <Upload className="w-4 h-4" />
+              {t('myMenu.importBtn')}
+            </button>
+            <input
+              ref={importRef}
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleImportFile}
+            />
+          </div>
+        }
       />
+
+      {/* Import 결과 메시지 */}
+      {importMsg && (
+        <div className={`rounded-lg px-4 py-2.5 text-sm flex items-center gap-2 ${
+          importMsg.ok
+            ? 'bg-green-50 border border-green-200 text-green-700'
+            : 'bg-red-50 border border-red-200 text-red-700'
+        }`}>
+          {importMsg.ok ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+          {importMsg.text}
+        </div>
+      )}
 
       {/* 새 레이아웃 만들기 */}
       <div className="card flex items-center gap-3">
@@ -97,6 +190,14 @@ export function MyMenuPage() {
                       title={t('common.edit')}
                     >
                       <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleExportOne(ws)}
+                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-500"
+                      title={t('myMenu.exportBtn')}
+                    >
+                      <Download className="w-3.5 h-3.5" />
                     </button>
                     <button
                       type="button"

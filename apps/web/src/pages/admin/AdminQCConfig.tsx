@@ -46,12 +46,12 @@ export function AdminQCConfigPage() {
     },
     {
       key: 'ftpThreshold',
-      header: 'FTP 임계값',
+      header: t('admin.qcConfig.ftpThreshold'),
       render: (row) => <span>{row.ftpThreshold.toFixed(1)}%</span>,
     },
     { key: 'aqlLevel', header: t('admin.qcConfig.aqlLevel'), render: (row) => <span>AQL {row.aqlLevel}</span> },
     { key: 'inspectionLevel', header: t('admin.qcConfig.inspectionLevel') },
-    { key: 'updatedAt', header: '최종 수정일' },
+    { key: 'updatedAt', header: t('admin.qcConfig.updatedAt') },
     {
       key: 'actions',
       header: '',
@@ -71,13 +71,12 @@ export function AdminQCConfigPage() {
     <div className="space-y-6">
       <PageHeader
         title={t('admin.qcConfig.title')}
-        subtitle="바이어별 DHU·AQL·FTP 기준값 관리 (C-1: 하드코딩 금지 — DB 조회 기준)"
+        subtitle={t('admin.qcConfig.subtitle')}
       />
 
       {/* Note about C-1 */}
       <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-        <strong>C-1 준수:</strong> 이 화면의 DHU/AQL 값이 QualityService의 유일한 기준 원천입니다.
-        코드에 임계값을 하드코딩하면 CI에서 자동 차단됩니다.
+        {t('admin.qcConfig.c1Note')}
       </div>
 
       <div className="card">
@@ -92,7 +91,7 @@ export function AdminQCConfigPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {modal.config?.buyerCode} QC 기준 수정
+              {t('admin.qcConfig.editTitle', { buyer: modal.config?.buyerCode })}
             </h3>
             <div className="space-y-4">
               <div>
@@ -108,11 +107,11 @@ export function AdminQCConfigPage() {
                   value={form.dhuThreshold ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, dhuThreshold: Number(e.target.value) }))}
                 />
-                <p className="text-xs text-gray-500 mt-1">C-1: 이 값이 QualityService.dhuThreshold로 사용됩니다</p>
+                <p className="text-xs text-gray-500 mt-1">{t('admin.qcConfig.c1FieldNote')}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  FTP 임계값 (%)
+                  {t('admin.qcConfig.ftpThreshold')} (%)
                 </label>
                 <input
                   type="number"
@@ -148,9 +147,9 @@ export function AdminQCConfigPage() {
                   value={form.inspectionLevel ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, inspectionLevel: e.target.value }))}
                 >
-                  <option value="Level I">Level I (간소)</option>
-                  <option value="Level II">Level II (표준)</option>
-                  <option value="Level III">Level III (강화)</option>
+                  <option value="Level I">{t('admin.qcConfig.levelSimple')}</option>
+                  <option value="Level II">{t('admin.qcConfig.levelStandard')}</option>
+                  <option value="Level III">{t('admin.qcConfig.levelStrict')}</option>
                 </select>
               </div>
             </div>

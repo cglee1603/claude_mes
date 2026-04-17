@@ -11,24 +11,24 @@ const mockUser = {
   name: 'Nguyen Van A',
   email: 'nguyenvana@factory.vn',
   role: 'line_manager',
-  department: '봉제 1팀',
-  language: 'vi',
+  department: 'Sewing Team 1',
+  language: 'en',
 }
 
 const mockLayouts = [
-  { key: 'dashboard-main',   name: '기본 대시보드',   type: '대시보드', updatedAt: '2026-04-16', isDefault: true },
-  { key: 'dashboard-quality','name': '품질 집중 뷰',  type: '대시보드', updatedAt: '2026-04-15', isDefault: false },
-  { key: 'SW-17-grid',       name: 'SW-17 팀실적 그리드', type: '그리드', updatedAt: '2026-04-14', isDefault: false },
-  { key: 'SC-10-grid',       name: 'SC-10 LOT 목록 그리드', type: '그리드', updatedAt: '2026-04-12', isDefault: false },
+  { key: 'dashboard-main',    name: 'Default Dashboard',        type: 'dashboard', updatedAt: '2026-04-16', isDefault: true },
+  { key: 'dashboard-quality', name: 'Quality Focus View',       type: 'dashboard', updatedAt: '2026-04-15', isDefault: false },
+  { key: 'H-RT-01-grid',     name: 'H-RT-01 Production Output Grid', type: 'grid', updatedAt: '2026-04-14', isDefault: false },
+  { key: 'H-SC-01-grid',     name: 'H-SC-01 Cutting Plan Grid', type: 'grid',     updatedAt: '2026-04-12', isDefault: false },
 ]
 
 const mockPermissions = [
-  { screen: 'SW-17 팀 실적 입력', view: true,  create: true,  update: true,  delete: false },
-  { screen: 'SW-18 팀 실적 요약', view: true,  create: false, update: false, delete: false },
-  { screen: 'SC-10 LOT 목록',   view: true,  create: false, update: false, delete: false },
-  { screen: 'QC-25 인라인 검사', view: true,  create: false, update: false, delete: false },
-  { screen: 'AD-23 공장장 대시보드', view: false, create: false, update: false, delete: false },
-  { screen: 'Admin 권한 관리',  view: false, create: false, update: false, delete: false },
+  { screenCode: 'H-RT-01', screenKey: 'admin.permission.screen.H-RT-01', view: true,  create: true,  update: true,  delete: false },
+  { screenCode: 'H-SW-01', screenKey: 'admin.permission.screen.H-SW-01', view: true,  create: false, update: false, delete: false },
+  { screenCode: 'H-SC-01', screenKey: 'admin.permission.screen.H-SC-01', view: true,  create: false, update: false, delete: false },
+  { screenCode: 'H-QC-01', screenKey: 'admin.permission.screen.H-QC-01', view: true,  create: false, update: false, delete: false },
+  { screenCode: 'Dashboard', screenKey: 'admin.permission.screen.Dashboard', view: false, create: false, update: false, delete: false },
+  { screenCode: 'Admin',    screenKey: 'admin.permission.screen.Admin',   view: false, create: false, update: false, delete: false },
 ]
 
 type TabKey = 'profile' | 'layout' | 'permission' | 'notification'
@@ -40,12 +40,12 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: 'notification', label: 'mypage.tab.notification', icon: Bell },
 ]
 
-const ROLE_LABEL: Record<string, string> = {
-  admin: '관리자',
-  factory_manager: '공장장',
-  line_manager: '라인장',
-  qc_inspector: 'QC 검사원',
-  warehouse: '창고 담당',
+const ROLE_I18N_KEY: Record<string, string> = {
+  admin:           'admin.permission.role.admin',
+  factory_manager: 'admin.permission.role.factory_manager',
+  line_manager:    'admin.permission.role.line_manager',
+  qc_inspector:    'admin.permission.role.qc_inspector',
+  warehouse:       'admin.permission.role.warehouse',
 }
 
 /* ── 프로필 탭 ───────────────────────────────────── */
@@ -97,7 +97,7 @@ function ProfileTab() {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">{t('mypage.profile.role')}</label>
-            <p className="text-sm text-gray-900">{ROLE_LABEL[mockUser.role] ?? mockUser.role}</p>
+            <p className="text-sm text-gray-900">{t(ROLE_I18N_KEY[mockUser.role] ?? mockUser.role)}</p>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">{t('mypage.profile.department')}</label>
@@ -112,12 +112,12 @@ function ProfileTab() {
                   onChange={e => setLang(e.target.value)}
                   className="input w-full"
                 >
-                  <option value="ko">한국어</option>
                   <option value="en">English</option>
-                  <option value="vi">Tiếng Việt</option>
+                  <option value="vi">Tiếng Việt (Vietnamese)</option>
+                  <option value="ko">한국어 (Korean)</option>
                 </select>
               )
-              : <p className="text-sm text-gray-900">{{ ko: '한국어', en: 'English', vi: 'Tiếng Việt' }[lang]}</p>
+              : <p className="text-sm text-gray-900">{{ ko: '한국어', en: 'English', vi: 'Tiếng Việt' }[lang] ?? lang}</p>
             }
           </div>
         </div>
@@ -174,11 +174,11 @@ function LayoutTab() {
           <div key={layout.key} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
             <div className="flex items-center gap-3">
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                layout.type === '대시보드'
+                layout.type === 'dashboard'
                   ? 'bg-purple-100 text-purple-700'
                   : 'bg-blue-100 text-blue-700'
               }`}>
-                {layout.type}
+                {layout.type === 'dashboard' ? t('mypage.layout.typeDashboard') : t('mypage.layout.typeGrid')}
               </span>
               <div>
                 <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
@@ -187,14 +187,14 @@ function LayoutTab() {
                     <span className="text-xs text-yellow-600 font-normal ml-1">★ {t('mypage.layout.default')}</span>
                   )}
                 </p>
-                <p className="text-xs text-gray-400">{layout.updatedAt} 수정</p>
+                <p className="text-xs text-gray-400">{t('common.updatedAt', { date: layout.updatedAt })}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => toggleDefault(layout.key)}
-                title={layout.isDefault ? '기본 해제' : '기본으로 설정'}
+                title={layout.isDefault ? t('mypage.layout.unsetDefault') : t('mypage.layout.setDefault')}
                 className={`p-1.5 rounded-md transition-colors ${
                   layout.isDefault
                     ? 'text-yellow-500 hover:text-yellow-600'
@@ -244,8 +244,11 @@ function PermissionTab() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {mockPermissions.map(p => (
-              <tr key={p.screen} className="hover:bg-gray-50">
-                <td className="px-4 py-2.5 text-gray-800">{p.screen}</td>
+              <tr key={p.screenCode} className="hover:bg-gray-50">
+                <td className="px-4 py-2.5 text-gray-800">
+                  <span className="font-mono text-xs text-gray-500 mr-2">{p.screenCode}</span>
+                  {t(p.screenKey)}
+                </td>
                 {actionCols.map(a => (
                   <td key={a} className="text-center px-3 py-2.5">
                     {p[a]
@@ -312,7 +315,7 @@ export function MyPage() {
     <div className="space-y-6">
       <PageHeader
         title={t('mypage.title')}
-        subtitle={`${mockUser.name} · ${ROLE_LABEL[mockUser.role] ?? mockUser.role}`}
+        subtitle={`${mockUser.name} · ${t(ROLE_I18N_KEY[mockUser.role] ?? mockUser.role)}`}
       />
 
       {/* 탭 바 */}

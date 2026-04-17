@@ -37,7 +37,30 @@
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('ag-charts-enterprise version:', d.get\\('version',''\\)\\); print\\('desc:', d.get\\('description',''\\)[:200]\\)\")",
       "Bash(cat packages/db/prisma/schema.prisma)",
       "Bash(ls packages/domain/src/)",
-      "Bash(ls packages/openapi/src/)"
+      "Bash(ls packages/openapi/src/)",
+      "Bash(git checkout *)",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "Bash(bun install *)",
+      "Bash(where bun *)",
+      "Bash(grep -r \"workspace:\" C:/works/workspace/claude_code/claude_mes/packages/*/package.json)",
+      "Bash(grep -r \"workspace:\" C:/works/workspace/claude_code/claude_mes/apps/*/package.json)",
+      "Bash(where yarn *)",
+      "Bash(where pnpm *)",
+      "Bash(npm --version)",
+      "Bash(yarn add *)",
+      "Bash(curl -fsSL https://bun.sh/install)",
+      "Bash(bash)",
+      "Bash(~/.bun/bin/bun install *)",
+      "Bash(node *)",
+      "Bash(~/.bun/bin/bun run *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:v for k,v in d.items\\(\\) if 'nav' in k.lower\\(\\) or 'menu' in k.lower\\(\\) or 'my' in k.lower\\(\\)}, ensure_ascii=False, indent=2\\)\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(git cherry-pick *)",
+      "Bash(grep -v \"//\")",
+      "Bash(bun run *)",
+      "Bash(grep -rh \"t\\(['\\\\\"]\\\\\\\\|i18nKey=\" pages/ components/ --include=\"*.tsx\" --include=\"*.ts\")",
+      "Bash(grep -oP \"t\\\\\\(['\\\\\"]\\\\\\\\K[^'\\\\\"]+|i18nKey=['\\\\\"]\\\\\\\\K[^'\\\\\"]*\")"
     ]
   }
 }

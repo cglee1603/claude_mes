@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>GarmentOS MES — ERD v4 최적화 완성본 (72 Objects · 103 Relations)</title>
+<style>
+:root{--bg:#0D1117;--surf:#161B22;--bdr:#21262D;--txt:#E6EDF3;--muted:#8B949E;--accent:#58A6FF;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--bg);overflow:hidden;height:100vh;color:var(--txt);}
+#toolbar{position:fixed;top:0;left:0;right:0;height:46px;background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:5px;padding:0 10px;z-index:200;user-select:none;}
+.tb-title{font-weight:800;font-size:13px;white-space:nowrap;}
+.tb-sub{font-size:10px;color:var(--muted);margin-right:2px;white-space:nowrap;}
+.tb-sep{width:1px;height:20px;background:var(--bdr);flex-shrink:0;margin:0 2px;}
+.lb{padding:2px 8px;border-radius:11px;font-size:10.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--bdr);background:transparent;color:var(--muted);transition:all .15s;white-space:nowrap;}
+.lb:hover{background:var(--bdr);color:var(--txt);}
+.lb.active{color:#fff;border-color:transparent;}
+.lb.all.active{background:#334155;}.lb.lv4.active{background:#8B5CF6;}.lb.wh.active{background:#DC8A00;}
+.lb.cut.active{background:#3B82F6;}.lb.core.active{background:#0891B2;}.lb.sew.active{background:#06B6D4;}
+.lb.fin.active{background:#10B981;}.lb.new.active{background:#F59E0B;}.lb.view.active{background:#6D28D9;}
+.tb-r{margin-left:auto;display:flex;align-items:center;gap:5px;}
+.zi{font-size:11px;color:var(--muted);min-width:38px;text-align:center;}
+.ib{width:26px;height:26px;border:1px solid var(--bdr);background:transparent;color:var(--muted);border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.ib:hover{background:var(--bdr);color:var(--txt);}
+#cwrap{position:fixed;top:46px;left:0;right:0;bottom:0;overflow:hidden;cursor:grab;background:var(--bg);background-image:radial-gradient(circle,#21262D 1px,transparent 1px);background-size:28px 28px;}
+#cwrap.grabbing{cursor:grabbing;}
+#canvas{position:relative;width:3510px;height:1660px;transform-origin:0 0;}
+#svglines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;}
+.tbl{position:absolute;width:218px;background:#161B22;border:1.5px solid var(--bdr);border-radius:9px;overflow:hidden;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.5);transition:box-shadow .15s,opacity .2s;}
+.tbl:hover{box-shadow:0 6px 24px rgba(0,0,0,.7);z-index:20;}
+.tbl.hl{box-shadow:0 0 0 2.5px var(--accent),0 6px 24px rgba(0,0,0,.7);z-index:20;}
+.tbl.dim{opacity:.12;}
+.tbl.isview{border:2px dashed rgba(109,40,217,.6);background:rgba(109,40,217,.04);}
+.tbl.isview .thdr{background:rgba(76,29,149,.9);}
+.thdr{padding:0 7px;height:32px;display:flex;align-items:center;gap:5px;color:#fff;font-size:11px;font-weight:700;}
+.ticon{font-size:11px;}
+.tname{flex:1;font-family:'Consolas','Courier New',monospace;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;}
+.badge-row{padding:1px 6px 2px;display:flex;gap:3px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.08);}
+.hbadge{font-size:8px;font-weight:800;padding:1px 4px;border-radius:4px;background:rgba(239,68,68,.25);color:#FCA5A5;}
+.nbadge{font-size:8px;font-weight:800;padding:1px 4px;border-radius:4px;background:rgba(251,191,36,.25);color:#FCD34D;}
+.pbadge{font-size:8px;font-weight:800;padding:1px 4px;border-radius:4px;background:rgba(16,185,129,.25);color:#6EE7B7;}
+.vbadge{font-size:8px;font-weight:800;padding:1px 4px;border-radius:4px;background:rgba(139,92,246,.25);color:#C4B5FD;}
+.mbadge{font-size:9px;}
+.crow{height:22px;padding:0 6px;display:flex;align-items:center;gap:4px;border-top:1px solid rgba(255,255,255,.05);font-size:10.5px;}
+.crow.pkr{background:rgba(251,191,36,.06);}.crow.fkr{background:rgba(249,115,22,.04);}
+.cb{width:18px;font-size:8px;font-weight:800;border-radius:3px;text-align:center;padding:1px 0;flex-shrink:0;line-height:13px;}
+.cb-pk{background:#B45309;color:#FEF3C7;}.cb-fk{background:#1D4ED8;color:#DBEAFE;}
+.cb-uq{background:#6D28D9;color:#EDE9FE;}.cb-sq{background:#065F46;color:#D1FAE5;}
+.cb-gn{background:#831843;color:#FCE7F3;}.cb-sp{width:18px;}
+.cn{font-family:'Consolas','Courier New',monospace;font-size:10.5px;font-weight:600;color:var(--txt);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.ct{font-family:'Consolas','Courier New',monospace;font-size:9px;color:var(--muted);flex-shrink:0;max-width:95px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+#detail{position:fixed;right:0;top:46px;bottom:0;width:278px;background:var(--surf);border-left:1px solid var(--bdr);transform:translateX(100%);transition:transform .2s ease;z-index:100;display:flex;flex-direction:column;}
+#detail.open{transform:translateX(0);}
+#dh{padding:10px 12px 8px;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:6px;}
+#dn{font-size:13px;font-weight:800;font-family:'Consolas','Courier New',monospace;flex:1;}
+#dc{background:none;border:1px solid var(--bdr);color:var(--muted);width:22px;height:22px;border-radius:5px;cursor:pointer;font-size:13px;flex-shrink:0;}
+#dc:hover{background:var(--bdr);}
+#db{flex:1;overflow-y:auto;padding:10px 12px;}
+.ds{margin-bottom:12px;}
+.dst{font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:5px;}
+.dcr{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:11px;}
+.dcr:last-child{border-bottom:none;}
+.dcn{font-family:'Consolas','Courier New',monospace;font-weight:600;color:var(--txt);}
+.dct{color:var(--muted);font-size:10px;font-family:'Consolas','Courier New',monospace;}
+.drr{padding:3px 0;font-size:10.5px;color:var(--muted);display:flex;gap:5px;align-items:center;}
+.dra{font-weight:700;}.drt{color:var(--txt);font-family:'Consolas','Courier New',monospace;font-weight:600;}
+#leg{position:fixed;bottom:10px;left:10px;z-index:80;background:var(--surf);border:1px solid var(--bdr);border-radius:9px;padding:9px 11px;font-size:10px;}
+#leg h3{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;}
+.lr{display:flex;align-items:center;gap:5px;margin-bottom:3px;color:var(--muted);}
+.lc{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.zone-bg{position:absolute;border-radius:8px;pointer-events:none;}
+.zone-lbl{position:absolute;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;pointer-events:none;opacity:.65;}
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <span class="tb-title">GarmentOS MES</span>
+  <span class="tb-sub">ERD v4 · 72 Objects · 103 Relations · 즉시/중기/장기 최적화 완성</span>
+  <div class="tb-sep"></div>
+  <button class="lb all active" onclick="filter('all',this)">전체</button>
+  <button class="lb lv4" onclick="filter('lv4',this)">Level4 ERP</button>
+  <button class="lb wh"  onclick="filter('wh',this)">Warehouse</button>
+  <button class="lb cut" onclick="filter('cut',this)">CUT</button>
+  <button class="lb core" onclick="filter('core',this)">Core MES</button>
+  <button class="lb sew" onclick="filter('sew',this)">Sewing</button>
+  <button class="lb fin" onclick="filter('fin',this)">Finishing</button>
+  <div class="tb-sep"></div>
+  <button class="lb new" onclick="filter('new',this)">🆕 신규</button>
+  <button class="lb view" onclick="filter('vw',this)">⬡ VIEW/PART</button>
+  <div class="tb-sep"></div>
+  <button class="lb active" id="ltog" onclick="toggleLines()">관계선</button>
+  <div class="tb-r">
+    <button class="ib" onclick="resetView()" title="초기화">⊙</button>
+    <button class="ib" onclick="doZoom(-.15)">−</button>
+    <span class="zi" id="zi">60%</span>
+    <button class="ib" onclick="doZoom(.15)">＋</button>
+  </div>
+</div>
+<div id="cwrap"><div id="canvas"><svg id="svglines"></svg><div id="tc"></div></div></div>
+<div id="detail">
+  <div id="dh">
+    <div><div id="dn">—</div><div id="dl" style="font-size:10.5px;color:var(--muted);margin-top:2px;"></div></div>
+    <button id="dc" onclick="closeDetail()">✕</button>
+  </div>
+  <div id="db"></div>
+</div>
+<div id="leg">
+  <h3>범례</h3>
+  <div class="lr"><div class="lc" style="background:#8B5CF6"></div>Level4 ERP</div>
+  <div class="lr"><div class="lc" style="background:#0891B2"></div>Level3 MES 핵심</div>
+  <div class="lr"><div class="lc" style="background:#DC8A00"></div>Warehouse</div>
+  <div class="lr"><div class="lc" style="background:#3B82F6"></div>CUT</div>
+  <div class="lr"><div class="lc" style="background:#06B6D4"></div>Sewing</div>
+  <div class="lr"><div class="lc" style="background:#10B981"></div>Finishing</div>
+  <div class="lr"><div class="lc" style="background:#F97316"></div>마스터</div>
+  <div class="lr"><div class="lc" style="background:#64748B"></div>시스템</div>
+  <div class="lr" style="margin-top:5px;"><span style="background:rgba(251,191,36,.25);color:#FCD34D;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;">NEW</span> 신규 추가</div>
+  <div class="lr"><span style="background:rgba(16,185,129,.25);color:#6EE7B7;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;">PART</span> 파티셔닝</div>
+  <div class="lr"><span style="background:rgba(139,92,246,.25);color:#C4B5FD;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;">VIEW</span> DB 뷰</div>
+  <div class="lr"><span style="background:rgba(251,191,36,.1);color:#FCD34D;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;">🔄</span> 수정됨</div>
+  <div class="lr" style="margin-top:5px;">
+    <svg width="24" height="10"><line x1="0" y1="5" x2="18" y2="5" stroke="#58A6FF" stroke-width="1.5"/></svg>필수 FK
+  </div>
+  <div class="lr">
+    <svg width="24" height="10"><line x1="0" y1="5" x2="18" y2="5" stroke="#58A6FF" stroke-width="1.5" stroke-dasharray="4,3"/></svg>선택 FK
+  </div>
+</div>
+<script>
+const LAYERS={
+  lv4:{label:'Level 4 ERP',color:'#8B5CF6'},
+  lv3:{label:'Level 3 MES',color:'#0891B2'},
+  mst:{label:'마스터',color:'#F97316'},
+  wh:{label:'Warehouse',color:'#DC8A00'},
+  cut:{label:'CUT',color:'#3B82F6'},
+  sew:{label:'Sewing',color:'#06B6D4'},
+  fin:{label:'Finishing',color:'#10B981'},
+  sys:{label:'시스템',color:'#64748B'},
+};
+const TW=218,CH=22,HH=32;
+
+const TABLES={
+// ═══ MASTER DATA ════════════════════════════════════════════════════════════
+suppliers:{layer:'mst',x:25,y:60,icon:'🏭',desc:'공급업체 마스터',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'supplier_code',t:'VARCHAR(20)',b:['uq']},
+  {n:'supplier_name',t:'VARCHAR(100)',b:[]},{n:'country',t:'VARCHAR(50)',b:[]},
+]},
+buyers:{layer:'lv4',x:25,y:195,icon:'🏢',desc:'바이어 마스터 (QC기준은 buyer_qc_standards)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'buyer_code',t:'VARCHAR(20)',b:['uq']},
+  {n:'buyer_name',t:'VARCHAR(100)',b:[]},{n:'country',t:'VARCHAR(50)',b:[]},
+  {n:'default_mfz_required',t:'BOOLEAN',b:[]},
+]},
+warehouses:{layer:'mst',x:25,y:352,icon:'🏗',desc:'창고 마스터',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'warehouse_code',t:'VARCHAR(30)',b:['uq']},
+  {n:'warehouse_name',t:'VARCHAR(100)',b:[]},{n:'account_code',t:'VARCHAR(20)',b:[]},
+]},
+locations:{layer:'mst',x:25,y:487,icon:'📍',harness:['H-WH-03'],desc:'창고 위치·EXCLUDE 제약',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'location_code',t:'VARCHAR(20)',b:['uq']},
+  {n:'warehouse_id',t:'BIGINT',b:['fk'],fkTo:'warehouses'},
+  {n:'capacity_rolls',t:'INT',b:[]},{n:'location_type',t:'VARCHAR(20)',b:[]},
+]},
+workers:{layer:'mst',x:25,y:662,icon:'👤',desc:'작업자·RBAC·숙련도 등급',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'employee_no',t:'VARCHAR(20)',b:['uq']},
+  {n:'login_id',t:'VARCHAR(50)',b:['uq']},{n:'role',t:'VARCHAR(20)',b:[]},
+  {n:'skill_grade',t:'SMALLINT',b:[]},{n:'factory_id',t:'BIGINT',b:['fk'],fkTo:'factories'},
+]},
+material_master:{layer:'mst',x:250,y:60,icon:'🗂',desc:'자재 마스터·이중 코드 체계',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'material_code',t:'VARCHAR(50)',b:['uq']},
+  {n:'material_name',t:'VARCHAR(200)',b:[]},{n:'material_type',t:'VARCHAR(20)',b:[]},
+  {n:'unit',t:'VARCHAR(20)',b:[]},{n:'account_code',t:'VARCHAR(20)',b:[]},
+]},
+machines:{layer:'mst',x:250,y:239,icon:'⚙️',desc:'기계 마스터·ISA-95 EquipmentElement',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'machine_code',t:'VARCHAR(30)',b:['uq']},
+  {n:'brand',t:'VARCHAR(50)',b:[]},{n:'machine_type',t:'VARCHAR(50)',b:[]},
+  {n:'line_no',t:'VARCHAR(10)',b:[]},
+]},
+sam_master:{layer:'mst',x:250,y:396,icon:'⏱',desc:'SAM 표준 시간 라이브러리',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'operation_code',t:'VARCHAR(30)',b:[]},{n:'sam_minutes',t:'NUMERIC(6,3)',b:[]},
+  {n:'sewing_time_sec',t:'INT',b:[]},{n:'auxiliary_time_sec',t:'INT',b:[]},
+]},
+subcontractors:{layer:'mst',x:250,y:575,icon:'🏭',desc:'외주업체·인쇄/자수',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'vendor_code',t:'VARCHAR(20)',b:['uq']},
+  {n:'vendor_name',t:'VARCHAR(100)',b:[]},{n:'process_type',t:'VARCHAR(20)',b:[]},
+  {n:'location',t:'VARCHAR(100)',b:[]},
+]},
+// ── NEW: 즉시/중기 최적화 마스터 테이블 ─────────────────────────────────
+factories:{layer:'mst',x:475,y:60,icon:'🏭',isNew:true,desc:'공장 마스터·OPT-04 (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'factory_code',t:'VARCHAR(20)',b:['uq']},
+  {n:'factory_name',t:'VARCHAR(100)',b:[]},{n:'location',t:'VARCHAR(100)',b:[]},
+  {n:'country',t:'CHAR(2)',b:[]},
+]},
+defect_codes:{layer:'mst',x:475,y:217,icon:'🔴',isNew:true,desc:'결함 코드 마스터·OPT-03 (즉시)',cols:[
+  {n:'code',t:'VARCHAR(30)',b:['pk']},{n:'category',t:'VARCHAR(20)',b:[]},
+  {n:'name_en',t:'VARCHAR(100)',b:[]},{n:'name_vn',t:'VARCHAR(100)',b:[]},
+  {n:'pkg_code',t:'VARCHAR(10)',b:[]},{n:'applicable_stage',t:'VARCHAR(20)',b:[]},
+  {n:'is_active',t:'BOOLEAN',b:[]},
+]},
+buyer_qc_standards:{layer:'lv4',x:475,y:418,icon:'📋',isNew:true,desc:'바이어별 QC기준·이력관리·OPT-07 (중기)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},
+  {n:'effective_from',t:'DATE',b:[]},{n:'effective_to',t:'DATE',b:[]},
+  {n:'dhu_limit',t:'NUMERIC(5,2)',b:[]},{n:'aql_level',t:'VARCHAR(10)',b:[]},
+  {n:'mfz_required',t:'BOOLEAN',b:[]},{n:'hangtag_defect_target_pct',t:'NUMERIC(5,2)',b:[]},
+]},
+
+// ═══ WAREHOUSE PROCESS ═══════════════════════════════════════════════════════
+orders:{layer:'lv4',x:720,y:60,icon:'📋',desc:'오더 마스터·ERP 연동',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'order_no',t:'VARCHAR(30)',b:['uq']},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'supplier_id',t:'BIGINT',b:['fk'],fkTo:'suppliers'},
+  {n:'factory_id',t:'BIGINT',b:['fk'],fkTo:'factories'},{n:'sam_id',t:'BIGINT',b:['fk'],fkTo:'sam_master'},
+  {n:'style_code',t:'VARCHAR(50)',b:[]},{n:'total_qty',t:'INT',b:[]},
+  {n:'due_date',t:'DATE',b:[]},{n:'status',t:'VARCHAR(20)',b:[]},
+]},
+material_receipts:{layer:'wh',x:720,y:305,icon:'📥',desc:'입고 기록 헤더',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'receipt_no',t:'VARCHAR(30)',b:['uq']},
+  {n:'order_id',t:'BIGINT',b:['fk'],fkTo:'orders'},{n:'supplier_id',t:'BIGINT',b:['fk'],fkTo:'suppliers'},
+  {n:'lot_code',t:'VARCHAR(50)',b:[]},{n:'plist_qty',t:'INT',b:[]},
+  {n:'actual_qty',t:'INT',b:[]},{n:'surplus_qty',t:'INT',b:[]},
+]},
+rolls:{layer:'lv3',x:720,y:528,icon:'🧵',harness:['H-WH-01','H-SC-03'],desc:'원단 Roll·4점법·이중번호·릴렉싱',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'roll_no',t:'VARCHAR(30)',b:['uq','seq']},
+  {n:'order_id',t:'BIGINT',b:['fk'],fkTo:'orders'},{n:'location_id',t:'BIGINT',b:['fk'],fkTo:'locations'},
+  {n:'supplier_id',t:'BIGINT',b:['fk'],fkTo:'suppliers'},{n:'internal_roll_no',t:'INT',b:[]},
+  {n:'lot_code',t:'VARCHAR(50)',b:[]},{n:'fabric_width_cm',t:'NUMERIC(6,1)',b:[]},
+  {n:'length_m',t:'NUMERIC(8,2)',b:[]},{n:'inspection_status',t:'VARCHAR(20)',b:[]},
+]},
+trims:{layer:'wh',x:720,y:791,icon:'🪢',desc:'부자재 재고',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'material_id',t:'BIGINT',b:['fk'],fkTo:'material_master'},
+  {n:'warehouse_id',t:'BIGINT',b:['fk'],fkTo:'warehouses'},{n:'location_id',t:'BIGINT',b:['fk'],fkTo:'locations'},
+  {n:'lot_code',t:'VARCHAR(50)',b:[]},{n:'qty_on_hand',t:'NUMERIC(10,2)',b:[]},{n:'unit',t:'VARCHAR(20)',b:[]},
+]},
+trims_inspections:{layer:'wh',x:950,y:60,icon:'🔎',desc:'부자재 입고 검사 헤더',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'receipt_id',t:'BIGINT',b:['fk'],fkTo:'material_receipts'},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'supplier_id',t:'BIGINT',b:['fk'],fkTo:'suppliers'},
+  {n:'po_no',t:'VARCHAR(30)',b:[]},{n:'invoice_no',t:'VARCHAR(50)',b:[]},{n:'inspection_date',t:'DATE',b:[]},
+]},
+trims_inspection_lines:{layer:'wh',x:950,y:261,icon:'🔎',isNew:true,desc:'부자재 검사 라인·결함 유형별 (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'inspection_id',t:'BIGINT',b:['fk'],fkTo:'trims_inspections'},
+  {n:'material_id',t:'BIGINT',b:['fk'],fkTo:'material_master'},{n:'defect_code',t:'VARCHAR(30)',b:['fk'],fkTo:'defect_codes'},
+  {n:'qty_inspected',t:'INT',b:[]},{n:'defect_count',t:'INT',b:[]},{n:'result',t:'VARCHAR(10)',b:[]},
+]},
+issue_vouchers:{layer:'wh',x:950,y:462,icon:'📄',desc:'공식 출고 전표·법정 회계 서류',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'voucher_no',t:'VARCHAR(20)',b:['uq']},
+  {n:'voucher_date',t:'DATE',b:[]},{n:'warehouse_id',t:'BIGINT',b:['fk'],fkTo:'warehouses'},
+  {n:'receiver_id',t:'BIGINT',b:['fk'],fkTo:'workers'},{n:'debit_account',t:'VARCHAR(10)',b:[]},
+  {n:'credit_account',t:'VARCHAR(10)',b:[]},{n:'total_amount_vnd',t:'BIGINT',b:[]},
+]},
+issue_voucher_lines:{layer:'wh',x:950,y:685,icon:'📄',isNew:true,desc:'출고 전표 라인·자재별 회계 (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'voucher_id',t:'BIGINT',b:['fk'],fkTo:'issue_vouchers'},
+  {n:'material_id',t:'BIGINT',b:['fk'],fkTo:'material_master'},{n:'qty',t:'NUMERIC(10,3)',b:[]},
+  {n:'unit',t:'VARCHAR(20)',b:[]},{n:'unit_price_vnd',t:'BIGINT',b:[]},{n:'total_amount_vnd',t:'BIGINT',b:[]},
+]},
+inventory_period_snapshots:{layer:'wh',x:950,y:886,icon:'📊',desc:'기간별 재고 스냅샷 (장기 파티셔닝 후보)',isPartitioned:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'material_id',t:'BIGINT',b:['fk'],fkTo:'material_master'},
+  {n:'warehouse_id',t:'BIGINT',b:['fk'],fkTo:'warehouses'},{n:'period_year',t:'INT',b:[]},
+  {n:'period_month',t:'INT',b:[]},{n:'opening_qty',t:'NUMERIC',b:[]},
+  {n:'receipt_qty',t:'NUMERIC',b:[]},{n:'issue_qty',t:'NUMERIC',b:[]},{n:'closing_qty',t:'NUMERIC',b:[]},
+]},
+
+// ═══ CUT PROCESS ════════════════════════════════════════════════════════════
+cutting_plans:{layer:'cut',x:1195,y:60,icon:'✂️',desc:'재단 작업 계획서',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'plan_no',t:'VARCHAR(30)',b:['uq']},
+  {n:'order_id',t:'BIGINT',b:['fk'],fkTo:'orders'},{n:'fabric_type',t:'VARCHAR(20)',b:[]},
+  {n:'standard_consumption_y',t:'NUMERIC(6,3)',b:[]},{n:'total_planned_qty',t:'INT',b:[]},
+]},
+cutting_plan_bands:{layer:'cut',x:1195,y:239,icon:'📐',desc:'재단 밴드 계획',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'cutting_plan_id',t:'BIGINT',b:['fk'],fkTo:'cutting_plans'},
+  {n:'band_no',t:'VARCHAR(10)',b:[]},{n:'roll_group_code',t:'VARCHAR(20)',b:[]},
+  {n:'ply_count',t:'INT',b:[]},{n:'marker_length_y',t:'NUMERIC(8,2)',b:[]},
+  {n:'marker_efficiency_pct',t:'NUMERIC(5,2)',b:[]},{n:'total_qty',t:'INT',b:[]},
+]},
+lot_color_groups:{layer:'cut',x:1195,y:462,icon:'🎨',desc:'LOT 색상 그룹·PN시트',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'cutting_plan_id',t:'BIGINT',b:['fk'],fkTo:'cutting_plans'},
+  {n:'group_name',t:'VARCHAR(30)',b:[]},{n:'lot_no',t:'VARCHAR(30)',b:[]},
+  {n:'color',t:'VARCHAR(50)',b:[]},{n:'total_length_y',t:'NUMERIC(8,2)',b:[]},{n:'quality_note',t:'TEXT',b:[]},
+]},
+lot_color_group_rolls:{layer:'cut',x:1195,y:663,icon:'🧵',isNew:true,desc:'색상그룹↔롤 M:N 연결 (즉시)',cols:[
+  {n:'lot_color_group_id',t:'BIGINT',b:['pk','fk'],fkTo:'lot_color_groups'},
+  {n:'roll_id',t:'BIGINT',b:['pk','fk'],fkTo:'rolls'},{n:'sequence',t:'INT',b:[]},
+  {n:'allocated_length_y',t:'NUMERIC(8,2)',b:[]},
+]},
+daily_cutting_requests:{layer:'cut',x:1195,y:798,icon:'📝',desc:'일일 재단 요청서',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'request_date',t:'DATE',b:[]},
+  {n:'line_no',t:'VARCHAR(10)',b:[]},{n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},
+  {n:'style_code',t:'VARCHAR(50)',b:[]},{n:'color',t:'VARCHAR(50)',b:[]},
+  {n:'wip_qty',t:'INT',b:[]},{n:'commitment_qty',t:'INT',b:[]},
+  {n:'request_qty',t:'INT',b:[]},
+]},
+spreading_reports:{layer:'cut',x:1425,y:60,icon:'📏',desc:'연신 보고서·선단손실',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'cutting_plan_id',t:'BIGINT',b:['fk'],fkTo:'cutting_plans'},
+  {n:'band_no',t:'VARCHAR(10)',b:[]},{n:'spread_start_at',t:'TSTZ',b:[]},
+  {n:'spread_end_at',t:'TSTZ',b:[]},{n:'marker_efficiency_pct',t:'NUMERIC(5,2)',b:[]},
+  {n:'spreader_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+spreading_report_rolls:{layer:'cut',x:1425,y:261,icon:'📏',isNew:true,desc:'연신 롤별 상세·선단손실·실소비 (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'spreading_report_id',t:'BIGINT',b:['fk'],fkTo:'spreading_reports'},
+  {n:'roll_id',t:'BIGINT',b:['fk'],fkTo:'rolls'},{n:'head_waste_y',t:'NUMERIC(6,2)',b:[]},
+  {n:'actual_usage_y',t:'NUMERIC(8,2)',b:[]},{n:'post_cut_variance_y',t:'NUMERIC(6,2)',b:[]},
+]},
+print_emb_shipments:{layer:'cut',x:1425,y:440,icon:'🎨',desc:'인쇄·자수 외주 추적',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'color',t:'VARCHAR(50)',b:[]},{n:'subcontractor_id',t:'BIGINT',b:['fk'],fkTo:'subcontractors'},
+  {n:'process_type',t:'VARCHAR(10)',b:[]},{n:'destination_factory',t:'VARCHAR(20)',b:[]},
+]},
+cut_to_line_deliveries:{layer:'cut',x:1425,y:619,icon:'🚚',desc:'재단→봉제라인 인도서',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'delivery_date',t:'DATE',b:[]},
+  {n:'cutting_plan_id',t:'BIGINT',b:['fk'],fkTo:'cutting_plans'},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'sewing_line_no',t:'VARCHAR(10)',b:[]},
+  {n:'deliverer_id',t:'BIGINT',b:['fk'],fkTo:'workers'},{n:'receiver_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+cut_to_line_delivery_lines:{layer:'cut',x:1425,y:820,icon:'🚚',isNew:true,desc:'재단 인도 라인·색상·사이즈별 수량 (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'delivery_id',t:'BIGINT',b:['fk'],fkTo:'cut_to_line_deliveries'},
+  {n:'color',t:'VARCHAR(50)',b:[]},{n:'size_code',t:'VARCHAR(10)',b:[]},
+  {n:'qty',t:'INT',b:[]},
+]},
+daily_cutting_reports:{layer:'cut',x:1425,y:977,icon:'📊',desc:'일일 재단 실적',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'report_date',t:'DATE',b:[]},
+  {n:'factory_id',t:'BIGINT',b:['fk'],fkTo:'factories'},{n:'cutting_plan_id',t:'BIGINT',b:['fk'],fkTo:'cutting_plans'},
+  {n:'line_no',t:'VARCHAR(10)',b:[]},{n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},
+  {n:'cutting_today',t:'INT',b:[]},{n:'loading_today',t:'INT',b:[]},
+]},
+
+// ═══ CORE MES ════════════════════════════════════════════════════════════════
+work_orders:{layer:'lv3',x:1665,y:60,icon:'📌',harness:['H-SW-01'],desc:'작업 지시서·복합라인·공장 FK (🔄수정)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'wo_no',t:'VARCHAR(30)',b:['uq']},
+  {n:'order_id',t:'BIGINT',b:['fk'],fkTo:'orders'},{n:'factory_id',t:'BIGINT',b:['fk'],fkTo:'factories'},
+  {n:'line_no',t:'VARCHAR(20)',b:[]},{n:'composite_line',t:'BOOLEAN',b:[]},
+  {n:'planned_qty',t:'INT',b:[]},{n:'smv_override_minutes',t:'NUMERIC(6,2)',b:[]},
+  {n:'effective_smv',t:'NUMERIC(6,2)',b:['gen']},{n:'daily_target_qty',t:'INT',b:[]},
+  {n:'manpower',t:'INT',b:[]},{n:'working_time_min',t:'INT',b:[]},
+  {n:'pp_meeting_date',t:'DATE',b:[]},{n:'status',t:'VARCHAR(20)',b:[]},
+]},
+bundles:{layer:'lv3',x:1665,y:389,icon:'📦',harness:['H-SC-01'],desc:'재단 Bundle·Race Condition·current_zone 비정규화 (🔄수정)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'global_seq',t:'BIGINT',b:['uq','seq']},
+  {n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},{n:'roll_id',t:'BIGINT',b:['fk'],fkTo:'rolls'},
+  {n:'cutting_plan_id',t:'BIGINT',b:['fk'],fkTo:'cutting_plans'},{n:'band_no',t:'VARCHAR(10)',b:[]},
+  {n:'cut_qty',t:'INT',b:[]},{n:'export_country',t:'VARCHAR(5)',b:[]},
+  {n:'current_zone',t:'VARCHAR(30)',b:[]},{n:'status',t:'VARCHAR(20)',b:[]},
+]},
+lot_transfers:{layer:'lv3',x:1665,y:674,icon:'🔄',harness:['H-SCAN-01'],desc:'공정이관·WIP맵·트롤리',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'bundle_id',t:'BIGINT',b:['fk'],fkTo:'bundles'},
+  {n:'roll_id',t:'BIGINT',b:['fk'],fkTo:'rolls'},{n:'from_zone',t:'VARCHAR(30)',b:[]},
+  {n:'to_zone',t:'VARCHAR(30)',b:[]},{n:'trolley_no',t:'VARCHAR(20)',b:[]},
+  {n:'is_current',t:'BOOLEAN',b:[]},{n:'issue_order_no',t:'VARCHAR(30)',b:[]},
+  {n:'relax_start_time',t:'TSTZ',b:[]},
+]},
+sewing_outputs:{layer:'lv3',x:1890,y:60,icon:'🔧',harness:['H-RT-01'],desc:'봉제 실적·H-RT-01',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},
+  {n:'bundle_id',t:'BIGINT',b:['fk'],fkTo:'bundles'},{n:'qty',t:'INT',b:[]},
+  {n:'data_source',t:'VARCHAR(20)',b:[]},{n:'output_at',t:'TSTZ',b:[]},{n:'line_no',t:'VARCHAR(10)',b:[]},
+]},
+hourly_production_entries:{layer:'lv3',x:1890,y:279,icon:'⏰',desc:'시간별 수동 입력',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},
+  {n:'hour_slot',t:'TSTZ',b:['uq']},{n:'actual_qty',t:'INT',b:[]},
+  {n:'entered_by',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+qc_inspections:{layer:'lv3',x:1890,y:436,icon:'🔍',harness:['H-QC-01','H-MFZ-01'],desc:'QC 검사·DHU·MFZ 출하차단',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'bundle_id',t:'BIGINT',b:['fk'],fkTo:'bundles'},
+  {n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},{n:'inspection_type',t:'VARCHAR(20)',b:[]},
+  {n:'inspect_qty',t:'INT',b:[]},{n:'dhu_pct',t:'NUMERIC',b:['gen']},
+  {n:'mfz_inspected',t:'BOOLEAN',b:[]},{n:'result',t:'VARCHAR(10)',b:[]},
+]},
+defects:{layer:'lv3',x:1890,y:677,icon:'⚠️',desc:'불량 상세·결함코드 FK·작업자 추적 (🔄수정)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'inspection_id',t:'BIGINT',b:['fk'],fkTo:'qc_inspections'},
+  {n:'defect_code',t:'VARCHAR(30)',b:['fk'],fkTo:'defect_codes'},{n:'worker_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+  {n:'defect_location',t:'VARCHAR(100)',b:[]},{n:'count',t:'INT',b:[]},{n:'is_rework',t:'BOOLEAN',b:[]},
+]},
+print_log:{layer:'sys',x:1890,y:878,icon:'🖨',harness:['H-PRINT-01','H-PRINT-02'],desc:'인쇄 로그·중복차단',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'bundle_id',t:'BIGINT',b:['fk'],fkTo:'bundles'},
+  {n:'roll_id',t:'BIGINT',b:['fk'],fkTo:'rolls'},{n:'label_type',t:'VARCHAR(30)',b:[]},
+  {n:'status',t:'VARCHAR(20)',b:[]},{n:'is_reprint',t:'BOOLEAN',b:[]},
+  {n:'printed_by',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+
+// ═══ SEWING PROCESS ══════════════════════════════════════════════════════════
+line_production_plans:{layer:'sew',x:2125,y:60,icon:'📅',desc:'봉제 라인 생산 계획',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'order_id',t:'BIGINT',b:['fk'],fkTo:'orders'},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'factory_id',t:'BIGINT',b:['fk'],fkTo:'factories'},
+  {n:'line_no',t:'VARCHAR(20)',b:[]},{n:'pp_meeting_date',t:'DATE',b:[]},
+  {n:'manpower',t:'INT',b:[]},{n:'daily_target_qty',t:'INT',b:[]},
+]},
+line_plan_rampup_days:{layer:'sew',x:2125,y:283,icon:'📈',desc:'런데이별 효율 곡선 (30%→130%)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'plan_id',t:'BIGINT',b:['fk'],fkTo:'line_production_plans'},
+  {n:'run_day',t:'INT',b:[]},{n:'efficiency_pct',t:'NUMERIC(5,2)',b:[]},
+  {n:'target_qty',t:'INT',b:[]},{n:'salary_grade',t:'VARCHAR(5)',b:[]},
+]},
+plan_po_allocations:{layer:'sew',x:2125,y:462,icon:'📊',isNew:true,desc:'PO 수량 배분·Color×Market×Size (중기)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'plan_id',t:'BIGINT',b:['fk'],fkTo:'line_production_plans'},
+  {n:'po_no',t:'VARCHAR(30)',b:[]},{n:'color',t:'VARCHAR(50)',b:[]},
+  {n:'market_region',t:'VARCHAR(50)',b:[]},{n:'delivery_date',t:'DATE',b:[]},
+  {n:'total_qty',t:'INT',b:[]},
+]},
+pp_checklists:{layer:'sew',x:2125,y:663,icon:'✅',desc:'생산 준비 체크리스트',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'plan_id',t:'BIGINT',b:['fk'],fkTo:'line_production_plans'},
+  {n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},{n:'pp_meeting_done',t:'BOOLEAN',b:[]},
+  {n:'pattern_done',t:'BOOLEAN',b:[]},{n:'cutting_status',t:'VARCHAR(20)',b:[]},{n:'check_date',t:'DATE',b:[]},
+]},
+process_layouts:{layer:'sew',x:2125,y:864,icon:'🗺',desc:'공정 배치 설계',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},
+  {n:'line_no',t:'VARCHAR(10)',b:[]},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'total_smv_seconds',t:'INT',b:[]},{n:'worker_count',t:'INT',b:[]},
+]},
+process_layout_operations:{layer:'sew',x:2125,y:1043,icon:'⚙️',desc:'공정별 배치·SAM·숙련도 (🔄수정)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'layout_id',t:'BIGINT',b:['fk'],fkTo:'process_layouts'},
+  {n:'sam_master_id',t:'BIGINT',b:['fk'],fkTo:'sam_master'},{n:'stt',t:'INT',b:[]},
+  {n:'operation_name_en',t:'VARCHAR(200)',b:[]},{n:'smv_seconds',t:'INT',b:[]},
+  {n:'assigned_worker_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+btp_receiving_log:{layer:'sew',x:2350,y:60,icon:'📋',desc:'봉제라인 BTP 수령 로그',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'log_date',t:'DATE',b:[]},{n:'line_no',t:'VARCHAR(10)',b:[]},
+  {n:'style_code',t:'VARCHAR(50)',b:[]},{n:'band_no',t:'VARCHAR(10)',b:[]},
+  {n:'received_qty',t:'INT',b:[]},{n:'issued_to_line_qty',t:'INT',b:[]},{n:'remaining_qty',t:'INT',b:[]},
+]},
+accessories_to_line_deliveries:{layer:'sew',x:2350,y:283,icon:'🎒',desc:'창고→라인 부자재 전달 (🔄issue_voucher FK추가)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'delivery_date',t:'DATE',b:[]},{n:'to_line_no',t:'VARCHAR(10)',b:[]},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'issue_voucher_id',t:'BIGINT',b:['fk'],fkTo:'issue_vouchers'},
+  {n:'season',t:'VARCHAR(20)',b:[]},{n:'deliverer_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+accessories_to_line_delivery_lines:{layer:'sew',x:2350,y:484,icon:'🎒',isNew:true,desc:'부자재 전달 라인·자재별 수량·무게 (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'delivery_id',t:'BIGINT',b:['fk'],fkTo:'accessories_to_line_deliveries'},
+  {n:'material_id',t:'BIGINT',b:['fk'],fkTo:'material_master'},{n:'color',t:'VARCHAR(50)',b:[]},
+  {n:'size_code',t:'VARCHAR(10)',b:[]},{n:'qty',t:'INT',b:[]},
+  {n:'unit',t:'VARCHAR(20)',b:[]},{n:'weight_kg',t:'NUMERIC(8,3)',b:[]},
+]},
+endline_qc_reports:{layer:'sew',x:2350,y:685,icon:'🔍',desc:'라인 출구 QC·시간대별 (🔄WO FK추가)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'report_date',t:'DATE',b:[]},
+  {n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},{n:'line_no',t:'VARCHAR(10)',b:[]},
+  {n:'style_code',t:'VARCHAR(50)',b:[]},{n:'time_slot',t:'VARCHAR(15)',b:[]},
+  {n:'produced_qty',t:'INT',b:[]},{n:'passed_qty',t:'INT',b:[]},
+  {n:'defect_qty',t:'INT',b:[]},{n:'defect_rate_pct',t:'NUMERIC(5,2)',b:[]},
+]},
+endline_defect_workers:{layer:'sew',x:2350,y:930,icon:'⚠️',isNew:true,desc:'결함-작업자 매핑·Root Cause (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'report_id',t:'BIGINT',b:['fk'],fkTo:'endline_qc_reports'},
+  {n:'worker_id',t:'BIGINT',b:['fk'],fkTo:'workers'},{n:'defect_code',t:'VARCHAR(30)',b:['fk'],fkTo:'defect_codes'},
+  {n:'defect_location',t:'VARCHAR(100)',b:[]},{n:'defect_count',t:'INT',b:[]},
+]},
+passed_garment_records:{layer:'sew',x:2350,y:1109,icon:'✅',desc:'합격 수량·QC/HT 구분 (🔄WO FK추가)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'record_date',t:'DATE',b:[]},
+  {n:'work_order_id',t:'BIGINT',b:['fk'],fkTo:'work_orders'},{n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},
+  {n:'po_no',t:'VARCHAR(30)',b:[]},{n:'dept_type',t:'VARCHAR(5)',b:[]},
+  {n:'daily_pass_qty',t:'INT',b:[]},{n:'cumulative_pass_qty',t:'INT',b:[]},
+]},
+daily_production_reports:{layer:'sew',x:2350,y:1332,icon:'📊',isPartitioned:true,desc:'일일 생산 보고·3단계·파티셔닝 적용 (장기)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'report_date',t:'DATE',b:[]},{n:'line_no',t:'VARCHAR(10)',b:[]},
+  {n:'style_code',t:'VARCHAR(50)',b:[]},{n:'po_no',t:'VARCHAR(30)',b:[]},
+  {n:'input_daily',t:'INT',b:[]},{n:'prod_daily',t:'INT',b:[]},{n:'finishing_daily',t:'INT',b:[]},
+]},
+sharp_tools_log:{layer:'sew',x:2575,y:60,icon:'✂️',desc:'날카로운 도구 관리·안전 규정 준수',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'log_date',t:'DATE',b:[]},
+  {n:'worker_id',t:'BIGINT',b:['fk'],fkTo:'workers'},{n:'tool_type',t:'VARCHAR(50)',b:[]},
+  {n:'issued_qty',t:'INT',b:[]},{n:'issue_time',t:'TSTZ',b:[]},{n:'return_time',t:'TSTZ',b:[]},
+]},
+internal_line_deliveries:{layer:'sew',x:2575,y:261,icon:'🔀',isNew:true,desc:'QT.TKGN-02 라인내 부자재 재배분·통계→작업자 (중기)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'delivery_date',t:'DATE',b:[]},{n:'line_no',t:'VARCHAR(10)',b:[]},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'season',t:'VARCHAR(20)',b:[]},{n:'stat_person_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+  {n:'receiver_worker_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+
+// ═══ FINISHING & PACKING ════════════════════════════════════════════════════
+packing_lists:{layer:'fin',x:2800,y:60,icon:'📦',desc:'패킹리스트·법정 수출 서류·(OPT) 통관',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'packing_list_no',t:'VARCHAR(20)',b:['uq']},
+  {n:'order_id',t:'BIGINT',b:['fk'],fkTo:'orders'},{n:'po_no',t:'VARCHAR(30)',b:[]},
+  {n:'destination_country',t:'VARCHAR(50)',b:[]},{n:'total_carton_count',t:'INT',b:[]},
+  {n:'hood_deadline_date',t:'DATE',b:[]},
+]},
+packing_list_lines:{layer:'fin',x:2800,y:261,icon:'📋',desc:'패킹리스트 박스 라인',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'packing_list_id',t:'BIGINT',b:['fk'],fkTo:'packing_lists'},
+  {n:'color_code',t:'VARCHAR(20)',b:[]},{n:'ctn_from',t:'INT',b:[]},{n:'ctn_to',t:'INT',b:[]},
+  {n:'pcs_per_ctn',t:'INT',b:[]},{n:'nw_kg',t:'NUMERIC(8,3)',b:[]},{n:'gw_kg',t:'NUMERIC(8,3)',b:[]},
+  {n:'dimension_cm',t:'VARCHAR(50)',b:[]},
+]},
+carton_records:{layer:'fin',x:2800,y:506,icon:'📦',desc:'박스 단위 중량 기록·통관 연결',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'inspection_id',t:'BIGINT',b:['fk'],fkTo:'weight_qty_inspections'},
+  {n:'packing_list_id',t:'BIGINT',b:['fk'],fkTo:'packing_lists'},{n:'size_code',t:'VARCHAR(10)',b:[]},
+  {n:'carton_no',t:'INT',b:[]},{n:'qty_pcs',t:'INT',b:[]},
+  {n:'nw_kg',t:'NUMERIC(8,3)',b:[]},{n:'gw_kg',t:'NUMERIC(8,3)',b:[]},
+]},
+weight_qty_inspections:{layer:'fin',x:2800,y:729,icon:'⚖️',desc:'중량·수량 검사',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'style_code',t:'VARCHAR(50)',b:[]},{n:'po_no',t:'VARCHAR(30)',b:[]},
+  {n:'measurement_completed_at',t:'TSTZ',b:[]},{n:'export_date',t:'DATE',b:[]},
+  {n:'qc_inspector_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+carton_packing_inspections:{layer:'fin',x:2800,y:908,icon:'🔍',isNew:true,desc:'박스 포장 검사 (문서07)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'inspection_date',t:'DATE',b:[]},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'po_no',t:'VARCHAR(30)',b:[]},{n:'carton_count_inspected',t:'INT',b:[]},
+  {n:'pass_count',t:'INT',b:[]},{n:'defect_notes',t:'TEXT',b:[]},
+]},
+shipment_lots:{layer:'fin',x:2800,y:1131,icon:'🚢',desc:'복수 출하 차수·L1~L4',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'monthly_report_id',t:'BIGINT',b:['fk'],fkTo:'finishing_monthly_reports'},
+  {n:'packing_list_id',t:'BIGINT',b:['fk'],fkTo:'packing_lists'},{n:'lot_no',t:'VARCHAR(5)',b:[]},
+  {n:'shipment_date',t:'DATE',b:[]},{n:'shipped_qty',t:'INT',b:[]},
+]},
+hangtag_inspections:{layer:'fin',x:3030,y:60,icon:'🏷',desc:'택·라벨 검사·PKG결함',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'inspection_date',t:'DATE',b:[]},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'time_slot',t:'VARCHAR(15)',b:[]},{n:'inspected_qty',t:'INT',b:[]},
+  {n:'pass_qty',t:'INT',b:[]},{n:'defect_rate_pct',t:'NUMERIC(5,2)',b:[]},
+]},
+hangtag_defects:{layer:'fin',x:3030,y:283,icon:'🏷',isNew:true,desc:'택 결함 라인·PKG코드·유형별 (즉시)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'inspection_id',t:'BIGINT',b:['fk'],fkTo:'hangtag_inspections'},
+  {n:'time_slot',t:'VARCHAR(15)',b:[]},{n:'defect_code',t:'VARCHAR(30)',b:['fk'],fkTo:'defect_codes'},
+  {n:'defect_count',t:'INT',b:[]},
+]},
+metal_detector_calibrations:{layer:'fin',x:3030,y:440,icon:'🔬',desc:'금속탐지기 교정·9-POINT TEST',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'calibration_date',t:'DATE',b:[]},{n:'calibration_time',t:'TSTZ',b:[]},
+  {n:'machine_id',t:'BIGINT',b:['fk'],fkTo:'machines'},{n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},
+  {n:'test_point',t:'CHAR(2)',b:[]},{n:'test_result',t:'BOOLEAN',b:[]},
+  {n:'operator_id',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+dry_room_checks:{layer:'fin',x:3030,y:663,icon:'💧',desc:'건조실 환경 모니터링·습도30~40%',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'check_date',t:'DATE',b:[]},{n:'dryer_unit',t:'VARCHAR(20)',b:[]},
+  {n:'humidity_pct',t:'NUMERIC(5,2)',b:[]},{n:'humidity_ok',t:'BOOLEAN',b:[]},
+  {n:'signed_by',t:'BIGINT',b:['fk'],fkTo:'workers'},
+]},
+metal_detection_logs:{layer:'fin',x:3030,y:842,icon:'🔮',desc:'금속 검사 스타일별 전수 (🔄PL FK추가)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'log_date',t:'DATE',b:[]},
+  {n:'machine_id',t:'BIGINT',b:['fk'],fkTo:'machines'},{n:'packing_list_id',t:'BIGINT',b:['fk'],fkTo:'packing_lists'},
+  {n:'po_no',t:'VARCHAR(30)',b:[]},{n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},
+  {n:'style_code',t:'VARCHAR(50)',b:[]},{n:'units_scanned',t:'INT',b:[]},
+  {n:'all_passed',t:'BOOLEAN',b:[]},{n:'failure_count',t:'INT',b:[]},
+]},
+metal_detection_summaries:{layer:'fin',x:3030,y:1087,icon:'📈',desc:'금속 검사 일별 요약·서명잠금 (🔄is_finalized추가)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'summary_date',t:'DATE',b:[]},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'po_no',t:'VARCHAR(30)',b:[]},{n:'total_checked',t:'INT',b:[]},
+  {n:'total_rejected',t:'INT',b:[]},{n:'reject_pct',t:'NUMERIC(5,2)',b:[]},
+  {n:'is_finalized',t:'BOOLEAN',b:[]},{n:'finalized_at',t:'TSTZ',b:[]},
+]},
+finishing_daily_reports:{layer:'fin',x:3255,y:60,icon:'📊',isPartitioned:true,desc:'완성부 일일 실적·파티셔닝·(🔄order FK추가)',isModified:true,cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'report_date',t:'DATE',b:[]},
+  {n:'order_id',t:'BIGINT',b:['fk'],fkTo:'orders'},{n:'finishing_line_no',t:'VARCHAR(10)',b:[]},
+  {n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'po_no',t:'VARCHAR(30)',b:[]},{n:'inhand_qty',t:'INT',b:[]},
+  {n:'shipped_qty',t:'INT',b:[]},{n:'stock_qty',t:'INT',b:[]},
+]},
+finishing_monthly_reports:{layer:'fin',x:3255,y:305,icon:'📅',desc:'완성부 월별·折包·박스·출하',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'year',t:'INT',b:[]},{n:'month',t:'INT',b:[]},
+  {n:'finishing_team',t:'VARCHAR(10)',b:[]},{n:'buyer_id',t:'BIGINT',b:['fk'],fkTo:'buyers'},
+  {n:'style_code',t:'VARCHAR(50)',b:[]},{n:'total_folding_qty',t:'INT',b:[]},
+  {n:'total_boxing_qty',t:'INT',b:[]},
+]},
+worker_daily_finishing_output:{layer:'fin',x:3255,y:528,icon:'👤',isNew:true,desc:'작업자별 일별 折包/박스·피스율 임금 근거 (중기)',cols:[
+  {n:'id',t:'BIGINT',b:['pk']},{n:'report_date',t:'DATE',b:[]},
+  {n:'monthly_report_id',t:'BIGINT',b:['fk'],fkTo:'finishing_monthly_reports'},
+  {n:'worker_id',t:'BIGINT',b:['fk'],fkTo:'workers'},{n:'style_code',t:'VARCHAR(50)',b:[]},
+  {n:'color',t:'VARCHAR(50)',b:[]},{n:'folding_qty',t:'INT',b:[]},{n:'boxing_qty',t:'INT',b:[]},
+]},
+v_qc_status_by_order:{layer:'sys',x:3255,y:751,icon:'⬡',isView:true,desc:'통합 QC 현황 뷰·OPT-01 (장기 MATERIALIZED VIEW)',cols:[
+  {n:'order_id',t:'BIGINT',b:['pk']},{n:'order_no',t:'VARCHAR(30)',b:[]},
+  {n:'bundle_qc_pass',t:'BIGINT',b:['gen']},{n:'mfz_done',t:'BOOLEAN',b:['gen']},
+  {n:'metal_detect_sessions',t:'BIGINT',b:['gen']},
+]},
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// RELATIONS (103개)
+// ════════════════════════════════════════════════════════════════════════════
+const RELATIONS=[
+// ── MASTER ──
+{id:'r001',from:'orders',to:'buyers',nullable:false,color:'#8B5CF6'},
+{id:'r002',from:'orders',to:'suppliers',nullable:true,color:'#F97316'},
+{id:'r003',from:'orders',to:'sam_master',nullable:true,color:'#F97316'},
+{id:'r004',from:'orders',to:'factories',nullable:true,color:'#F97316'},
+{id:'r005',from:'locations',to:'warehouses',nullable:false,color:'#F97316'},
+{id:'r006',from:'workers',to:'factories',nullable:true,color:'#F97316'},
+// ── NEW MASTER ──
+{id:'r007',from:'buyer_qc_standards',to:'buyers',nullable:false,color:'#8B5CF6'},
+// ── WAREHOUSE ──
+{id:'r008',from:'rolls',to:'orders',nullable:false,color:'#0891B2'},
+{id:'r009',from:'rolls',to:'locations',nullable:true,color:'#DC8A00'},
+{id:'r010',from:'rolls',to:'suppliers',nullable:true,color:'#DC8A00'},
+{id:'r011',from:'material_receipts',to:'orders',nullable:true,color:'#DC8A00'},
+{id:'r012',from:'material_receipts',to:'suppliers',nullable:true,color:'#DC8A00'},
+{id:'r013',from:'trims',to:'material_master',nullable:false,color:'#DC8A00'},
+{id:'r014',from:'trims',to:'warehouses',nullable:true,color:'#DC8A00'},
+{id:'r015',from:'trims_inspections',to:'material_receipts',nullable:true,color:'#DC8A00'},
+{id:'r016',from:'trims_inspections',to:'buyers',nullable:true,color:'#DC8A00'},
+{id:'r017',from:'issue_vouchers',to:'warehouses',nullable:false,color:'#DC8A00'},
+{id:'r018',from:'issue_vouchers',to:'workers',nullable:true,color:'#DC8A00'},
+{id:'r019',from:'inventory_period_snapshots',to:'material_master',nullable:false,color:'#DC8A00'},
+{id:'r020',from:'inventory_period_snapshots',to:'warehouses',nullable:false,color:'#DC8A00'},
+// ── NEW WH ──
+{id:'r021',from:'trims_inspection_lines',to:'trims_inspections',nullable:false,color:'#DC8A00'},
+{id:'r022',from:'trims_inspection_lines',to:'material_master',nullable:false,color:'#DC8A00'},
+{id:'r023',from:'trims_inspection_lines',to:'defect_codes',nullable:true,color:'#F97316'},
+{id:'r024',from:'issue_voucher_lines',to:'issue_vouchers',nullable:false,color:'#DC8A00'},
+{id:'r025',from:'issue_voucher_lines',to:'material_master',nullable:false,color:'#DC8A00'},
+// ── CUT ──
+{id:'r026',from:'cutting_plans',to:'orders',nullable:false,color:'#3B82F6'},
+{id:'r027',from:'cutting_plan_bands',to:'cutting_plans',nullable:false,color:'#3B82F6'},
+{id:'r028',from:'lot_color_groups',to:'cutting_plans',nullable:false,color:'#3B82F6'},
+{id:'r029',from:'spreading_reports',to:'cutting_plans',nullable:false,color:'#3B82F6'},
+{id:'r030',from:'spreading_reports',to:'workers',nullable:true,color:'#3B82F6'},
+{id:'r031',from:'print_emb_shipments',to:'subcontractors',nullable:true,color:'#3B82F6'},
+{id:'r032',from:'cut_to_line_deliveries',to:'cutting_plans',nullable:true,color:'#3B82F6'},
+{id:'r033',from:'cut_to_line_deliveries',to:'buyers',nullable:true,color:'#3B82F6'},
+{id:'r034',from:'cut_to_line_deliveries',to:'workers',nullable:true,color:'#3B82F6'},
+{id:'r035',from:'daily_cutting_reports',to:'cutting_plans',nullable:true,color:'#3B82F6'},
+{id:'r036',from:'daily_cutting_reports',to:'buyers',nullable:true,color:'#3B82F6'},
+{id:'r037',from:'daily_cutting_reports',to:'factories',nullable:true,color:'#F97316'},
+// ── NEW CUT ──
+{id:'r038',from:'lot_color_group_rolls',to:'lot_color_groups',nullable:false,color:'#3B82F6'},
+{id:'r039',from:'lot_color_group_rolls',to:'rolls',nullable:false,color:'#3B82F6'},
+{id:'r040',from:'spreading_report_rolls',to:'spreading_reports',nullable:false,color:'#3B82F6'},
+{id:'r041',from:'spreading_report_rolls',to:'rolls',nullable:false,color:'#3B82F6'},
+{id:'r042',from:'cut_to_line_delivery_lines',to:'cut_to_line_deliveries',nullable:false,color:'#3B82F6'},
+// ── CORE MES ──
+{id:'r043',from:'work_orders',to:'orders',nullable:false,color:'#0891B2'},
+{id:'r044',from:'work_orders',to:'factories',nullable:true,color:'#F97316'},
+{id:'r045',from:'bundles',to:'work_orders',nullable:false,color:'#0891B2'},
+{id:'r046',from:'bundles',to:'rolls',nullable:false,color:'#0891B2'},
+{id:'r047',from:'bundles',to:'cutting_plans',nullable:true,color:'#3B82F6'},
+{id:'r048',from:'lot_transfers',to:'bundles',nullable:true,color:'#0891B2'},
+{id:'r049',from:'lot_transfers',to:'rolls',nullable:true,color:'#0891B2'},
+{id:'r050',from:'sewing_outputs',to:'work_orders',nullable:false,color:'#0891B2'},
+{id:'r051',from:'sewing_outputs',to:'bundles',nullable:true,color:'#0891B2'},
+{id:'r052',from:'hourly_production_entries',to:'work_orders',nullable:false,color:'#0891B2'},
+{id:'r053',from:'hourly_production_entries',to:'workers',nullable:false,color:'#F97316'},
+{id:'r054',from:'qc_inspections',to:'bundles',nullable:false,color:'#0891B2'},
+{id:'r055',from:'qc_inspections',to:'work_orders',nullable:false,color:'#0891B2'},
+{id:'r056',from:'defects',to:'qc_inspections',nullable:false,color:'#0891B2'},
+{id:'r057',from:'defects',to:'workers',nullable:true,color:'#F97316'},
+{id:'r058',from:'defects',to:'defect_codes',nullable:true,color:'#F97316'},
+{id:'r059',from:'print_log',to:'bundles',nullable:true,color:'#64748B'},
+{id:'r060',from:'print_log',to:'rolls',nullable:true,color:'#64748B'},
+{id:'r061',from:'print_log',to:'workers',nullable:true,color:'#64748B'},
+// ── SEWING ──
+{id:'r062',from:'line_production_plans',to:'orders',nullable:false,color:'#06B6D4'},
+{id:'r063',from:'line_production_plans',to:'buyers',nullable:false,color:'#06B6D4'},
+{id:'r064',from:'line_production_plans',to:'factories',nullable:true,color:'#F97316'},
+{id:'r065',from:'line_plan_rampup_days',to:'line_production_plans',nullable:false,color:'#06B6D4'},
+{id:'r066',from:'pp_checklists',to:'line_production_plans',nullable:true,color:'#06B6D4'},
+{id:'r067',from:'pp_checklists',to:'work_orders',nullable:true,color:'#06B6D4'},
+{id:'r068',from:'process_layouts',to:'work_orders',nullable:false,color:'#06B6D4'},
+{id:'r069',from:'process_layout_operations',to:'process_layouts',nullable:false,color:'#06B6D4'},
+{id:'r070',from:'process_layout_operations',to:'workers',nullable:true,color:'#06B6D4'},
+{id:'r071',from:'process_layout_operations',to:'sam_master',nullable:true,color:'#F97316'},
+{id:'r072',from:'btp_receiving_log',to:'work_orders',nullable:true,color:'#06B6D4'},
+{id:'r073',from:'accessories_to_line_deliveries',to:'buyers',nullable:true,color:'#06B6D4'},
+{id:'r074',from:'accessories_to_line_deliveries',to:'workers',nullable:true,color:'#06B6D4'},
+{id:'r075',from:'accessories_to_line_deliveries',to:'issue_vouchers',nullable:true,color:'#DC8A00'},
+{id:'r076',from:'endline_qc_reports',to:'work_orders',nullable:true,color:'#06B6D4'},
+{id:'r077',from:'passed_garment_records',to:'buyers',nullable:false,color:'#06B6D4'},
+{id:'r078',from:'passed_garment_records',to:'work_orders',nullable:true,color:'#06B6D4'},
+{id:'r079',from:'sharp_tools_log',to:'workers',nullable:false,color:'#06B6D4'},
+// ── NEW SEWING ──
+{id:'r080',from:'plan_po_allocations',to:'line_production_plans',nullable:false,color:'#06B6D4'},
+{id:'r081',from:'accessories_to_line_delivery_lines',to:'accessories_to_line_deliveries',nullable:false,color:'#06B6D4'},
+{id:'r082',from:'accessories_to_line_delivery_lines',to:'material_master',nullable:false,color:'#06B6D4'},
+{id:'r083',from:'endline_defect_workers',to:'endline_qc_reports',nullable:false,color:'#06B6D4'},
+{id:'r084',from:'endline_defect_workers',to:'workers',nullable:false,color:'#06B6D4'},
+{id:'r085',from:'endline_defect_workers',to:'defect_codes',nullable:true,color:'#F97316'},
+{id:'r086',from:'internal_line_deliveries',to:'buyers',nullable:true,color:'#06B6D4'},
+{id:'r087',from:'internal_line_deliveries',to:'workers',nullable:true,color:'#06B6D4'},
+// ── FINISHING ──
+{id:'r088',from:'packing_lists',to:'orders',nullable:false,color:'#10B981'},
+{id:'r089',from:'packing_list_lines',to:'packing_lists',nullable:false,color:'#10B981'},
+{id:'r090',from:'carton_records',to:'weight_qty_inspections',nullable:true,color:'#10B981'},
+{id:'r091',from:'carton_records',to:'packing_lists',nullable:true,color:'#10B981'},
+{id:'r092',from:'weight_qty_inspections',to:'workers',nullable:true,color:'#10B981'},
+{id:'r093',from:'hangtag_inspections',to:'buyers',nullable:true,color:'#10B981'},
+{id:'r094',from:'metal_detector_calibrations',to:'machines',nullable:false,color:'#10B981'},
+{id:'r095',from:'metal_detector_calibrations',to:'workers',nullable:true,color:'#10B981'},
+{id:'r096',from:'metal_detector_calibrations',to:'buyers',nullable:true,color:'#10B981'},
+{id:'r097',from:'metal_detection_logs',to:'machines',nullable:true,color:'#10B981'},
+{id:'r098',from:'metal_detection_logs',to:'buyers',nullable:true,color:'#10B981'},
+{id:'r099',from:'metal_detection_logs',to:'packing_lists',nullable:true,color:'#10B981'},
+{id:'r100',from:'metal_detection_summaries',to:'buyers',nullable:true,color:'#10B981'},
+{id:'r101',from:'finishing_daily_reports',to:'orders',nullable:true,color:'#10B981'},
+{id:'r102',from:'finishing_daily_reports',to:'buyers',nullable:false,color:'#10B981'},
+{id:'r103',from:'finishing_monthly_reports',to:'buyers',nullable:true,color:'#10B981'},
+{id:'r104',from:'shipment_lots',to:'finishing_monthly_reports',nullable:true,color:'#10B981'},
+{id:'r105',from:'shipment_lots',to:'packing_lists',nullable:true,color:'#10B981'},
+{id:'r106',from:'dry_room_checks',to:'workers',nullable:true,color:'#10B981'},
+// ── NEW FINISHING ──
+{id:'r107',from:'hangtag_defects',to:'hangtag_inspections',nullable:false,color:'#10B981'},
+{id:'r108',from:'hangtag_defects',to:'defect_codes',nullable:true,color:'#F97316'},
+{id:'r109',from:'carton_packing_inspections',to:'buyers',nullable:true,color:'#10B981'},
+{id:'r110',from:'carton_packing_inspections',to:'workers',nullable:true,color:'#10B981'},
+{id:'r111',from:'worker_daily_finishing_output',to:'finishing_monthly_reports',nullable:false,color:'#10B981'},
+{id:'r112',from:'worker_daily_finishing_output',to:'workers',nullable:false,color:'#10B981'},
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// ZONES
+// ════════════════════════════════════════════════════════════════════════════
+const ZONES=[
+  {label:'MASTER DATA',x:13,y:40,w:685,h:870,color:'rgba(139,92,246,.05)',border:'rgba(139,92,246,.22)',tc:'#8B5CF6'},
+  {label:'WAREHOUSE',x:707,y:40,w:470,h:1160,color:'rgba(220,138,0,.05)',border:'rgba(220,138,0,.22)',tc:'#DC8A00'},
+  {label:'CUT',x:1182,y:40,w:468,h:1220,color:'rgba(59,130,246,.05)',border:'rgba(59,130,246,.22)',tc:'#3B82F6'},
+  {label:'CORE MES',x:1652,y:40,w:468,h:1120,color:'rgba(8,145,178,.06)',border:'rgba(8,145,178,.35)',tc:'#0891B2'},
+  {label:'SEWING',x:2112,y:40,w:690,h:1575,color:'rgba(6,182,212,.05)',border:'rgba(6,182,212,.22)',tc:'#06B6D4'},
+  {label:'FINISHING & PACKING',x:2787,y:40,w:695,h:1380,color:'rgba(16,185,129,.05)',border:'rgba(16,185,129,.22)',tc:'#10B981'},
+  {label:'',x:3025,y:40,w:222,h:1380,color:'rgba(16,185,129,.03)',border:'rgba(16,185,129,.12)',tc:'#10B981'},
+  {label:'',x:3248,y:40,w:222,h:1380,color:'rgba(16,185,129,.02)',border:'rgba(16,185,129,.10)',tc:'#10B981'},
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════════════════════
+function tblH(tid){
+  const t=TABLES[tid];
+  let h=HH;
+  const badges=[];
+  if(t.harness?.length) badges.push(...t.harness.map(()=>'H'));
+  const hasNew=t.isNew, hasPart=t.isPartitioned, hasMod=t.isModified;
+  if(t.harness?.length||hasNew||hasPart||hasMod) h+=18;
+  return h+t.cols.length*CH;
+}
+function tblBox(tid){const t=TABLES[tid];return{x:t.x,y:t.y,w:TW,h:tblH(tid)};}
+
+function renderZones(){
+  const canvas=document.getElementById('canvas');
+  ZONES.forEach(z=>{
+    const d=document.createElement('div');
+    d.className='zone-bg';
+    d.style.cssText=`left:${z.x}px;top:${z.y}px;width:${z.w}px;height:${z.h}px;background:${z.color};border:1px dashed ${z.border};`;
+    canvas.insertBefore(d,canvas.firstChild);
+    if(z.label){
+      const l=document.createElement('div');
+      l.className='zone-lbl';
+      l.style.cssText=`left:${z.x+10}px;top:${z.y+6}px;color:${z.tc};`;
+      l.textContent=z.label;
+      canvas.insertBefore(l,canvas.firstChild);
+    }
+  });
+}
+
+function renderTables(){
+  const tc=document.getElementById('tc');
+  for(const[tid,tbl] of Object.entries(TABLES)){
+    const ly=LAYERS[tbl.layer];
+    const div=document.createElement('div');
+    div.className='tbl'+(tbl.isView?' isview':'');
+    div.id='tbl-'+tid;
+    div.style.cssText=`left:${tbl.x}px;top:${tbl.y}px;`;
+    div.onclick=()=>openDetail(tid);
+    div.onmouseenter=()=>hl(tid);
+    div.onmouseleave=()=>clearHl();
+
+    let h=`<div class="thdr" style="background:${ly.color}">`;
+    h+=`<span class="ticon">${tbl.icon}</span>`;
+    h+=`<span class="tname">${tid}</span>`;
+    if(tbl.isView) h+=`<span class="vbadge">VIEW</span>`;
+    if(tbl.harness?.length) h+=tbl.harness.map(x=>`<span class="hbadge">🛡${x}</span>`).join('');
+    h+='</div>';
+
+    // badge row
+    const badgeParts=[];
+    if(tbl.isNew) badgeParts.push(`<span class="nbadge">🆕 NEW</span>`);
+    if(tbl.isPartitioned) badgeParts.push(`<span class="pbadge">⬡ PART</span>`);
+    if(tbl.isModified) badgeParts.push(`<span class="mbadge">🔄</span>`);
+    if(tbl.harness?.length) badgeParts.push(...tbl.harness.map(x=>`<span class="hbadge">${x}</span>`));
+    if(badgeParts.length) h+=`<div class="badge-row">${badgeParts.join('')}</div>`;
+
+    for(const c of tbl.cols){
+      const pk=c.b.includes('pk'),fk=c.b.includes('fk');
+      let cb='';
+      if(pk&&fk) cb='<span class="cb cb-pk">PK</span>';
+      else if(pk) cb='<span class="cb cb-pk">PK</span>';
+      else if(fk) cb='<span class="cb cb-fk">FK</span>';
+      else if(c.b.includes('uq')&&c.b.includes('seq')) cb='<span class="cb cb-sq">SQ</span>';
+      else if(c.b.includes('uq')) cb='<span class="cb cb-uq">UQ</span>';
+      else if(c.b.includes('gen')) cb='<span class="cb cb-gn">GN</span>';
+      else cb='<span class="cb-sp"></span>';
+      h+=`<div class="crow${pk?' pkr':fk?' fkr':''}">${cb}<span class="cn">${c.n}</span><span class="ct">${c.t}</span></div>`;
+    }
+    div.innerHTML=h;
+    tc.appendChild(div);
+  }
+}
+
+function renderLines(){
+  const svg=document.getElementById('svglines');
+  svg.innerHTML='';
+  for(const rel of RELATIONS){
+    const ft=TABLES[rel.from],tt=TABLES[rel.to];
+    if(!ft||!tt) continue;
+    const fb=tblBox(rel.from),tb=tblBox(rel.to);
+    let sx,sy,ex,ey,vert=false;
+    if(fb.x+TW<tb.x-8){sx=fb.x+TW;sy=fb.y+HH/2;ex=tb.x;ey=tb.y+HH/2;}
+    else if(fb.x>tb.x+TW+8){sx=fb.x;sy=fb.y+HH/2;ex=tb.x+TW;ey=tb.y+HH/2;}
+    else if(fb.y+fb.h<tb.y){sx=fb.x+TW/2;sy=fb.y+fb.h;ex=tb.x+TW/2;ey=tb.y;vert=true;}
+    else{sx=fb.x+TW/2;sy=fb.y;ex=tb.x+TW/2;ey=tb.y+tb.h;vert=true;}
+    const mx=(sx+ex)/2,my=(sy+ey)/2;
+    let d=vert?`M${sx},${sy} C${sx},${my} ${ex},${my} ${ex},${ey}`
+             :`M${sx},${sy} C${mx},${sy} ${mx},${ey} ${ex},${ey}`;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','rel-line');
+    g.setAttribute('data-from',rel.from);
+    g.setAttribute('data-to',rel.to);
+    g.style.color=rel.color;g.style.opacity='0.55';
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',d);path.setAttribute('fill','none');
+    path.setAttribute('stroke','currentColor');path.setAttribute('stroke-width','1.5');
+    if(rel.nullable) path.setAttribute('stroke-dasharray','5,3');
+    g.appendChild(path);
+    const sz=7;
+    if(!vert){
+      const p2=document.createElementNS('http://www.w3.org/2000/svg','path');
+      const dir=sx<ex?1:-1;
+      p2.setAttribute('d',`M${sx},${sy} L${sx-sz*dir*1.2},${sy-sz} M${sx},${sy} L${sx-sz*dir*1.2},${sy+sz}`);
+      p2.setAttribute('fill','none');p2.setAttribute('stroke','currentColor');p2.setAttribute('stroke-width','1.1');
+      g.appendChild(p2);
+    } else {
+      const p2=document.createElementNS('http://www.w3.org/2000/svg','path');
+      const dir=sy<ey?1:-1;
+      p2.setAttribute('d',`M${sx-sz},${sy+dir*sz*1.2} L${sx},${sy} M${sx+sz},${sy+dir*sz*1.2} L${sx},${sy}`);
+      p2.setAttribute('fill','none');p2.setAttribute('stroke','currentColor');p2.setAttribute('stroke-width','1.1');
+      g.appendChild(p2);
+    }
+    svg.appendChild(g);
+  }
+}
+
+// ── HIGHLIGHT / FILTER ──────────────────────────────────────────────────────
+let selTable=null,linesOn=true,curFilter='all';
+
+function getConn(tid){
+  const s=new Set([tid]);
+  RELATIONS.forEach(r=>{if(r.from===tid)s.add(r.to);if(r.to===tid)s.add(r.from);});
+  return s;
+}
+function hl(tid){
+  if(selTable) return;
+  const conn=getConn(tid);
+  document.querySelectorAll('.tbl').forEach(el=>{
+    const id=el.id.replace('tbl-','');
+    el.classList.toggle('hl',conn.has(id));
+    el.classList.toggle('dim',!conn.has(id));
+  });
+  document.querySelectorAll('.rel-line').forEach(el=>{
+    const ok=el.getAttribute('data-from')===tid||el.getAttribute('data-to')===tid;
+    el.style.opacity=ok?'1':'0.05';
+    el.style.filter=ok?'drop-shadow(0 0 3px currentColor)':'';
+  });
+}
+function clearHl(){
+  if(selTable) return;
+  document.querySelectorAll('.tbl').forEach(el=>el.classList.remove('hl','dim'));
+  document.querySelectorAll('.rel-line').forEach(el=>{el.style.opacity='0.55';el.style.filter='';});
+}
+
+const LAYER_GROUPS={
+  lv4:['lv4','mst'],wh:['wh','lv4','mst'],cut:['cut','lv4','mst'],
+  core:['lv3','lv4','mst'],sew:['sew','lv3','lv4','mst'],fin:['fin','lv3','lv4','mst'],
+};
+
+function filter(lyr,btn){
+  curFilter=lyr;
+  document.querySelectorAll('.lb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tbl').forEach(el=>{
+    const tid=el.id.replace('tbl-','');
+    const tbl=TABLES[tid];
+    let show=false;
+    if(lyr==='all') show=true;
+    else if(lyr==='new') show=tbl.isNew===true;
+    else if(lyr==='vw') show=tbl.isView===true||tbl.isPartitioned===true;
+    else show=(LAYER_GROUPS[lyr]||[]).includes(tbl?.layer)||tbl?.layer===lyr;
+    el.style.opacity=show?'1':'0.07';
+    el.style.pointerEvents=show?'':'none';
+  });
+  document.querySelectorAll('.rel-line').forEach(el=>{
+    if(lyr==='all'){el.style.display='';return;}
+    const fl=TABLES[el.getAttribute('data-from')]?.layer;
+    const tl=TABLES[el.getAttribute('data-to')]?.layer;
+    const fg=LAYER_GROUPS[lyr]||[];
+    const show=fg.includes(fl)||fg.includes(tl)||fl===lyr||tl===lyr;
+    el.style.display=show?'':'none';
+  });
+}
+function toggleLines(){
+  linesOn=!linesOn;
+  document.getElementById('svglines').style.display=linesOn?'':'none';
+  document.getElementById('ltog').classList.toggle('active',linesOn);
+}
+
+// ── DETAIL PANEL ────────────────────────────────────────────────────────────
+function openDetail(tid){
+  selTable=tid;
+  const tbl=TABLES[tid],ly=LAYERS[tbl.layer];
+  const conn=getConn(tid);
+  document.querySelectorAll('.tbl').forEach(el=>{
+    const id=el.id.replace('tbl-','');
+    el.classList.toggle('hl',conn.has(id));
+    el.classList.toggle('dim',!conn.has(id));
+  });
+  document.querySelectorAll('.rel-line').forEach(el=>{
+    const ok=el.getAttribute('data-from')===tid||el.getAttribute('data-to')===tid;
+    el.style.opacity=ok?'1':'0.06';
+  });
+  document.getElementById('dn').textContent=tid;
+  document.getElementById('dn').style.color=ly.color;
+  const tags=[];
+  if(tbl.isNew) tags.push('<span class="nbadge">🆕 NEW</span>');
+  if(tbl.isPartitioned) tags.push('<span class="pbadge">⬡ PARTITION</span>');
+  if(tbl.isView) tags.push('<span class="vbadge">⬡ VIEW</span>');
+  if(tbl.isModified) tags.push('<span class="mbadge" style="color:#FCD34D">🔄 수정됨</span>');
+  document.getElementById('dl').innerHTML=`${ly.label} · ${tbl.desc}<br>${tags.join(' ')}`;
+  let body='';
+  if(tbl.harness?.length){
+    body+=`<div class="ds"><div class="dst">🛡 Harness 방어</div>${tbl.harness.map(h=>`<span class="hbadge" style="font-size:10px;margin:2px;">${h}</span>`).join('')}</div>`;
+  }
+  body+=`<div class="ds"><div class="dst">컬럼 (${tbl.cols.length}개)</div>`;
+  for(const c of tbl.cols){
+    const badges=c.b.map(b=>({pk:'PK',fk:'FK',uq:'UQ',seq:'SQ',gen:'GN'}[b]||b)).filter(Boolean);
+    body+=`<div class="dcr"><div class="dcn">${badges.length?`[${badges.join(',')}] `:''}${c.n}</div><div class="dct">${c.t}${c.fkTo?` → ${c.fkTo}`:''}</div></div>`;
+  }
+  body+='</div>';
+  const myRels=RELATIONS.filter(r=>r.from===tid||r.to===tid);
+  if(myRels.length){
+    body+=`<div class="ds"><div class="dst">관계 (${myRels.length}개)</div>`;
+    for(const r of myRels){
+      if(r.from===tid) body+=`<div class="drr"><span class="dra" style="color:${r.color}">→FK</span><span class="drt">${r.to}</span><span style="color:var(--muted);font-size:9.5px">${r.nullable?'NULL':'NOT NULL'}</span></div>`;
+      else body+=`<div class="drr"><span class="dra" style="color:${r.color}">←1:N</span><span class="drt">${r.from}</span></div>`;
+    }
+    body+='</div>';
+  }
+  document.getElementById('db').innerHTML=body;
+  document.getElementById('detail').classList.add('open');
+}
+function closeDetail(){
+  selTable=null;
+  document.getElementById('detail').classList.remove('open');
+  clearHl();
+}
+
+// ── PAN / ZOOM ──────────────────────────────────────────────────────────────
+let sc=0.55,tx=15,ty=8,isDrag=false,sx0,sy0,tx0,ty0;
+function applyT(){
+  document.getElementById('canvas').style.transform=`scale(${sc}) translate(${tx}px,${ty}px)`;
+  document.getElementById('zi').textContent=Math.round(sc*100)+'%';
+}
+function doZoom(d,cx,cy){
+  const w=document.getElementById('cwrap');
+  const r=w.getBoundingClientRect();
+  const px=(cx??r.width/2)/sc-tx,py=(cy??r.height/2)/sc-ty;
+  sc=Math.min(2,Math.max(0.2,sc+d));
+  tx=(cx??r.width/2)/sc-px;ty=(cy??r.height/2)/sc-py;
+  applyT();
+}
+function resetView(){sc=0.55;tx=15;ty=8;applyT();}
+
+const cw=document.getElementById('cwrap');
+cw.addEventListener('mousedown',e=>{
+  if(e.target.closest('.tbl')||e.target.closest('#detail')) return;
+  isDrag=true;sx0=e.clientX;sy0=e.clientY;tx0=tx;ty0=ty;cw.classList.add('grabbing');
+});
+cw.addEventListener('mousemove',e=>{if(!isDrag)return;tx=tx0+(e.clientX-sx0)/sc;ty=ty0+(e.clientY-sy0)/sc;applyT();});
+cw.addEventListener('mouseup',()=>{isDrag=false;cw.classList.remove('grabbing');});
+cw.addEventListener('mouseleave',()=>{isDrag=false;cw.classList.remove('grabbing');});
+cw.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=cw.getBoundingClientRect();
+  doZoom(e.deltaY<0?.1:-.1,e.clientX-r.left,e.clientY-r.top);
+},{passive:false});
+cw.addEventListener('click',e=>{if(!e.target.closest('.tbl')&&!e.target.closest('#detail'))closeDetail();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeDetail();
+  if(e.key==='0')resetView();
+  if(e.key==='+'||e.key==='=')doZoom(.1);
+  if(e.key==='-')doZoom(-.1);
+});
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+renderZones();
+renderTables();
+renderLines();
+applyT();
+
+const tcount=Object.keys(TABLES).length;
+const rcount=RELATIONS.length;
+console.log(`GarmentOS ERD v4: ${tcount}개 테이블/뷰, ${rcount}개 관계`);
+console.log('NEW:', Object.entries(TABLES).filter(([,v])=>v.isNew).map(([k])=>k).join(', '));
+console.log('MODIFIED:', Object.entries(TABLES).filter(([,v])=>v.isModified).map(([k])=>k).join(', '));
+console.log('PARTITION:', Object.entries(TABLES).filter(([,v])=>v.isPartitioned).map(([k])=>k).join(', '));
+console.log('VIEW:', Object.entries(TABLES).filter(([,v])=>v.isView).map(([k])=>k).join(', '));
+</script>
+</body>
+</html>

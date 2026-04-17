@@ -28,7 +28,7 @@ interface ScreenPerm {
 
 const SCREENS: ScreenPerm[] = [
   {
-    screenCode: 'WH-01', screenName: '원단 입고',  group: '창고',
+    screenCode: 'H-WH-01', screenName: 'admin.permission.screen.H-WH-01', group: 'warehouse',
     perms: { factory_manager: { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: true },
              line_manager:    { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
              qc_inspector:    { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
@@ -36,7 +36,7 @@ const SCREENS: ScreenPerm[] = [
              admin:           { VIEW: true, CREATE: true,  UPDATE: true,  DELETE: true,  EXPORT: true } },
   },
   {
-    screenCode: 'SW-17', screenName: '팀 실적 입력', group: '봉제',
+    screenCode: 'H-RT-01', screenName: 'admin.permission.screen.H-RT-01', group: 'sewing',
     perms: { factory_manager: { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: true },
              line_manager:    { VIEW: true, CREATE: true,  UPDATE: true,  DELETE: false, EXPORT: false },
              qc_inspector:    { VIEW: false, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
@@ -44,7 +44,7 @@ const SCREENS: ScreenPerm[] = [
              admin:           { VIEW: true, CREATE: true,  UPDATE: true,  DELETE: true,  EXPORT: true } },
   },
   {
-    screenCode: 'QC-25', screenName: '인라인 검사', group: '품질',
+    screenCode: 'H-QC-01', screenName: 'admin.permission.screen.H-QC-01', group: 'sewing',
     perms: { factory_manager: { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: true },
              line_manager:    { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
              qc_inspector:    { VIEW: true, CREATE: true,  UPDATE: true,  DELETE: false, EXPORT: true },
@@ -52,10 +52,10 @@ const SCREENS: ScreenPerm[] = [
              admin:           { VIEW: true, CREATE: true,  UPDATE: true,  DELETE: true,  EXPORT: true } },
   },
   {
-    screenCode: 'AD-23', screenName: '공장장 대시보드', group: '분석',
+    screenCode: 'Dashboard', screenName: 'admin.permission.screen.Dashboard', group: 'personal',
     perms: { factory_manager: { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: true },
-             line_manager:    { VIEW: false, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
-             qc_inspector:    { VIEW: false, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
+             line_manager:    { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
+             qc_inspector:    { VIEW: true, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
              warehouse:       { VIEW: false, CREATE: false, UPDATE: false, DELETE: false, EXPORT: false },
              admin:           { VIEW: true, CREATE: true,  UPDATE: true,  DELETE: true,  EXPORT: true } },
   },
@@ -131,7 +131,7 @@ function RolePermissionMatrix() {
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 selectedGroup === g ? 'bg-primary-100 text-primary-700 font-medium' : 'text-gray-500 hover:bg-gray-100'
               }`}>
-              {g === ALL_GROUPS ? t('common.all') : g}
+              {g === ALL_GROUPS ? t('common.all') : t(`admin.permission.group.${g}`)}
             </button>
           ))}
         </div>
@@ -183,7 +183,7 @@ function RolePermissionMatrix() {
             {filtered.map(screen => (
               <tr key={screen.screenCode} className="hover:bg-gray-50">
                 <td className="px-4 py-2.5"><span className="font-mono text-gray-600 text-xs">{screen.screenCode}</span></td>
-                <td className="px-3 py-2.5 text-gray-800">{screen.screenName}</td>
+                <td className="px-3 py-2.5 text-gray-800">{t(screen.screenName)}</td>
                 {ROLES.map(r => ACTIONS.map(a => (
                   <td key={`${r}-${a}`} className="text-center py-2.5 border-l border-gray-100">
                     <button type="button" onClick={() => togglePerm(screen.screenCode, r, a)}

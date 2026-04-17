@@ -11,7 +11,7 @@ YIC Garment OEM Manufacturing Execution System.
 - **대상**: 제2공장 Phase 1, 제3공장 Phase 2
 - **클라우드**: AWS ap-southeast-1
 - **개발 기간**: Phase 1 20주 + Phase 2 8주
-- **범위**: 33개 화면, 49개 API 엔드포인트
+- **범위**: 34개 화면, 44개 API 엔드포인트 (WH 7 + CUT 8 + SEW 12 + FIN 10 + Dashboard 1)
 
 ### 4대 설계 원칙 (모든 결정의 기준)
 
@@ -32,7 +32,7 @@ garment-oem-mes/
 │   └── api/          # Node.js 20 LTS (Stream B)
 ├── packages/
 │   ├── domain/       # 공유 타입·에러코드·도메인 규칙·상수
-│   ├── openapi/      # spec.yaml (단일 진실 원천, 49개 endpoint)
+│   ├── openapi/      # spec.yaml (단일 진실 원천, 44개 endpoint)
 │   └── db/           # Prisma Schema (Layer A~D 전체)
 ├── .claude/          # Agent·Rules·Memory
 ├── notes/            # ADR-001~013, handoff, defer

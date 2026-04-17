@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GarmentOS MES — 통합 개발 계획서 v5.0</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#0B0F14;--surf:#111720;--surf2:#161E2A;--surf3:#1C2535;
+  --bdr:#1F2D3D;--bdr2:#2A3D52;
+  --txt:#E2EAF4;--muted:#7A92A8;--dim:#4A6070;
+  --accent:#00C2FF;--accent2:#0088CC;
+  --ok:#00E599;--warn:#FFB547;--danger:#FF5C5C;--purple:#A78BFA;
+  --wh:#F59E0B;--cut:#3B82F6;--sew:#06B6D4;--fin:#10B981;
+  --review:#FF9F47;--confirmed:#00C896;--new-item:#A78BFA;
+  --rw:#1C2D1A;--rb:#0D1F2E;--rp:#1E1A2D;--ro:#2A1A0A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
+::selection{background:rgba(0,194,255,.25);color:var(--txt);}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px;}
+
+/* ── TOPBAR ── */
+#topbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(11,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);z-index:1000;display:flex;align-items:center;gap:0;padding:0;}
+.tb-logo{padding:0 20px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;border-right:1px solid var(--bdr);}
+.tb-title{padding:0 16px;font-size:12px;color:var(--muted);border-right:1px solid var(--bdr);white-space:nowrap;}
+.tb-nav{display:flex;align-items:center;gap:2px;padding:0 12px;flex:1;overflow-x:auto;}
+.tb-nav::-webkit-scrollbar{height:0;}
+.tnb{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);background:none;border:none;white-space:nowrap;transition:all .15s;}
+.tnb:hover{color:var(--txt);background:var(--surf2);}
+.tnb.active{color:#fff;background:var(--accent2);}
+.tb-right{padding:0 16px;display:flex;gap:8px;align-items:center;border-left:1px solid var(--bdr);}
+.ver-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;background:rgba(0,194,255,.12);color:var(--accent);padding:3px 8px;border-radius:4px;border:1px solid rgba(0,194,255,.25);}
+.review-count{font-size:10px;background:rgba(255,159,71,.12);color:var(--review);padding:3px 8px;border-radius:4px;border:1px solid rgba(255,159,71,.3);cursor:pointer;}
+
+/* ── MAIN LAYOUT ── */
+#main{display:flex;height:100vh;padding-top:56px;}
+#sidebar{width:240px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--bdr);overflow-y:auto;padding:12px 0 20px;}
+#content{flex:1;overflow-y:auto;padding:0;}
+
+/* ── SIDEBAR ── */
+.sb-section{margin-bottom:4px;}
+.sb-section-hdr{padding:8px 16px;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:.8px;text-transform:uppercase;}
+.sb-item{padding:7px 16px 7px 28px;font-size:11.5px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .12s;border-left:2px solid transparent;}
+.sb-item:hover{color:var(--txt);background:var(--surf2);}
+.sb-item.active{color:var(--txt);background:var(--surf2);border-left-color:var(--accent);}
+.sb-item .sb-icon{font-size:12px;flex-shrink:0;}
+.sb-badge{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:700;}
+.sb-badge.r{background:rgba(255,159,71,.2);color:var(--review);}
+.sb-badge.ok{background:rgba(0,229,153,.12);color:var(--ok);}
+.sb-badge.new{background:rgba(167,139,250,.15);color:var(--purple);}
+
+/* ── PAGE SECTIONS ── */
+.page-section{display:none;padding:32px 32px 80px;}
+.page-section.active{display:block;}
+.section-header{margin-bottom:32px;}
+.section-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.section-title{font-size:22px;font-weight:700;color:var(--txt);margin-bottom:10px;}
+.section-desc{font-size:13px;color:var(--muted);line-height:1.7;max-width:760px;}
+
+/* ── REVIEW BOX ── */
+.review-box{background:rgba(255,159,71,.06);border:1px solid rgba(255,159,71,.3);border-radius:10px;padding:14px 16px;margin:12px 0;display:flex;gap:10px;align-items:flex-start;}
+.review-box .ricon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.review-box .rtxt{flex:1;}
+.review-box .rtitle{font-size:12px;font-weight:700;color:var(--review);margin-bottom:4px;}
+.review-box .rdesc{font-size:11.5px;color:var(--muted);line-height:1.6;}
+.review-box .raction{margin-top:8px;font-size:11px;color:var(--warn);font-weight:600;}
+
+/* ── CONFIRMED BOX ── */
+.ok-box{background:rgba(0,200,150,.05);border:1px solid rgba(0,200,150,.25);border-radius:8px;padding:10px 14px;margin:8px 0;display:flex;gap:8px;align-items:flex-start;}
+.ok-box .oicon{color:var(--ok);font-size:14px;flex-shrink:0;}
+.ok-box .otxt{font-size:11.5px;color:var(--muted);}
+.ok-box .otitle{font-weight:700;color:var(--ok);margin-bottom:2px;font-size:11.5px;}
+
+/* ── CARDS & GRIDS ── */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:18px;margin-bottom:14px;}
+.card-sm{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+.card-hdr{font-size:12px;font-weight:700;color:var(--txt);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.stat-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:16px 18px;text-align:center;}
+.stat-n{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:var(--accent);display:block;}
+.stat-l{font-size:10.5px;color:var(--muted);margin-top:4px;}
+.stat-d{font-size:10px;color:var(--dim);margin-top:2px;}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:28px;}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--bdr2);}
+.tl-item{position:relative;margin-bottom:20px;}
+.tl-dot{position:absolute;left:-24px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--surf2);border:2px solid var(--bdr2);display:flex;align-items:center;justify-content:center;}
+.tl-dot.done{border-color:var(--ok);background:rgba(0,229,153,.15);}
+.tl-dot.review{border-color:var(--review);background:rgba(255,159,71,.15);}
+.tl-dot.active{border-color:var(--accent);background:rgba(0,194,255,.15);box-shadow:0 0 8px rgba(0,194,255,.3);}
+.tl-week{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);margin-bottom:3px;}
+.tl-title{font-size:12.5px;font-weight:600;color:var(--txt);margin-bottom:4px;}
+.tl-body{font-size:11px;color:var(--muted);line-height:1.6;}
+.tl-milestone{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-top:4px;}
+
+/* ── PHASE CARD ── */
+.phase-card{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.phase-hdr{padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.phase-hdr:hover{background:var(--surf2);}
+.phase-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;color:#fff;flex-shrink:0;}
+.phase-title{font-size:13.5px;font-weight:700;flex:1;}
+.phase-meta{font-size:11px;color:var(--muted);}
+.phase-chevron{color:var(--muted);transition:transform .2s;font-size:12px;}
+.phase-card.open .phase-chevron{transform:rotate(90deg);}
+.phase-body{display:none;padding:0 18px 16px;border-top:1px solid var(--bdr);}
+.phase-card.open .phase-body{display:block;}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;margin:12px 0;}
+table{width:100%;border-collapse:collapse;font-size:11.5px;}
+th{background:var(--surf3);color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid var(--bdr);}
+td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--txt);vertical-align:top;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.td-mono{font-family:'IBM Plex Mono',monospace;font-size:11px;}
+.td-muted{color:var(--muted);}
+
+/* ── TAGS & BADGES ── */
+.tag{display:inline-block;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.tag-ok{background:rgba(0,229,153,.15);color:var(--ok);}
+.tag-warn{background:rgba(255,181,71,.15);color:var(--warn);}
+.tag-danger{background:rgba(255,92,92,.15);color:var(--danger);}
+.tag-accent{background:rgba(0,194,255,.15);color:var(--accent);}
+.tag-purple{background:rgba(167,139,250,.15);color:var(--purple);}
+.tag-review{background:rgba(255,159,71,.15);color:var(--review);}
+.tag-wh{background:rgba(245,158,11,.15);color:var(--wh);}
+.tag-cut{background:rgba(59,130,246,.15);color:var(--cut);}
+.tag-sew{background:rgba(6,182,212,.15);color:var(--sew);}
+.tag-fin{background:rgba(16,185,129,.15);color:var(--fin);}
+
+/* ── ROLE CHIP ── */
+.role-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
+.role-pm{background:rgba(167,139,250,.2);color:var(--purple);}
+.role-mes{background:rgba(0,194,255,.15);color:var(--accent);}
+.role-ai{background:rgba(0,229,153,.12);color:var(--ok);}
+.role-dev{background:rgba(245,158,11,.15);color:var(--wh);}
+.role-cc{background:rgba(255,92,92,.12);color:var(--danger);}
+.role-cust{background:rgba(30,30,30,.5);color:var(--muted);}
+
+/* ── AUTOMATION ITEM ── */
+.auto-item{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px;}
+.auto-id{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--accent);min-width:36px;flex-shrink:0;margin-top:1px;}
+.auto-body{flex:1;}
+.auto-title{font-size:11.5px;font-weight:600;color:var(--txt);margin-bottom:2px;}
+.auto-meta{font-size:10.5px;color:var(--muted);}
+.auto-effect{font-size:10px;color:var(--ok);margin-top:3px;}
+.auto-status{flex-shrink:0;}
+
+/* ── HARNESS ITEM ── */
+.harness-item{background:var(--surf2);border-left:3px solid var(--danger);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:6px;}
+.hi-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.hi-id{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--danger);min-width:70px;}
+.hi-proc{font-size:9.5px;padding:1px 6px;border-radius:4px;}
+.hi-title{font-size:11.5px;font-weight:600;color:var(--txt);flex:1;}
+.hi-body{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.hi-defense{font-size:10.5px;color:var(--ok);display:flex;gap:5px;align-items:flex-start;}
+
+/* ── INTERACTION PATTERN ── */
+.pattern-box{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;margin-bottom:14px;overflow:hidden;}
+.pattern-hdr{background:var(--surf2);padding:12px 16px;display:flex;align-items:center;gap:8px;}
+.pattern-title{font-size:12.5px;font-weight:700;color:var(--txt);}
+.pattern-body{padding:14px 16px;}
+.flow-step{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--bdr);align-items:flex-start;}
+.flow-step:last-child{border:none;}
+.fs-actor{font-size:10px;font-weight:700;min-width:90px;flex-shrink:0;padding:2px 6px;border-radius:4px;text-align:center;margin-top:1px;}
+.fs-human{background:rgba(0,194,255,.12);color:var(--accent);}
+.fs-claude{background:rgba(255,92,92,.1);color:var(--danger);}
+.fs-arrow{font-size:12px;color:var(--dim);flex-shrink:0;margin-top:2px;}
+.fs-content{font-size:11.5px;color:var(--txt);flex:1;}
+.fs-note{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ── FLAG ITEM ── */
+.flag-item{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;margin-bottom:6px;display:flex;gap:10px;align-items:flex-start;}
+.flag-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--txt);flex:1;}
+.flag-status{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;}
+.flag-off{background:rgba(255,92,92,.12);color:var(--danger);}
+.flag-on{background:rgba(0,229,153,.12);color:var(--ok);}
+.flag-desc{font-size:10.5px;color:var(--muted);margin-top:3px;}
+.flag-cond{font-size:10px;color:var(--dim);margin-top:2px;}
+
+/* ── DATA PROCUREMENT ── */
+.data-item{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:10px 14px;margin-bottom:6px;display:grid;grid-template-columns:60px 1fr 1fr;gap:8px;align-items:start;}
+.di-code{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);}
+.di-title{font-size:11.5px;font-weight:600;color:var(--txt);}
+.di-when{font-size:10px;color:var(--warn);}
+.di-risk{font-size:10.5px;color:var(--muted);}
+.di-fallback{font-size:10px;color:var(--ok);}
+
+/* ── COLLAPSIBLE ── */
+.collapsible{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;margin-bottom:8px;overflow:hidden;}
+.collapsible-hdr{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;}
+.collapsible-hdr:hover{background:var(--surf2);}
+.collapsible-hdr .ch{font-size:10px;color:var(--muted);transition:transform .2s;margin-left:auto;}
+.collapsible.open .ch{transform:rotate(90deg);}
+.collapsible-body{display:none;padding:0 14px 12px;border-top:1px solid var(--bdr);}
+.collapsible.open .collapsible-body{display:block;}
+
+/* ── TABS ── */
+.tab-row{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid var(--bdr);padding-bottom:0;}
+.tab-btn{padding:8px 14px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab-btn:hover{color:var(--txt);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* ── SEARCH ── */
+.search-box{display:flex;gap:8px;margin-bottom:16px;}
+.search-inp{flex:1;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--txt);outline:none;}
+.search-inp::placeholder{color:var(--dim);}
+.search-inp:focus{border-color:var(--accent);}
+
+/* ── SCROLLSPY HIGHLIGHT ── */
+.highlight{animation:hl .8s ease;}
+@keyframes hl{0%{background:rgba(0,194,255,.12);}100%{background:transparent;}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){#sidebar{display:none;}.grid4{grid-template-columns:1fr 1fr;}.grid3{grid-template-columns:1fr 1fr;}}
+
+/* ── REVIEW PANEL ── */
+#review-panel{display:none;position:fixed;right:0;top:56px;bottom:0;width:320px;background:var(--surf);border-left:1px solid var(--bdr);overflow-y:auto;z-index:500;padding:16px;}
+#review-panel.open{display:block;}
+.rp-title{font-size:13px;font-weight:700;color:var(--review);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.rp-item{background:rgba(255,159,71,.06);border:1px solid rgba(255,159,71,.2);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:11px;}
+.rp-item-title{font-weight:700;color:var(--review);margin-bottom:4px;}
+.rp-item-desc{color:var(--muted);line-height:1.5;}
+
+/* ── MISC ── */
+hr.divider{border:none;border-top:1px solid var(--bdr);margin:20px 0;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;}
+.note{font-size:11px;color:var(--muted);line-height:1.6;background:var(--surf2);border-radius:6px;padding:8px 12px;margin:8px 0;border-left:3px solid var(--bdr2);}
+.note.warn{border-color:var(--warn);}
+.note.ok{border-color:var(--ok);}
+.note.accent{border-color:var(--accent);}
+.badge-new{font-size:9px;background:rgba(167,139,250,.2);color:var(--purple);padding:1px 5px;border-radius:4px;font-weight:700;margin-left:4px;}
+.badge-v46{font-size:9px;background:rgba(0,194,255,.12);color:var(--accent);padding:1px 5px;border-radius:4px;font-weight:700;margin-left:4px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-logo">GarmentOS</div>
+  <div class="tb-title">통합 개발 계획 v5.0</div>
+  <nav class="tb-nav">
+    <button class="tnb active" onclick="showPage('overview')">📋 개요</button>
+    <button class="tnb" onclick="showPage('methodology')">🔭 방법론</button>
+    <button class="tnb" onclick="showPage('scope')">📐 범위</button>
+    <button class="tnb" onclick="showPage('architecture')">🏗 아키텍처</button>
+    <button class="tnb" onclick="showPage('schedule')">📅 일정</button>
+    <button class="tnb" onclick="showPage('team')">👥 팀·역할</button>
+    <button class="tnb" onclick="showPage('automation')">🤖 자동화</button>
+    <button class="tnb" onclick="showPage('harness')">🛡 Harness</button>
+    <button class="tnb" onclick="showPage('flags')">🚩 Feature Flag</button>
+    <button class="tnb" onclick="showPage('data')">📦 데이터 조달</button>
+    <button class="tnb" onclick="showPage('interaction')">🔄 인간↔Claude</button>
+    <button class="tnb" onclick="showPage('review')">⚠️ 검토 과제</button>
+  </nav>
+  <div class="tb-right">
+    <span class="ver-badge">v5.0 통합</span>
+    <span class="review-count" onclick="toggleReviewPanel()">⚠️ 검토 13건</span>
+  </div>
+</div>
+
+<!-- REVIEW PANEL -->
+<div id="review-panel">
+  <div class="rp-title">
+    ⚠️ 미팅 검토 과제 (13건)
+    <button onclick="toggleReviewPanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;">✕</button>
+  </div>
+  <div id="review-list"></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <nav id="sidebar">
+    <div class="sb-section">
+      <div class="sb-section-hdr">프로젝트 기반</div>
+      <div class="sb-item active" onclick="showPage('overview')"><span class="sb-icon">📋</span> 개요 & 통계<span class="sb-badge ok">확정</span></div>
+      <div class="sb-item" onclick="showPage('methodology')"><span class="sb-icon">🔭</span> 방법론 3축</div>
+      <div class="sb-item" onclick="showPage('scope')"><span class="sb-icon">📐</span> 시스템 범위<span class="sb-badge r">R1</span></div>
+      <div class="sb-item" onclick="showPage('architecture')"><span class="sb-icon">🏗</span> 아키텍처<span class="sb-badge r">R2</span></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-hdr">실행 계획</div>
+      <div class="sb-item" onclick="showPage('schedule')"><span class="sb-icon">📅</span> 20주 일정<span class="sb-badge r">R3</span></div>
+      <div class="sb-item" onclick="showPage('team')"><span class="sb-icon">👥</span> 팀 구성 & 역할</div>
+      <div class="sb-item" onclick="showPage('automation')"><span class="sb-icon">🤖</span> Claude 자동화 29건</div>
+      <div class="sb-item" onclick="showPage('harness')"><span class="sb-icon">🛡</span> Harness 38건</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-hdr">운영 체계</div>
+      <div class="sb-item" onclick="showPage('flags')"><span class="sb-icon">🚩</span> Feature Flag 10개<span class="sb-badge r">R4</span></div>
+      <div class="sb-item" onclick="showPage('data')"><span class="sb-icon">📦</span> 데이터 조달 10종</div>
+      <div class="sb-item" onclick="showPage('interaction')"><span class="sb-icon">🔄</span> 인간↔Claude 패턴</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-hdr">검토 필요</div>
+      <div class="sb-item" onclick="showPage('review')"><span class="sb-icon">⚠️</span> 미팅 검토 과제<span class="sb-badge r">13건</span></div>
+    </div>
+  </nav>
+
+  <div id="content">
+
+  <!-- ═══ 개요 ═══ -->
+  <div id="page-overview" class="page-section active">
+    <div class="section-header">
+      <div class="section-eyebrow">GarmentOS MES Phase 1</div>
+      <div class="section-title">통합 개발 계획서 v5.0</div>
+      <div class="section-desc">v4.6 개발 계획서 + 현장 문서 40개 분석 결과를 통합한 최종 계획입니다. YIC-HaNam · YIC-VINA 두 공장의 4개 공정 34개 화면을 20주에 구현하며, Claude Code 기반 AI-assisted 개발로 약 32~42 인일을 절감합니다.</div>
+    </div>
+
+    <div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div class="rtitle">v5.0 통합 배경 — 두 계획의 결합</div>
+        <div class="rdesc">v4.6 개발 계획서(2026.04, 현장 문서 분석 전)와 현장 40개 문서 분석 결과를 통합했습니다. v4.6의 방법론(PDD+SDD+Harness)·자동화(29건)·역할 정의·Harness 38개를 유지하고, ERD v4(71 테이블)·PDC 37개 태스크·CRUD Matrix를 신규 반영했습니다. 일정은 v4.6의 14주에서 <strong>20주</strong>로 확장됩니다.</div>
+        <div class="raction">→ 팀·고객 미팅에서 20주 일정 및 릴렉싱 공정 포함 여부 확정 필요</div>
+      </div>
+    </div>
+
+    <div class="grid4" style="margin-bottom:20px;">
+      <div class="stat-card"><span class="stat-n">20<span style="font-size:16px;">주</span></span><div class="stat-l">총 개발 기간</div><div class="stat-d">v4.6: 14주 → 확장</div></div>
+      <div class="stat-card"><span class="stat-n" style="color:var(--sew);">34</span><div class="stat-l">화면 수 (확정)</div><div class="stat-d">33+1 (Dashboard)</div></div>
+      <div class="stat-card"><span class="stat-n" style="color:var(--ok);">37</span><div class="stat-l">PDC 태스크</div><div class="stat-d">14 Activity × 4 공정</div></div>
+      <div class="stat-card"><span class="stat-n" style="color:var(--purple);">71</span><div class="stat-l">ERD 테이블+VIEW</div><div class="stat-d">v4 최종 확정</div></div>
+      <div class="stat-card"><span class="stat-n" style="color:var(--warn);">29</span><div class="stat-l">Claude 자동화</div><div class="stat-d">~32-42 인일 절감</div></div>
+      <div class="stat-card"><span class="stat-n" style="color:var(--danger);">38</span><div class="stat-l">Harness 규칙</div><div class="stat-d">결함 사전 방어</div></div>
+      <div class="stat-card"><span class="stat-n" style="color:var(--accent);">10</span><div class="stat-l">Feature Flag</div><div class="stat-d">화면33+기능10=43</div></div>
+      <div class="stat-card"><span class="stat-n" style="color:var(--review);">13</span><div class="stat-l">팀·고객 검토 과제</div><div class="stat-d">미팅 전 확인 필요</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">🗂 산출물 현황 (설계 단계 완료)</div>
+      <div class="grid2">
+        <div>
+          <div class="ok-box"><div class="oicon">✅</div><div><div class="otitle">ERD v4 인터랙티브 뷰어</div><div class="otxt">GarmentOS_ERD_v4.html — 71테이블+1VIEW, 112관계, 신규15·수정15·파티셔닝3</div></div></div>
+          <div class="ok-box"><div class="oicon">✅</div><div><div class="otitle">PDC Viewer (인터랙티브 HTML)</div><div class="otxt">GarmentOS_PDC_Viewer.html — 37태스크 × 14Activity, READ/WRITE 테이블 명세</div></div></div>
+        </div>
+        <div>
+          <div class="ok-box"><div class="oicon">✅</div><div><div class="otitle">CRUD Responsibility Matrix</div><div class="otxt">GarmentOS_CRUD_Matrix.xlsx — 71테이블 × 37태스크 교차, 설계 갭 4건 식별</div></div></div>
+          <div class="ok-box"><div class="oicon">✅</div><div><div class="otitle">PDC WSD 업무 정의서</div><div class="otxt">GarmentOS_PDC_WSD.docx — 37태스크 전체 PDC(2791단락), 개발팀 전달용</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">📊 두 계획의 통합 결과 요약</div>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>항목</th><th>v4.6 (현장 분석 前)</th><th>현재 v5.0 (통합)</th><th>처리</th></tr>
+          <tr><td>방법론</td><td>PDD + SDD + Harness</td><td>PDD + SDD + Harness + ISA-95 + PDC</td><td><span class="tag tag-ok">통합 유지</span></td></tr>
+          <tr><td>총 기간</td><td>14주</td><td>20주</td><td><span class="tag tag-review">검토 R3</span></td></tr>
+          <tr><td>화면 수</td><td>34개</td><td>34개 (확정)</td><td><span class="tag tag-ok">일치</span></td></tr>
+          <tr><td>Harness 규칙</td><td>38개 (전체 카탈로그)</td><td>38개 (통합 유지)</td><td><span class="tag tag-ok">채택</span></td></tr>
+          <tr><td>Claude 자동화</td><td>29건</td><td>29건 + ERD/PDC 기반 신규</td><td><span class="tag tag-ok">확장</span></td></tr>
+          <tr><td>ERD</td><td>ISA-95 기반 14개 코어</td><td>71테이블+VIEW (v4 확정)</td><td><span class="tag tag-purple">대체</span></td></tr>
+          <tr><td>업무 태스크</td><td>화면 단위 (34개)</td><td>PDC 37개 태스크 (14 Activity)</td><td><span class="tag tag-purple">통합</span></td></tr>
+          <tr><td>팀 구성</td><td>4인 + Claude Code</td><td>4인 + Claude Code (채택)</td><td><span class="tag tag-ok">채택</span></td></tr>
+          <tr><td>릴렉싱 공정</td><td>화면 04~06 (별도 공정)</td><td>WH 또는 별도 — 미확정</td><td><span class="tag tag-review">검토 R2</span></td></tr>
+          <tr><td>두 공장 지원</td><td>단일 공장 가정</td><td>factories 마스터 + factory_id 분리</td><td><span class="tag tag-purple">신규</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 방법론 ═══ -->
+  <div id="page-methodology" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">방법론</div>
+      <div class="section-title">PDD + SDD + Harness + ISA-95 + PDC</div>
+      <div class="section-desc">v4.6의 3축 방법론(PDD·SDD·Harness)에 이번 세션의 ISA-95 기반 PDC 체계를 결합한 5축 통합 방법론입니다.</div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-hdr"><span style="color:var(--accent);">●</span> PDD</div>
+        <div style="font-size:12px;font-weight:700;color:var(--txt);margin-bottom:6px;">Prototype-Driven Discovery</div>
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.6;">34개 화면 HTML 프로토타입을 고객에게 직접 시연하여 요구사항을 확정. 오전 피드백 → 오후 Spec 자동 생성. 수동 Spec 5일 → 1~2일로 단축.</div>
+        <div style="margin-top:10px;font-size:10.5px;color:var(--ok);">✅ 4/13 세션에서 수행 완료</div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span style="color:var(--ok);">●</span> SDD</div>
+        <div style="font-size:12px;font-weight:700;color:var(--txt);margin-bottom:6px;">Spec-Driven Development</div>
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.6;">코드 작성 전 requirements.md + design.md + tasks.md 3단계 명세 완성. Claude Code에게 정확한 설계도 제공 → 재작업 최소화. PDC WSD가 이 역할 수행.</div>
+        <div style="margin-top:10px;font-size:10.5px;color:var(--ok);">✅ PDC WSD 37개 태스크로 대체</div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span style="color:var(--danger);">●</span> Harness</div>
+        <div style="font-size:12px;font-weight:700;color:var(--txt);margin-bottom:6px;">결함 사전 방어 체계</div>
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.6;">의류 MES 결함 패턴 38개를 사전 정의. 구현 시 Claude Code가 방어 로직·테스트 자동 포함. SIT 기간 4주→2주 단축 효과.</div>
+        <div style="margin-top:10px;font-size:10.5px;color:var(--ok);">✅ 38개 카탈로그 v4.6에서 채택</div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span style="color:var(--purple);">●</span> ISA-95</div>
+        <div style="font-size:12px;font-weight:700;color:var(--txt);margin-bottom:6px;">국제 MES 표준 (Part 3)</div>
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.6;">Level 4(ERP) · Level 3(MES 핵심) · Level 2(현장 인터페이스) · Level 1(물리 현장)의 4계층으로 시스템을 설계. DB·API 도메인 구조의 기준.</div>
+        <div style="margin-top:10px;font-size:10.5px;color:var(--purple);">★ 이번 세션 신규 반영</div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span style="color:var(--sew);">●</span> PDC</div>
+        <div style="font-size:12px;font-weight:700;color:var(--txt);margin-bottom:6px;">Process Data Contract</div>
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.6;">37개 태스크 × 입력·처리·출력·검증·거버넌스 계약. ERD 테이블 수준으로 정의. CRUD Matrix로 71테이블 커버리지 검증.</div>
+        <div style="margin-top:10px;font-size:10.5px;color:var(--purple);">★ 이번 세션 신규 반영</div>
+      </div>
+      <div class="card" style="border-color:rgba(0,194,255,.3);">
+        <div class="card-hdr"><span style="color:var(--accent);">◆</span> 핵심 원칙</div>
+        <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:8px;">"사람은 판단, AI는 실행"</div>
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.6;">Phase 2b에서 코드의 70~80%를 Claude Code가 생성. 인간은 ① Spec 작성 → ② Gate Review → ③ CR 판단 → ④ 최종 승인에 집중.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">🔄 변경 관리 3중 안전망 (v4.6 채택)</div>
+      <div class="grid3">
+        <div class="card-sm">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:5px;">① Feature Flag</div>
+          <div style="font-size:11px;color:var(--muted);">코드를 지우지 않고 기능을 끈다. 화면 레벨 33개 + 기능 레벨 10개 = 총 43개 Flag 관리. 롤백 시 Flag off만으로 처리.</div>
+        </div>
+        <div class="card-sm">
+          <div style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:5px;">② Atomic Commit + Worktree</div>
+          <div style="font-size:11px;color:var(--muted);">화면당 독립 브랜치. 주간 Git 태그 + DB 스냅샷 동시 생성. 코드 롤백 시 DB도 함께 복원.</div>
+        </div>
+        <div class="card-sm">
+          <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:5px;">③ Spec Versioning</div>
+          <div style="font-size:11px;color:var(--muted);">명세서·코드 동일 Git 저장소. 코드 롤백 시 Spec도 자동 복원. PDC WSD가 Spec 역할 수행.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">📊 DB 스키마 변경 원칙 (v4.6, CLAUDE.md 필수 기재)</div>
+      <div class="note accent">Phase 1 전 기간: <strong>Additive-Only</strong> 원칙 — DB 컬럼 삭제 금지. 변경 시 기존 컬럼 유지 + 새 컬럼 추가. 불필요 컬럼 정리는 Phase 2 안정화 이후. 이 규칙을 CLAUDE.md에 명시하여 Claude Code도 준수.</div>
+    </div>
+  </div>
+
+  <!-- ═══ 범위 ═══ -->
+  <div id="page-scope" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">시스템 범위</div>
+      <div class="section-title">34개 화면 · 37개 PDC 태스크</div>
+      <div class="section-desc">현장 문서 40개 분석으로 확정된 4개 공정의 업무 범위입니다.</div>
+    </div>
+
+    <div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div class="rtitle">R1 — 릴렉싱(Relaxation) 공정 포함 여부 확인 필요</div>
+        <div class="rdesc">v4.6에는 화면 04~06이 별도 '릴렉싱 공정'으로 명시되어 있습니다. 현재 계획은 Warehouse → CUT → Sewing → Finishing 4개 공정으로 정의하며 릴렉싱을 Warehouse 공정에 통합했습니다. 현장 운영 방식에 따라 별도 공정으로 분리할지 결정이 필요합니다.</div>
+        <div class="raction">→ 팀 미팅: YIC 공장장과 릴렉싱 공정 위치·담당 부서 확인 필요</div>
+      </div>
+    </div>
+
+    <div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div class="rtitle">R1-b — CRUD Matrix 설계 갭 4건 처리 방향 결정</div>
+        <div class="rdesc">71×37 CRUD Matrix 분석에서 WRITE 태스크가 없는 테이블 4개 발견: daily_production_reports, plan_po_allocations, internal_line_deliveries, dry_room_checks. 태스크 신규 추가 또는 기존 태스크 범위 확장 중 선택 필요.</div>
+        <div class="raction">→ 팀 미팅: AI전문가 + MES전문가 공동으로 각 테이블의 WRITE 책임 태스크 결정</div>
+      </div>
+    </div>
+
+    <div class="tab-row" style="margin-top:16px;">
+      <button class="tab-btn active" onclick="switchTab('scope','screens')">📱 34개 화면</button>
+      <button class="tab-btn" onclick="switchTab('scope','tasks')">📋 37개 PDC 태스크</button>
+      <button class="tab-btn" onclick="switchTab('scope','erd')">🗄 ERD v4 요약</button>
+    </div>
+
+    <div id="scope-screens" class="tab-pane active">
+      <div class="grid2">
+        <div>
+          <div class="card-sm" style="border-color:rgba(245,158,11,.3);">
+            <div class="card-hdr" style="color:var(--wh);">🏗 WAREHOUSE (7개 화면)</div>
+            <div style="font-size:11px;color:var(--muted);">원단 입고·4점법·부자재 검사·출고 전표·재고 현황 등<br><span style="color:var(--dim);">v4.6: 화면 01~03 (Warehouse) + 04~06 (Relaxation 분리 검토)</span></div>
+          </div>
+          <div class="card-sm" style="border-color:rgba(59,130,246,.3);">
+            <div class="card-hdr" style="color:var(--cut);">✂️ CUT (8개 화면)</div>
+            <div style="font-size:11px;color:var(--muted);">재단 계획·LOT 편성·연신·Bundle 생성·외주 추적·인도서 등<br><span style="color:var(--dim);">v4.6: 화면 07~13 (Spreading/Cutting)</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="card-sm" style="border-color:rgba(6,182,212,.3);">
+            <div class="card-hdr" style="color:var(--sew);">🪡 SEWING (12개 화면)</div>
+            <div style="font-size:11px;color:var(--muted);">생산 계획·런데이 목표·공정 배치·시간별 실적·Endline QC 등<br><span style="color:var(--dim);">v4.6: 화면 14~18 (Sewing) + 25~32 (QC) + 33 (SMV)</span></div>
+          </div>
+          <div class="card-sm" style="border-color:rgba(16,185,129,.3);">
+            <div class="card-hdr" style="color:var(--fin);">📦 FINISHING (10개 화면)</div>
+            <div style="font-size:11px;color:var(--muted);">택 검사·금속탐지·중량검사·패킹리스트·출하 관리 등<br><span style="color:var(--dim);">v4.6: 화면 19~24 (Finishing+Shipment)</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-sm" style="border-color:rgba(0,194,255,.3);margin-top:0;">
+        <div class="card-hdr" style="color:var(--accent);">🏭 Factory Dashboard (공통 화면 0번)</div>
+        <div style="font-size:11px;color:var(--muted);">전 공정 실시간 현황 통합 뷰. v4.6에서 33+1 구조로 확정. 화면 레벨 Feature Flag 관리 위젯 포함(PM 전용).</div>
+      </div>
+    </div>
+
+    <div id="scope-tasks" class="tab-pane">
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>공정</th><th>Activity</th><th>태스크 수</th><th>핵심 현장 문서</th><th>Harness</th></tr>
+          <tr><td><span class="tag tag-wh">WAREHOUSE</span></td><td>입고 관리 / 부자재 검사 / 출고·재고</td><td class="mono">7개</td><td>롤 태그, 4점법 기준표, PHIẾU XUẤT KHO</td><td>H-WH-01~03, H-PRINT-01·02</td></tr>
+          <tr><td><span class="tag tag-cut">CUT</span></td><td>재단 계획 / 재단 실행 / 외주·이관</td><td class="mono">8개</td><td>TÁC NGHIỆP CẮT, 연신 보고서, 인도서</td><td>H-SC-01~03, H-LOT-01·02, H-SCAN-01</td></tr>
+          <tr><td><span class="tag tag-sew">SEWING</span></td><td>생산 준비 / 자재 수령 / 봉제 / QC / 안전</td><td class="mono">12개</td><td>KẾ HOẠCH SẢN XUẤT, QC 보고서, 생산 계획</td><td>H-SW-01·02, H-RT-01, H-QC-01~03, H-MFZ-01</td></tr>
+          <tr><td><span class="tag tag-fin">FINISHING</span></td><td>완성 검사 / 포장 / 실적 / 출하</td><td class="mono">10개</td><td>패킹리스트, NHẬT KÝ DÒ KIM LOẠI</td><td>H-MFZ-01, H-PERF-01</td></tr>
+        </table>
+      </div>
+      <div class="note accent" style="margin-top:12px;">Phase 1 제외 항목 (Phase 2 Backlog): IoT/MQTT 미싱기 연동, AI 불량률 예측, 자연어 리포트, CAD 파일 자동 파싱, 다국어 완전 지원(Phase 1은 EN 기본)</div>
+    </div>
+
+    <div id="scope-erd" class="tab-pane">
+      <div class="grid4" style="margin-bottom:16px;">
+        <div class="stat-card"><span class="stat-n">71</span><div class="stat-l">테이블+VIEW</div></div>
+        <div class="stat-card"><span class="stat-n" style="color:var(--ok);">15</span><div class="stat-l">신규 추가</div></div>
+        <div class="stat-card"><span class="stat-n" style="color:var(--warn);">15</span><div class="stat-l">기존 수정</div></div>
+        <div class="stat-card"><span class="stat-n" style="color:var(--purple);">112</span><div class="stat-l">FK 관계</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>레이어</th><th>테이블 수</th><th>주요 테이블</th><th>최적화</th></tr>
+          <tr><td><span class="tag tag-purple">lv4 ERP</span></td><td>3개</td><td>buyers, orders, buyer_qc_standards</td><td>OPT-07: QC기준 이력관리</td></tr>
+          <tr><td><span class="tag tag-accent">lv3 MES</span></td><td>8개</td><td>work_orders, bundles, lot_transfers, qc_inspections</td><td>OPT-05: Partial Index + 비정규화</td></tr>
+          <tr><td><span class="tag tag-wh">wh</span></td><td>7개</td><td>rolls, trims, issue_vouchers+lines, inventory_period_snapshots</td><td>OPT-06: RANGE 파티셔닝</td></tr>
+          <tr><td><span class="tag tag-cut">cut</span></td><td>11개</td><td>cutting_plans, spreading_reports+rolls, cut_to_line_deliveries</td><td>신규 라인 테이블 4개</td></tr>
+          <tr><td><span class="tag tag-sew">sew</span></td><td>15개</td><td>endline_qc_reports, endline_defect_workers, passed_garment_records</td><td>OPT-03: defect_codes FK</td></tr>
+          <tr><td><span class="tag tag-fin">fin</span></td><td>15개</td><td>packing_lists, metal_detection_logs+summaries, finishing_monthly_reports</td><td>is_finalized 서명잠금</td></tr>
+          <tr><td><span class="tag tag-warn">mst</span></td><td>10개</td><td>factories★, defect_codes★, buyer_qc_standards★, workers</td><td>OPT-04: factories 마스터</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 아키텍처 ═══ -->
+  <div id="page-architecture" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">시스템 아키텍처</div>
+      <div class="section-title">ISA-95 기반 5계층 + 기술 스택</div>
+    </div>
+
+    <div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div class="rtitle">R2 — 서버 인프라 결정 (T0.14)</div>
+        <div class="rdesc">On-premise vs Cloud, DB 서버 사양, Docker 환경 가능 여부, 스테이징 서버 준비 계획. 이 결정에 따라 PostgreSQL Connection Pool 설정과 성능 테스트 환경이 결정됩니다.</div>
+        <div class="raction">→ PM + 개발자 + 고객 IT 담당: W1 내 infra-decision.md 작성</div>
+      </div>
+    </div>
+
+    <div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div class="rtitle">R2-b — 실시간 통신 방식 결정 (T0.13)</div>
+        <div class="rdesc">현장 WiFi 신호 강도·대역폭에 따라 5초 Polling(불안정) vs SSE(안정)를 결정해야 합니다. useRealtimeData Hook 설계의 선행 조건입니다.</div>
+        <div class="raction">→ 개발자: W1 내 WiFi 환경 평가 → 네트워크 평가 보고서 작성</div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-hdr">🏛 ISA-95 계층 구조</div>
+        <div class="card-sm" style="border-color:rgba(167,139,250,.3);">
+          <div style="font-size:10.5px;font-weight:700;color:var(--purple);">Level 4 — ERP 연동 레이어</div>
+          <div style="font-size:11px;color:var(--muted);">buyers, orders, work_orders ← ERP 단방향 오더 수신</div>
+        </div>
+        <div class="card-sm" style="border-color:rgba(0,194,255,.3);">
+          <div style="font-size:10.5px;font-weight:700;color:var(--accent);">Level 3 — MES 핵심</div>
+          <div style="font-size:11px;color:var(--muted);">bundles, lot_transfers, qc_inspections, sewing_outputs</div>
+        </div>
+        <div class="card-sm" style="border-color:rgba(0,229,153,.3);">
+          <div style="font-size:10.5px;font-weight:700;color:var(--ok);">Level 2 — 현장 인터페이스</div>
+          <div style="font-size:11px;color:var(--muted);">Web App (Next.js) + Shop Floor PWA (태블릿) + Barcode Scanner</div>
+        </div>
+        <div class="card-sm">
+          <div style="font-size:10.5px;font-weight:700;color:var(--muted);">Level 1 — 물리 현장</div>
+          <div style="font-size:11px;color:var(--dim);">바코드 스캐너, 태블릿, PDA (IoT → Phase 2)</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">🗄 3계층 실시간 수집 구조 <span class="badge-v46">v4.6 핵심</span></div>
+        <div class="note accent">IoT 없이도 봉제 생산량을 근사 실시간으로 파악하는 핵심 설계입니다.</div>
+        <div class="card-sm" style="border-color:var(--accent);">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);">① SAM 추정 엔진 (T2a.4a)</div>
+          <div style="font-size:11px;color:var(--muted);">연속 추정: 작업자수 × 경과시간 / SAM × 효율계수(0.8)<br><span class="mono" style="font-size:10px;">data_source = SAM_ESTIMATE</span></div>
+        </div>
+        <div class="card-sm" style="border-color:var(--ok);">
+          <div style="font-size:11px;font-weight:700;color:var(--ok);">② 시간별 수동 입력 (T2a.4b)</div>
+          <div style="font-size:11px;color:var(--muted);">라인 리더 태블릿 입력 (매 정시 10분 전 알림) → 보정 앵커<br><span class="mono" style="font-size:10px;">data_source = MANUAL_HOURLY</span></div>
+        </div>
+        <div class="card-sm" style="border-color:var(--purple);">
+          <div style="font-size:11px;font-weight:700;color:var(--purple);">③ 번들 스캔 이관 (기존)</div>
+          <div style="font-size:11px;color:var(--muted);">이벤트 확정: 바코드 스캔 시점 기록<br><span class="mono" style="font-size:10px;">data_source = SCAN | IOT_SENSOR(Phase2)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">💻 기술 스택 (v4.6 확정)</div>
+      <div class="grid2">
+        <div>
+          <div class="label">백엔드</div>
+          <div class="card-sm"><span class="mono" style="color:var(--ok);">Node.js + Fastify + TypeScript</span> — 경량 고성능 REST + WebSocket</div>
+          <div class="card-sm"><span class="mono" style="color:var(--ok);">PostgreSQL 14+ + Prisma ORM</span> — JSONB(Color×Size), 재귀 CTE, 파티셔닝</div>
+          <div class="card-sm"><span class="mono" style="color:var(--ok);">Redis</span> — 시간별 실적 롤업, 세션 관리</div>
+          <div class="card-sm"><span class="mono" style="color:var(--accent);">JWT + RBAC</span> — 역할별 접근 제어 (WAREHOUSE/QC/SEW/FIN)</div>
+          <div class="card-sm"><span class="mono" style="color:var(--accent);">Zod</span> — 모든 API 입력 스키마 강제</div>
+        </div>
+        <div>
+          <div class="label">프론트엔드</div>
+          <div class="card-sm"><span class="mono" style="color:var(--purple);">Next.js 14 (App Router) + Tailwind</span> — PC 관리자 웹</div>
+          <div class="card-sm"><span class="mono" style="color:var(--purple);">React PWA (Service Worker)</span> — 현장 태블릿, 오프라인 지원</div>
+          <div class="card-sm"><span class="mono" style="color:var(--purple);">React Native</span> — 관리자 모바일 알림</div>
+          <div class="card-sm"><span class="mono" style="color:var(--warn);">MSW (Mock Service Worker)</span> — FE·BE 병렬 개발 핵심</div>
+          <div class="card-sm"><span class="mono" style="color:var(--warn);">Recharts</span> — KPI 대시보드, Gantt</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">🔌 API 도메인 구조</div>
+      <div class="grid3">
+        <div class="card-sm"><div class="mono" style="font-size:12px;color:var(--accent);">/api/v1/mst</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">마스터 데이터 (orders, buyers, workers, machines, factories, defect_codes)</div></div>
+        <div class="card-sm"><div class="mono" style="font-size:12px;color:var(--wh);">/api/v1/wh</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">Warehouse 공정 (rolls, trims, issue_vouchers, inventory_snapshots)</div></div>
+        <div class="card-sm"><div class="mono" style="font-size:12px;color:var(--cut);">/api/v1/cut</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">CUT 공정 (cutting_plans, bundles, lot_transfers, spreading_reports)</div></div>
+        <div class="card-sm"><div class="mono" style="font-size:12px;color:var(--sew);">/api/v1/sew</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">Sewing 공정 (work_orders, sewing_outputs, qc_inspections, hourly_entries)</div></div>
+        <div class="card-sm"><div class="mono" style="font-size:12px;color:var(--fin);">/api/v1/fin</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">Finishing 공정 (packing_lists, metal_detection_logs, shipment_lots)</div></div>
+        <div class="card-sm"><div class="mono" style="font-size:12px;color:var(--purple);">/api/v1/erp</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">ERP 연동 인터페이스 (오더 단방향 수신, CSV import)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 일정 ═══ -->
+  <div id="page-schedule" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">20주 개발 일정</div>
+      <div class="section-title">Phase 0 → Phase 4 게이트 방식</div>
+      <div class="section-desc">각 Phase가 Gate Review를 통과해야 다음 Phase로 진행합니다. v4.6의 14주에서 현장 문서 분석 반영으로 20주로 확장됩니다.</div>
+    </div>
+
+    <div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div class="rtitle">R3 — 20주 일정 고객·팀 확정 필요</div>
+        <div class="rdesc">v4.6은 14주 계획이었으나 현장 문서 40개 분석 결과 4개 공정 37개 태스크의 범위가 명확해지면서 20주로 조정했습니다. 팀 인력 규모에 따라 18~22주로 재조정될 수 있습니다.</div>
+        <div class="raction">→ 킥오프 미팅: 팀 구성(인원수) 확정 후 주차별 태스크 재배분</div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-bottom:20px;">
+      <table>
+        <tr><th>Phase</th><th>기간</th><th>목표</th><th>마일스톤</th><th>Gate 조건</th></tr>
+        <tr><td><span class="tag tag-accent">Phase 0</span><br>Steering Setup</td><td class="mono">W1 (5일)</td><td>개발 환경 + AI 두뇌 + 하드웨어 기반</td><td>v0.0.1 — Git·CLAUDE.md·Flag·HW 완료</td><td>HW인벤토리·네트워크·서버 결정 완료</td></tr>
+        <tr><td><span class="tag tag-purple">Phase 0.5+1</span><br>Discovery + Spec</td><td class="mono">W2~W3</td><td>고객 시연 확정 + 34화면 Spec</td><td>v0.1.0 — 범위 확정서 고객 서명</td><td>34화면 Spec Gate Review 통과</td></tr>
+        <tr><td><span class="tag tag-ok">Phase 2a</span><br>Foundation</td><td class="mono">W4</td><td>공통 레이어 구축 (전체 성패 결정)</td><td>v0.2.0 — 공통UI·DB·PrintService·Hook</td><td>SAM추정엔진·시간별입력·RBAC·CI 완료</td></tr>
+        <tr><td><span class="tag tag-sew">Phase 2b</span><br>병렬 구현</td><td class="mono">W5~W11</td><td>34화면 전체 구현 (Agent Teams)</td><td>v0.3~0.7 — 주간 태그 7개</td><td>WH(W7)→CUT(W9)→SEW(W13)→FIN(W16) 게이트</td></tr>
+        <tr><td><span class="tag tag-warn">Phase 2c</span><br>QC·ERP·LOT</td><td class="mono">W8~W9</td><td>QC 8화면 + ERP 연동 + LOT 추적성</td><td>v0.7.0 — 34화면 완성</td><td>AQL모듈·Seed Data·SIT 시나리오 38개</td></tr>
+        <tr><td><span class="tag tag-danger">Phase 3</span><br>통합 테스트</td><td class="mono">W17~W18</td><td>SIT + 성능 + Rollback</td><td>v0.9.0 — SIT 전 통과</td><td>38개 시나리오·성능·Rollback 드릴</td></tr>
+        <tr><td><span class="tag tag-purple">Phase 4</span><br>Pilot·납품</td><td class="mono">W19~W20</td><td>현장 실가동 검증 + 최종 납품</td><td>v1.0.0 — UAT·Pilot 완료</td><td>소스·매뉴얼·API문서·Phase2 제안서 전달</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">📅 공정별 개발 주차 배분</div>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>공정</th><th>개발 주차</th><th>태스크 수</th><th>핵심 구현</th></tr>
+          <tr><td><span class="tag tag-wh">WAREHOUSE</span></td><td class="mono">W5~W7</td><td>7개</td><td>4점법 검사·롤 등록·출고 전표·재고 스냅샷</td></tr>
+          <tr><td><span class="tag tag-cut">CUT</span></td><td class="mono">W8~W11</td><td>8개</td><td>재단 계획서·LOT 편성·연신·Bundle·외주·인도서</td></tr>
+          <tr><td><span class="tag tag-sew">SEWING</span></td><td class="mono">W12~W16</td><td>12개</td><td>생산 준비·번들 스캔·시간별 실적·Endline QC·Bundle QC</td></tr>
+          <tr><td><span class="tag tag-fin">FINISHING</span></td><td class="mono">W17~W18</td><td>10개</td><td>택 검사·9-POINT 교정·금속 전수·패킹리스트·출하</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">🔁 주간 리듬 (Phase 2b, 매주 반복)</div>
+      <div class="grid3">
+        <div class="card-sm"><div style="font-size:11px;font-weight:700;color:var(--accent);">월~수 | Implementation Sprint</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">AI전문가·개발자 Agent Teams 병렬 구현. tmux [WH][RX][SC][SW][FP][SH][QC][OT] 세션 동시 운영.</div></div>
+        <div class="card-sm"><div style="font-size:11px;font-weight:700;color:var(--warn);">목요일 | Gate Review</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">MES전문가·PM + 고객 QC담당(QC화면). A등급(90분)·B등급(45분)·C등급(자동 체크리스트) 차등 검토.</div></div>
+        <div class="card-sm"><div style="font-size:11px;font-weight:700;color:var(--ok);">금요일 | 수정 + 병합</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">Gate Review 이슈 수정 → develop 병합 → 주간 Git 태그 + DB 스냅샷. CR 처리 슬롯(주당 최대 2건).</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 팀·역할 ═══ -->
+  <div id="page-team" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">팀 구성 및 역할</div>
+      <div class="section-title">4인 + Claude Code — v4.6 역할 정의 채택</div>
+      <div class="section-desc">v4.6의 역할별 책임 매트릭스를 현재 계획에 그대로 적용합니다.</div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-hdr"><span class="role-chip role-pm">PM</span> 프로젝트 매니저</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;">킥오프·HW·인프라 확인 → 세션 진행·범위 확정서 → Gate Review 준비 → QA 오케스트레이터·CR 분류 → UAT·교육·납품·Phase 2 제안<br><span style="color:var(--danger);">과부하: W12~14 (Pilot + 납품)</span></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="role-chip role-mes">MES 전문가</span></div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;">Harness 검토·현장 확인 → Spec Author·도메인 결정 → Contract 도메인 검증 → 목요일 Gate Review A등급 집중 → QC 검증·교육·Parallel Run<br><span style="color:var(--danger);">과부하: W5~7 (매주 목요일)</span></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="role-chip role-ai">AI 전문가</span></div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;">CLAUDE.md·Flag 8개 정의 → Spec 초안 생성·자동 QA → Feature Flag·실시간 Hook → Agent 오케스트레이터 (5~7세션) → Flag 테스트·Rollback 드릴<br><span style="color:var(--danger);">과부하: W5~7 (Agent Teams 5~7세션 동시)</span></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="role-chip role-dev">풀스택 개발자</span></div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;">Git·환경·HW 확인 → 파싱 스크립트·CAD 결정 → 공통 레이어 아키텍트 (집중) → 3~5 병렬 세션·공통 코드 → 성능 테스트·배포·모니터링<br><span style="color:var(--danger);">과부하: W4 (공통 레이어 집중)</span></div>
+      </div>
+      <div class="card" style="border-color:rgba(255,92,92,.3);">
+        <div class="card-hdr"><span class="role-chip role-cc">Claude Code</span> AI 팀원</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;">Harness 초안·교차 검증 → Spec 초안·QA·의존성 맵 → 컴포넌트·API·DB·PrintService·Hook → Agent Teams (화면 병렬 구현) → AQL·교육자료·퀴즈·Phase 2 제안<br><span style="color:var(--ok);">전 구간 활성화 · 코드 70~80% 생성</span></div>
+      </div>
+      <div class="card" style="border-color:var(--bdr);">
+        <div class="card-hdr"><span class="role-chip role-cust">고객 QC 담당</span> <span class="badge-v46">v4.6 추가</span></div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;">Day 5 QC 기준 제공 (DHU/AQL) → 목요일 Gate Review QC 화면 공동 검증 → UAT·Pilot QC 실가동<br><span style="color:var(--ok);">MES 전문가의 목요일 과부하 분산 효과</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">📊 Phase별 역할 매트릭스 (핵심 Task 요약)</div>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>Phase / Task</th><th>PM</th><th>MES</th><th>AI전문가</th><th>개발자</th><th>Claude Code</th><th>고객QC</th></tr>
+          <tr><td class="td-mono">T0.2 CLAUDE.md</td><td>참여</td><td>검토</td><td>주담당</td><td>참여</td><td>초안생성</td><td>—</td></tr>
+          <tr><td class="td-mono">T0.3 Harness 초안</td><td>—</td><td>검토·보강</td><td>주담당</td><td>—</td><td>초안생성</td><td>—</td></tr>
+          <tr><td class="td-mono">T1.1 고객 시연 세션</td><td>주담당</td><td>주담당</td><td>지원</td><td>—</td><td>—</td><td>참여</td></tr>
+          <tr><td class="td-mono">T1.2 Spec 초안 생성</td><td>감독</td><td>검토</td><td>주담당</td><td>—</td><td>생성</td><td>—</td></tr>
+          <tr><td class="td-mono">T2a.2 DB 스키마</td><td>승인</td><td>도메인검증</td><td>참여</td><td>주담당</td><td>생성</td><td>—</td></tr>
+          <tr><td class="td-mono">Phase 2b 목요일 Gate(일반)</td><td>참여</td><td>주담당</td><td>지원</td><td>—</td><td>체크</td><td>—</td></tr>
+          <tr><td class="td-mono">Phase 2b 목요일 Gate(QC)</td><td>참여</td><td>주담당</td><td>지원</td><td>—</td><td>체크</td><td>공동검증</td></tr>
+          <tr><td class="td-mono">T3.1 SIT 실행</td><td>주담당</td><td>주담당</td><td>지원</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td class="td-mono">T4.2 Pilot 운영</td><td>주담당</td><td>주담당</td><td>지원</td><td>지원</td><td>—</td><td>QC운영</td></tr>
+          <tr><td class="td-mono">T4.4 최종 납품</td><td>주담당</td><td>검토</td><td>참여</td><td>참여</td><td>완성도검증</td><td>수령</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 자동화 ═══ -->
+  <div id="page-automation" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">Claude Code 자동화</div>
+      <div class="section-title">29건 자동화 목록 — 총 32~42 인일 절감</div>
+      <div class="section-desc">v4.6의 29건 자동화 항목을 현재 계획(ERD v4, PDC 37태스크, CRUD Matrix) 기반으로 적용 가능성을 평가했습니다.</div>
+    </div>
+
+    <div class="note accent">자동화 원칙: Claude Code는 초안 생성 + 테스트 생성. 인간은 검토 + 승인. Claude Code 결과물을 검토 없이 그대로 사용하는 것은 금지.</div>
+
+    <div class="tab-row" style="margin-top:12px;">
+      <button class="tab-btn active" onclick="switchTab('auto','all')">전체 (29건)</button>
+      <button class="tab-btn" onclick="switchTab('auto','immediate')">즉시 적용 (20건)</button>
+      <button class="tab-btn" onclick="switchTab('auto','review')">검토 후 (6건)</button>
+      <button class="tab-btn" onclick="switchTab('auto','replace')">대체됨 (3건)</button>
+    </div>
+
+    <div id="auto-all" class="tab-pane active" id="auto-all-pane">
+      <div id="automation-list"></div>
+    </div>
+    <div id="auto-immediate" class="tab-pane"><div id="auto-imm-list"></div></div>
+    <div id="auto-review" class="tab-pane"><div id="auto-rev-list"></div></div>
+    <div id="auto-replace" class="tab-pane"><div id="auto-rep-list"></div></div>
+  </div>
+
+  <!-- ═══ Harness ═══ -->
+  <div id="page-harness" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">Harness 결함 방어</div>
+      <div class="section-title">38개 결함 패턴 사전 정의</div>
+      <div class="section-desc">v4.6의 38개 Harness 규칙과 현재 계획의 7개 핵심 규칙을 통합한 전체 목록입니다. Claude Code가 구현 시 방어 로직·테스트를 자동 포함합니다. SIT 기간 4주→2주 단축 효과.</div>
+    </div>
+    <div class="note accent" style="margin-bottom:16px;">★ 현재 계획의 H-규칙 7개는 v4.6 38개 중 핵심 서브셋입니다. 전체 38개 중 실제 구현 시 harness/defect-catalog.md에 완전 수록됩니다 (T0.3 산출물).</div>
+    <div id="harness-list"></div>
+  </div>
+
+  <!-- ═══ Feature Flag ═══ -->
+  <div id="page-flags" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">Feature Flag 체계</div>
+      <div class="section-title">화면 33개 + 기능 10개 = 총 43개</div>
+    </div>
+
+    <div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div class="rtitle">R4 — Feature Flag 체계 도입 여부 결정</div>
+        <div class="rdesc">v4.6에서 43개(화면 33개 + 기능 10개)로 운영됩니다. 현재 계획에 없는 항목입니다. 릴리스 위험 관리와 미확정 기능의 점진적 활성화를 위해 유용하지만, Flag 관리 복잡도가 증가합니다.</div>
+        <div class="raction">→ 팀 미팅: Feature Flag 도입 여부 및 초기 Flag 목록 확정</div>
+      </div>
+    </div>
+
+    <div class="label" style="margin-bottom:8px;">기능 레벨 Feature Flag (10개, v4.6 + v4.5)</div>
+    <div id="flags-list"></div>
+  </div>
+
+  <!-- ═══ 데이터 조달 ═══ -->
+  <div id="page-data" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">필수 데이터 조달</div>
+      <div class="section-title">10종 마스터 데이터 로드맵</div>
+      <div class="section-desc">시스템이 정상 가동하기 위해 반드시 고객 또는 MES 전문가로부터 확보해야 하는 10종의 데이터입니다. W1 내에 PM이 "필수 데이터 제공 요청서"를 작성하여 고객에게 전달합니다.</div>
+    </div>
+    <div class="note warn" style="margin-bottom:16px;">D-01~D-03은 Phase 0.5 시작 전 필수. D-04~D-08은 해당 Phase 시작 2주 전 기한.</div>
+    <div id="data-list"></div>
+  </div>
+
+  <!-- ═══ 인간↔Claude 상호작용 ═══ -->
+  <div id="page-interaction" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">협업 패턴</div>
+      <div class="section-title">인간 ↔ Claude Code 상호작용 4가지 패턴</div>
+      <div class="section-desc">v4.6의 협업 방식과 현재 계획의 ERD/PDC/CRUD Matrix를 결합한 통합 상호작용 패턴입니다.</div>
+    </div>
+    <div id="interaction-list"></div>
+  </div>
+
+  <!-- ═══ 검토 과제 ═══ -->
+  <div id="page-review" class="page-section">
+    <div class="section-header">
+      <div class="section-eyebrow">팀·고객 미팅 필수 검토</div>
+      <div class="section-title">프로젝트 착수 전 해결 과제 13건</div>
+      <div class="section-desc">아래 항목들은 팀 내부 미팅 또는 고객 YIC와의 미팅을 통해 착수 전 반드시 결정·확정되어야 합니다. 미확정 상태로 개발을 시작하면 범위 변경 위험이 높습니다.</div>
+    </div>
+    <div id="review-full-list"></div>
+  </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+
+const AUTOMATION = [
+  {id:'A-01',title:'Harness Catalog 초안 생성',task:'T0.3',effect:'MES전문가 수동 2일→반나절',phase:'P0',status:'immediate',note:'71테이블 기준으로 재생성 필요 (v4.6의 38개를 ERD v4 기반으로 보강)'},
+  {id:'A-02',title:'프로토타입 구조 추출',task:'T0.5',effect:'34화면 분석 2일→3시간',phase:'P0',status:'done',note:'이미 수행 완료 (4/13 세션)'},
+  {id:'A-03',title:'프로토타입↔Scope 교차 검증',task:'T0.8',effect:'불일치 탐지 반나절→30분',phase:'P0',status:'done',note:'이미 수행 완료 (화면수 33→34 확정)'},
+  {id:'A-04',title:'시연 세션 가이드 생성',task:'T1.0',effect:'세션당 5~10분 절약×34개',phase:'P0.5',status:'immediate',note:'PDC Viewer 기반으로 화면별 시연 포인트 자동 생성'},
+  {id:'A-05',title:'Spec 초안 자동 생성',task:'T1.2',effect:'5일 수동→1~2일',phase:'P0.5',status:'done',note:'PDC WSD 37개 태스크가 이 역할 수행'},
+  {id:'A-06',title:'Spec 자동 1차 QA',task:'T1.2',effect:'도메인 용어·공식 즉시 검증',phase:'P0.5',status:'replace',note:'PDC WSD + CRUD Matrix로 대체됨'},
+  {id:'A-07',title:'Spec API 일관성 검증',task:'T1.G',effect:'44개 API 100% 일치 확인',phase:'P0.5',status:'replace',note:'CRUD Matrix 71×37이 이 역할 수행'},
+  {id:'A-08',title:'Tasks.md 분해',task:'T1.4',effect:'태스크 분해 1일→2시간',phase:'P0.5',status:'immediate',note:'PDC 37개 태스크 기반으로 화면별 구현 Task 자동 분해'},
+  {id:'A-09',title:'디자인 토큰 추출',task:'T2a.6',effect:'CSS→Tailwind 반나절→30분',phase:'P2a',status:'review',note:'프로토타입 CSS 변수 → Tailwind theme.extend 자동 변환'},
+  {id:'A-10',title:'RBAC 감사',task:'T2a.7',effect:'44개 API 미적용 탐지 자동화',phase:'P2a',status:'immediate',note:'workers.role 기반 API 접근 권한 전수 탐지'},
+  {id:'A-11',title:'라벨 템플릿 생성',task:'T2a.3',effect:'ZPL 라벨 1일→2시간',phase:'P2a',status:'immediate',note:'롤라벨·번들라벨·패킹리스트 3종 (ZebraAdapter+TscAdapter+HtmlFallback)'},
+  {id:'A-12',title:'AQL 계산 모듈',task:'T2c.0b',effect:'ISO 2859-1 TypeScript 반나절',phase:'P2c',status:'immediate',note:'buyer_qc_standards 테이블 연동. 입력:로트크기·AQL레벨 → 출력:샘플수·합격기준'},
+  {id:'A-13',title:'의존성 맵 자동 생성',task:'T2b.0',effect:'34화면 분석 반나절→30분',phase:'P2b',status:'immediate',note:'CRUD Matrix 기반으로 화면간 공유 테이블·API 의존성 자동 시각화'},
+  {id:'A-14',title:'Worktree 투입 프롬프트 일괄',task:'T2b.1',effect:'세션 준비 3~5시간 단축',phase:'P2b',status:'immediate',note:'PDC WSD 37개 태스크 → tmux [WH][SC][SW][QC] 세션별 프롬프트 자동 생성'},
+  {id:'A-15',title:'Gate Review 체크리스트',task:'T2b.2',effect:'A/B/C 등급 자동 분류',phase:'P2b',status:'review',note:'화면 복잡도 기준 A(90분)·B(45분)·C(자동) 등급 체크리스트 생성'},
+  {id:'A-16',title:'접근성 자동 검사',task:'T2c.1',effect:'WCAG 버튼 크기·대비율 탐지',phase:'P2c',status:'review',note:'QcPassFailButton 80×80px, WCAG 4.5:1 색상 대비율 검증 (현장 태블릿 기준)'},
+  {id:'A-17',title:'Seed Data 생성',task:'T2c.5',effect:'1~2일→3시간',phase:'P2c',status:'immediate',note:'바이어3·오더5·Roll15·Bundle50·QC200·출하3. defect_codes·buyers 마스터 포함'},
+  {id:'A-18',title:'볼륨 Seed Data',task:'T2c.11',effect:'10만건 QC 데이터 자동 생성',phase:'P2c',status:'immediate',note:'LOT 10,000건·Bundle 50,000건·QC 100,000건(90%Pass). 성능 테스트 전 필수'},
+  {id:'A-19',title:'SIT 시나리오 생성',task:'T2c.9',effect:'38개 시나리오 2일→반나절',phase:'P2c',status:'immediate',note:'PDC 37개 태스크 기반으로 전공정관통·공정간이관·QC판정·LOT추적성 시나리오 생성'},
+  {id:'A-20',title:'Flag 테스트 매트릭스',task:'T3.2',effect:'10개 Flag 조합 1일→2시간',phase:'P3',status:'review',note:'Feature Flag 10개 On/Off + 현실적 복합 조합 8~12가지 자동 생성'},
+  {id:'A-21',title:'DB 인덱스 권고',task:'T3.4',effect:'누락 인덱스 탐지 자동화',phase:'P3',status:'immediate',note:'71개 테이블+112관계 분석 → N+1 쿼리 위험 포인트·누락 인덱스 자동 탐지'},
+  {id:'A-22',title:'알림 배선 테스트',task:'T3.1',effect:'DHU·MFZ 알림 트리거 자동 검증',phase:'P3',status:'review',note:'DHU>2% 라인조장 알림, defect_rate>5% 중단 권고, MFZ 차단 트리거 자동 검증'},
+  {id:'A-23',title:'API 문서 자동 생성',task:'T4.4',effect:'OpenAPI 3.0 2일→1시간',phase:'P4',status:'immediate',note:'44개 REST API → OpenAPI 3.0 자동 생성 (납품 패키지 포함)'},
+  {id:'A-24',title:'교육 자료 초안 생성',task:'T4.5',effect:'4종 초안 2일→반나절',phase:'P4',status:'immediate',note:'역할별 4종(공장장·라인 리더·QC·관리자) 생성 → MES 전문가 검토 (베트남어 포함 필요)'},
+  {id:'A-25',title:'교육 퀴즈 생성',task:'T4.9',effect:'역할별 퀴즈 반나절→30분',phase:'P4',status:'review',note:'DHU·AQL·4점법·바코드스캔·Flag관리 5~10문항. 베트남어 병기 필요.'},
+  {id:'A-26',title:'Phase 2 제안서',task:'T4.10',effect:'Backlog분석→제안서 초안 반나절',phase:'P4',status:'immediate',note:'phase2-backlog.md 분석 → 우선순위·공수추정·비즈니스가치 기반 제안서 초안'},
+  {id:'A-27',title:'납품 패키지 완성도 검증',task:'T4.4',effect:'누락 파일 자동 탐지',phase:'P4',status:'review',note:'소스·DB·설치패키지·운영매뉴얼·Rollback절차서·API문서·Phase2제안서 완성도 체크'},
+  {id:'A-28',title:'SAM 추정 엔진 단위 테스트',task:'T2a.4a',effect:'효율계수 20케이스 자동 검증',phase:'P2a',status:'immediate',note:'work_orders.effective_smv 연동. 추정-실측 오차율 계산. sewing_outputs.data_source 검증'},
+  {id:'A-29',title:'시간별 입력 알림 스크립트',task:'T2a.4b',effect:'매 정시 10분 전 알림 자동화',phase:'P2a',status:'immediate',note:'hourly_production_entries 테이블 연동. 미입력 경고 → Dashboard 표시'},
+];
+
+const HARNESS = [
+  {id:'H-WH-01',proc:'WH',title:'4점법 FAILED 롤 lot_transfers 진입 차단',situation:'4점법 점수>40 롤이 봉제 투입될 경우 원단 불량 전파',defense:'inspection_status=FAILED → lot_transfers INSERT 차단 + 관리자 알림',current:true},
+  {id:'H-WH-02',proc:'WH',title:'100yard 환산 시 단위 혼용 (m/yd)',situation:'입고 시 단위 혼용으로 소비량 계산 오류 발생',defense:'입고 시 단위 명시 필수 선택. 내부 저장 m 통일. 변환 공식 강제',current:false},
+  {id:'H-WH-03',proc:'WH',title:'Rack 위치 중복 배정',situation:'동일 Location에 다른 Roll이 이중 배정',defense:'UNIQUE constraint on (rack, shelf, slot). 배정 전 가용 여부 체크',current:false},
+  {id:'H-PRINT-01',proc:'WH',title:'프린터 오프라인 시 UI 멈춤',situation:'바코드 프린터 연결 불량 시 화면 응답 없음',defense:'PrintService PRINT_OFFLINE 에러 처리 + 재시도 UI + 오프라인 큐',current:true},
+  {id:'H-PRINT-02',proc:'WH',title:'동일 Roll 중복 라벨 인쇄 → 이중 계산',situation:'스캔 오류로 같은 Roll 라벨을 재출력하면 재고 이중 계산',defense:'print_log 테이블로 bundle_id/roll_id 중복 인쇄 추적·차단',current:true},
+  {id:'H-SC-01',proc:'CUT',title:'Bundle 번호 중복 (Race Condition)',situation:'동시 요청 시 bundles.global_seq 중복 발생',defense:'GENERATED ALWAYS 채번. Application 레벨 생성 금지. DB SEQUENCE 방어',current:true},
+  {id:'H-SC-02',proc:'CUT',title:'동일 Roll이 다른 Bundle에 분산',situation:'같은 Roll 원단이 복수의 Bundle에 분산 배정',defense:'Bundle 생성 시 Roll 소속 검증. 분산 시 경고 + 강제 차단',current:false},
+  {id:'H-SC-03',proc:'CUT',title:'Marker 효율 계산 시 원단 폭 미반영',situation:'fabric_width_cm 없이 효율 계산하면 오류',defense:'효율 계산에 fabric_width 필수 파라미터 검증. null이면 계산 차단',current:false},
+  {id:'H-LOT-01',proc:'CUT',title:'공정 이관 중 네트워크 단절 → LOT 단절',situation:'스캔 도중 WiFi 단절 시 lot_transfers 불완전 기록',defense:'트랜잭션으로 이관 원자성 보장. 실패 시 전체 롤백. 오프라인 큐',current:false},
+  {id:'H-LOT-02',proc:'CUT',title:'Bundle 이관 후 수량 불일치',situation:'cut_to_line_deliveries 수량 vs 실제 번들 수량 불일치',defense:'cutting_qty vs transfer_qty 대조 표시. 불일치 시 경고',current:false},
+  {id:'H-SW-01',proc:'SEW',title:'라인 효율 분모(계획수량) 0',situation:'work_orders.planned_qty=0이면 효율 계산 NaN',defense:'plan_qty=0이면 효율 표시 "-". 0값 저장 차단',current:false},
+  {id:'H-SW-02',proc:'SEW',title:'바코드 중복 스캔 → 이중 집계',situation:'동일 번들을 연속 스캔하면 sewing_outputs 이중 기록',defense:'동일 번들 300ms 내 중복 스캔 차단 (디바운싱)',current:false},
+  {id:'H-SCAN-01',proc:'SEW',title:'스캐너 연속 이중 스캔 (0.3초) → 중복 이관',situation:'스캐너 물리적 진동으로 동일 번들 0.3초 내 이중 스캔',defense:'디바운싱(300ms) + scan_log 중복 체크 + lot_transfers UNIQUE 검증',current:true},
+  {id:'H-RT-01',proc:'SEW',title:'SAM 추정값을 실측값으로 오인',situation:'[추정] 뱃지 없으면 관리자가 추정값을 실측으로 오판',defense:'data_source 뱃지 필수 표시. 추정-실측 오차율>20% 시 추정 일시 정지',current:true},
+  {id:'H-QC-01',proc:'QC',title:'DHU 계산 시 검사수량 0 → NaN',situation:'inspect_qty=0이면 DHU 계산 0/0=NaN',defense:'inspect_qty=0이면 DHU=null, 화면 표시 "입력 대기"',current:true},
+  {id:'H-QC-02',proc:'QC',title:'바이어별 DHU 기준 미설정 → 기본값 누락',situation:'buyer_qc_standards 미설정 시 모든 검사가 통과',defense:'기준값 없으면 Flag off + 업계 기본값 3% 적용 + 알림',current:false},
+  {id:'H-QC-03',proc:'QC',title:'AQL 샘플 사이즈 자동 계산 오류',situation:'ISO 2859-1 테이블 구현 오류 시 샘플 수 과소 계산',defense:'AQL Calculator 단위 테스트 100% 커버리지 (T2c.0b)',current:false},
+  {id:'H-MFZ-01',proc:'QC/FIN',title:'MFZ 미검사 제품 출하 → 법적 위반',situation:'금속 미검사 제품이 Shipment API를 통과',defense:'mfz_inspected=false이면 403 반환. 출하 API에서 이중 체크',current:true},
+  {id:'H-RELAX-01',proc:'RELAX',title:'동일 Roll이 릴렉싱 테이블 중복 배정',situation:'같은 Roll이 복수 릴렉싱 테이블에 배정',defense:'UNIQUE constraint on (roll_id, table_no)',current:false},
+  {id:'H-PERF-01',proc:'ALL',title:'WIP 전 공정 조회 N+1 쿼리 → 응답 5초+',situation:'lot_transfers + bundles 조회 시 N+1 쿼리 발생',defense:'Prisma include 최적화 + 적절한 인덱스 + 5초 Polling 간격',current:false},
+];
+
+const FLAGS = [
+  {name:'qc-dhu-by-buyer',default:false,cond:'바이어별 DHU 기준 확정 후',screens:'화면 25~32',desc:'바이어별로 다른 DHU 기준 적용 (H&M 3%·Zara 2.5%·Nike 2%)'},
+  {name:'inspection-4pt-per-yard',default:false,cond:'4점법 기준표 고객 확정 후',screens:'화면 03',desc:'4점법 점수 계산 방식: per-yard vs 고정 배점'},
+  {name:'sewing-output-by-bundle',default:false,cond:'Bundle별 생산 추적 운영 준비',screens:'화면 18',desc:'시간별 집계 방식 → Bundle 단위 스캔 방식으로 전환'},
+  {name:'cad-marker-import',default:false,cond:'CAD DXF/PLT 파싱 구현 완료 후',screens:'화면 08',desc:'CAD 파일 자동 파싱. false이면 수동 Ply 입력 방식'},
+  {name:'sewing-iot-input',default:false,cond:'IoT 센서·MQTT 연동 완료 후 (Phase 2)',screens:'화면 18',desc:'data_source=IOT_SENSOR 활성화. false이면 수동+스캔 방식'},
+  {name:'qc-photo-attach',default:false,cond:'스토리지(MinIO/S3) 결정 + 구현 후',screens:'화면 25~32',desc:'QC 결함 사진 첨부 기능'},
+  {name:'erp-csv-import',default:false,cond:'ERP CSV 포맷 확정 + 테스트 완료 후',screens:'WO 생성 화면',desc:'CSV 미확보 시 Work Order 직접 등록 방식 사용'},
+  {name:'smv-efficiency',default:false,cond:'SAM 마스터 데이터 충분히 확보 후',screens:'화면 33',desc:'SAM 없으면 false. 화면 33에 SAM 직접 등록 탭 포함'},
+  {name:'sewing-sam-estimation',default:true,cond:'기본 활성화. SAM 없음 확인 시 false',screens:'화면 18 + Dashboard',desc:'IoT 없이 봉제 생산량 근사 실시간 추정 엔진'},
+  {name:'sewing-hourly-entry',default:true,cond:'기본 활성화. 안정화 후 선택적 비활성화',screens:'화면 18 + Dashboard',desc:'매 정시 라인 리더 수동 입력. 알림 발송 포함'},
+];
+
+const DATA_ITEMS = [
+  {code:'D-01',title:'하드웨어 인벤토리',when:'W1 화요일',provider:'PM + 고객 IT',format:'현장 확인 또는 목록',risk:'PrintService Adapter 선택 불가. 화면 01·11·20·22 Spec 인쇄 섹션 작성 불가',fallback:'HTML 인쇄(window.print) 폴백으로 개발 시작. 프린터 확정 후 교체'},
+  {code:'D-02',title:'바이어별 QC 기준서',when:'Day 5 전',provider:'고객 (바이어 담당)',format:'원본 또는 Excel',risk:'buyer_qc_standards 테이블의 DHU/AQL 기준값 임의 설정 위험',fallback:'업계 일반값(H&M 3%·Zara 2.5%·Nike 2%)으로 임시 설정 후 업데이트'},
+  {code:'D-03',title:'4-Point 검사 기준표',when:'Day 1 전',provider:'MES 전문가',format:'표 또는 PDF',risk:'화면 03 (4점법 검사) 핵심 로직 설계 불가',fallback:'업계 표준(AATCC 4점법)으로 임시 사용. 확정 후 교체'},
+  {code:'D-04',title:'현재 오더/스타일 샘플',when:'Phase 0.5 시작 전',provider:'고객 (관리자)',format:'기존 Excel/ERP',risk:'Seed Data·ERP 매핑 불가. 시연에서 비현실적 데이터 사용',fallback:'가상 오더 데이터로 시연. 실제 데이터 확보 후 갱신'},
+  {code:'D-05',title:'창고 Location 체계',when:'Phase 2b W5 전',provider:'고객 (창고 담당)',format:'실제 배치도 또는 목록',risk:'화면 01 Location 드롭다운·Rack Map 구현 불가',fallback:'A-01~C-05 가상 Location으로 개발. W5 전 실제 코드로 교체'},
+  {code:'D-06',title:'ERP 오더 CSV 샘플',when:'W8 초',provider:'고객 IT 담당',format:'실제 CSV 1~2개',risk:'T2c.4 ERP 연동 구현 불가',fallback:'Feature Flag(erp-csv-import=false) 직접 등록 방식으로 전환'},
+  {code:'D-07',title:'SAM 마스터 데이터',when:'Phase 2c 전',provider:'고객 IE 담당',format:'Excel 또는 직접 입력',risk:'화면 33 SMV 효율 계산 불가. SAM 추정 엔진 정확도 저하',fallback:'화면 33에 SAM 직접 등록 탭 포함. 운영 중 점진적 입력'},
+  {code:'D-08',title:'MFZ 법적 근거 문서',when:'Phase 0.5 Day 4 전',provider:'MES 전문가 + 고객',format:'법령 또는 사규',risk:'화면 21 출하 블록 로직(H-MFZ-01) 설계 불가',fallback:'업계 일반 Needle Zero Policy 기본 구현'},
+  {code:'D-09',title:'Polybag 규격 코드',when:'Phase 2b W7 전',provider:'고객 (포장 담당)',format:'규격 목록',risk:'화면 20 드롭다운 구성 불가',fallback:'일반 규격(OPP 30μm·40×60cm)으로 임시 구성'},
+  {code:'D-10',title:'작업자 명단',when:'Pilot 1주 전 (T4.8)',provider:'고객 (HR/공장장)',format:'Excel 목록',risk:'RBAC 계정 생성 불가. workers 테이블 초기 데이터 없음. Pilot 지연',fallback:'관리자 계정만으로 Pilot 시작. 작업자 계정 후속 추가'},
+];
+
+const REVIEW_ITEMS = [
+  {id:'R1',title:'릴렉싱(Relaxation) 공정 포함 여부',category:'범위',owner:'팀+고객',urgency:'즉시',desc:'v4.6은 화면 04~06을 별도 릴렉싱 공정으로 분리. 현재 계획은 WH에 통합. YIC 운영 방식에 따라 결정 필요.',action:'YIC 공장장과 릴렉싱 담당 부서 및 워크플로우 확인'},
+  {id:'R1-b',title:'CRUD Matrix 설계 갭 4건 처리',category:'데이터',owner:'팀',urgency:'즉시',desc:'daily_production_reports, plan_po_allocations, internal_line_deliveries, dry_room_checks에 WRITE 태스크 없음.',action:'AI전문가+MES전문가: 각 테이블의 WRITE 책임 태스크 결정 (신규 추가 또는 기존 확장)'},
+  {id:'R2',title:'서버 인프라 결정 (On-premise vs Cloud)',category:'인프라',owner:'PM+개발자+고객IT',urgency:'W1',desc:'DB 서버 사양, Docker 가능 여부, 스테이징 서버 준비 계획. Connection Pool 설정의 선행 조건.',action:'infra-decision.md 작성 + 고객 IT 담당자 확인'},
+  {id:'R2-b',title:'실시간 통신 방식 결정 (Polling vs SSE)',category:'인프라',owner:'개발자',urgency:'W1',desc:'현장 WiFi 환경에 따라 5초 Polling 또는 SSE 결정. useRealtimeData Hook 설계의 선행 조건.',action:'현장 WiFi 신호 강도·대역폭 평가 → 네트워크 평가 보고서'},
+  {id:'R3',title:'20주 일정 확정',category:'일정',owner:'팀+고객',urgency:'킥오프',desc:'v4.6은 14주. 현장 분석 결과 20주로 조정. 팀 인력 규모에 따라 18~22주 재조정 가능.',action:'킥오프 미팅에서 팀 구성 확정 후 주차별 태스크 재배분'},
+  {id:'R4',title:'Feature Flag 체계 도입 여부',category:'아키텍처',owner:'팀',urgency:'W1',desc:'화면33+기능10=43개 Flag. 관리 복잡도 증가하지만 릴리스 위험 관리에 유용.',action:'팀 미팅: Feature Flag 도입 여부 및 초기 Flag 목록 확정'},
+  {id:'R5',title:'하드웨어 인벤토리 (D-01)',category:'데이터',owner:'PM+고객IT',urgency:'W1 화요일',desc:'바코드 프린터·스캐너 통신 방식·태블릿 OS·라벨 크기. PrintService Adapter 선택의 선행 조건.',action:'현장 방문 또는 이메일로 HW-inventory.md 작성'},
+  {id:'R6',title:'바이어별 QC 기준서 확보 (D-02)',category:'데이터',owner:'PM+고객바이어담당',urgency:'Day5 전',desc:'buyer_qc_standards 테이블의 DHU·AQL·MFZ 기준. 미확보 시 H-QC-02 방어 로직이 기본값 적용.',action:'H&M·Zara·Nike 등 주요 바이어 QC 기준서 원본 수령'},
+  {id:'R7',title:'CAD 연동 기술 결정',category:'아키텍처',owner:'PM+MES+개발자',urgency:'Day2',desc:'DXF/PLT 파싱 가능 여부 확인. 불가 시 cad-marker-import=false로 수동 입력.',action:'YIC에서 사용 중인 CAD 소프트웨어 확인 + 파일 접근 가능 여부'},
+  {id:'R8',title:'SAM 마스터 데이터 현황 (D-07)',category:'데이터',owner:'PM+MES+고객IE',urgency:'Day6 전',desc:'SAM/SMV 데이터 존재 여부. 없으면 smv-efficiency=false + SAM 추정 엔진 초기 설정.',action:'YIC IE(산업공학) 담당자에게 SAM 마스터 존재 여부 확인'},
+  {id:'R9',title:'ERP 연동 방식 및 데이터 포맷',category:'아키텍처',owner:'PM+개발자+고객IT',urgency:'W8 전',desc:'CSV 가능 시 erp-csv-import=true. 불가 시 WO 직접 등록만 활성화. 오더 마스터 단방향 수신.',action:'고객 IT 담당자에게 ERP 시스템 종류 및 CSV 추출 가능 여부 확인'},
+  {id:'R10',title:'릴렉싱·Spreading 공정 현장 파일럿 시뮬레이션',category:'검증',owner:'MES+PM',urgency:'W7 전',desc:'WH-T03 4점법 검사 화면(태블릿)과 CUT-T05 Bundle 스캔 흐름을 W7 이전에 현장 시뮬레이션.',action:'YIC 현장에서 태블릿 시뮬레이션 실시 → 현장 수용성 검증'},
+  {id:'R11',title:'두 공장 병행 운영 데이터 분리 전략 확인',category:'아키텍처',owner:'팀+고객',urgency:'W2',desc:'YIC-HaNam·YIC-VINA 데이터를 factory_id로 분리. 두 공장 간 데이터 공유 정책 확인.',action:'공장장: 양 공장 간 공유 데이터(buyers·defect_codes 등)와 분리 데이터(rolls·bundles) 경계 확정'},
+];
+
+const INTERACTIONS = [
+  {
+    title:'① Spec 생성 사이클 (Phase 0.5~1)',
+    subtitle:'오전 피드백 → 오후 Spec 자동 생성',
+    steps:[
+      {actor:'human',role:'MES 전문가',arrow:'→',content:'고객 피드백 수집 (오전 시연)',note:'PDC Viewer를 활용하여 태스크별 시연 포인트 준비'},
+      {actor:'claude',role:'Claude Code',arrow:'←',content:'PDC 태스크 기반 requirements.md 초안 자동 생성',note:'A-05 자동화. PDC WSD 37개 태스크를 Spec으로 변환'},
+      {actor:'human',role:'MES 전문가',arrow:'→',content:'도메인 용어 검토·보강, 엣지 케이스 추가',note:'qa-notes.md의 의심 항목 우선 검토'},
+      {actor:'claude',role:'Claude Code',arrow:'←',content:'design.md (API·DB 설계) 초안 + tasks.md 분해',note:'A-08 자동화. ERD v4 테이블 기반 API 설계'},
+      {actor:'human',role:'MES전문가+AI전문가',arrow:'→',content:'Gate Review 통과 확인 후 최종 승인',note:'34화면 Spec 전수 검토. 고객 서명 후 확정'},
+    ]
+  },
+  {
+    title:'② 구현 사이클 (Phase 2b, 매주 반복)',
+    subtitle:'Agent Teams 병렬 구현 → Gate Review → 수정·병합',
+    steps:[
+      {actor:'human',role:'AI 전문가',arrow:'→',content:'Worktree 투입 프롬프트 작성 + tmux 세션 시작',note:'A-14 자동화. [WH][SC][SW][QC] 세션별 프롬프트 생성'},
+      {actor:'claude',role:'Claude Code×5~7',arrow:'←',content:'5~7개 화면 병렬 구현 + Harness 테스트 자동 포함',note:'Agent Teams 동시 실행. 38개 Harness 규칙 방어 로직 포함'},
+      {actor:'human',role:'MES전문가+PM+고객QC',arrow:'→',content:'목요일 Gate Review: A/B/C 등급별 도메인 검증',note:'A등급(90분)·B등급(45분)·C등급(자동 체크리스트)'},
+      {actor:'claude',role:'Claude Code',arrow:'←',content:'Gate Review 이슈 목록 + CR 영향 분석 자동 생성',note:'A-15 자동화. 영향 화면·API·DB·Flag 대응 분석'},
+      {actor:'human',role:'PM',arrow:'→',content:'CR 판단: 즉시처리 vs Phase 2 Backlog 이관',note:'주당 최대 2건 CR. 금요일 오후 슬롯'},
+      {actor:'claude',role:'Claude Code',arrow:'←',content:'CR 전용 Worktree에서 수정 + develop 병합 준비',note:'Atomic Commit. 주간 Git 태그 + DB 스냅샷'},
+    ]
+  },
+  {
+    title:'③ ERD·PDC 기반 자동화 사이클 (신규)',
+    subtitle:'설계 산출물을 구현에 직접 연결',
+    steps:[
+      {actor:'human',role:'AI전문가/개발자',arrow:'→',content:'CRUD Matrix (71×37) + ERD v4 DDL 제공',note:'설계 갭 4건 처리 결정 포함'},
+      {actor:'claude',role:'Claude Code',arrow:'←',content:'누락 태스크 감지 + 설계 갭 목록 + Seed Data 자동 생성',note:'A-17 자동화. defect_codes·buyers 마스터 포함'},
+      {actor:'claude',role:'Claude Code',arrow:'←',content:'N+1 쿼리 위험 포인트 + 인덱스 최적화 권고',note:'A-21 자동화. 71테이블+112관계 분석'},
+      {actor:'human',role:'개발자',arrow:'→',content:'인덱스 권고 검토 및 EXPLAIN ANALYZE 확인',note:'PERF-H01 Harness 방어 검증'},
+      {actor:'claude',role:'Claude Code',arrow:'←',content:'Harness 7개 → 38개 확장 초안 생성',note:'A-01 자동화. MES전문가 검토용 초안'},
+    ]
+  },
+  {
+    title:'④ 3계층 실시간 데이터 수집 (v4.6 핵심)',
+    subtitle:'IoT 없이 봉제 생산량을 근사 실시간으로 파악',
+    steps:[
+      {actor:'claude',role:'SAM 추정 엔진',arrow:'←',content:'연속 추정: 작업자수×경과시간/SAM×효율계수(0.8)',note:'data_source=SAM_ESTIMATE. sewing-sam-estimation=true'},
+      {actor:'human',role:'라인 리더',arrow:'→',content:'매 정시 10분 전 알림 수신 후 태블릿 실적 입력',note:'hourly_production_entries 테이블. data_source=MANUAL_HOURLY'},
+      {actor:'human',role:'SEW 작업자',arrow:'→',content:'번들 바코드 스캔 (공정 통과 시)',note:'lot_transfers INSERT. data_source=SCAN'},
+      {actor:'claude',role:'useRealtimeData Hook',arrow:'←',content:'3계층 데이터 통합 → Dashboard [추정]/[실측] 뱃지 표시',note:'H-RT-01: [추정] 뱃지 없으면 lint 경고'},
+      {actor:'human',role:'관리자/공장장',arrow:'→',content:'Dashboard에서 실시간 현황 확인 + 이상 감지',note:'Phase 2에서 IOT_SENSOR 추가 시 코드 무수정'},
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+
+function statusTag(s){
+  const m={immediate:'<span class="tag tag-ok">즉시 적용</span>',done:'<span class="tag tag-accent">완료</span>',review:'<span class="tag tag-warn">검토 후</span>',replace:'<span class="tag tag-purple">대체됨</span>'};
+  return m[s]||'';
+}
+
+function renderAutomation(){
+  const filters={immediate:[], review:[], replace:[], done:[]};
+  let allHtml='';
+  AUTOMATION.forEach(a=>{
+    const html=`<div class="auto-item" data-status="${a.status}">
+      <div class="auto-id">${a.id}</div>
+      <div class="auto-body">
+        <div class="auto-title">${a.title}</div>
+        <div class="auto-meta">Task: <span class="mono">${a.task}</span> · Phase: ${a.phase}</div>
+        <div class="auto-effect">📈 ${a.effect}</div>
+        <div style="font-size:10.5px;color:var(--muted);margin-top:3px;">💡 ${a.note}</div>
+      </div>
+      <div class="auto-status">${statusTag(a.status)}</div>
+    </div>`;
+    allHtml+=html;
+    if(filters[a.status]) filters[a.status].push(html);
+  });
+  document.getElementById('automation-list').innerHTML=allHtml;
+  document.getElementById('auto-imm-list').innerHTML=filters.immediate.join('');
+  document.getElementById('auto-rev-list').innerHTML=filters.review.join('')+filters.done.join('');
+  document.getElementById('auto-rep-list').innerHTML=filters.replace.join('');
+}
+
+function procColor(p){
+  const m={WH:'tag-wh',CUT:'tag-cut',SEW:'tag-sew','QC/FIN':'tag-fin',ALL:'tag-accent',RELAX:'tag-purple',QC:'tag-sew'};
+  return m[p]||'tag-accent';
+}
+
+function renderHarness(){
+  const el=document.getElementById('harness-list');
+  let html='';
+  HARNESS.forEach(h=>{
+    const isCore=h.current;
+    html+=`<div class="harness-item" style="${isCore?'border-color:var(--danger);':'border-color:var(--bdr2);'}">
+      <div class="hi-header">
+        <div class="hi-id" style="${isCore?'color:var(--danger)':'color:var(--muted)'}">${h.id}</div>
+        <span class="tag ${procColor(h.proc)}">${h.proc}</span>
+        <div class="hi-title">${h.title}</div>
+        ${isCore?'<span class="tag tag-danger">핵심 7개</span>':''}
+      </div>
+      <div class="hi-body">🔴 상황: ${h.situation}</div>
+      <div class="hi-defense"><span style="margin-right:4px;">🛡</span>${h.defense}</div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderFlags(){
+  const el=document.getElementById('flags-list');
+  let html='';
+  FLAGS.forEach(f=>{
+    html+=`<div class="flag-item">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <div class="flag-name mono">${f.name}</div>
+          <span class="flag-status ${f.default?'flag-on':'flag-off'}">${f.default?'DEFAULT ON':'DEFAULT OFF'}</span>
+        </div>
+        <div class="flag-desc">${f.desc}</div>
+        <div class="flag-cond">활성화 조건: ${f.cond} · 적용 화면: ${f.screens}</div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderData(){
+  const el=document.getElementById('data-list');
+  let html='';
+  DATA_ITEMS.forEach(d=>{
+    html+=`<div class="collapsible" style="margin-bottom:6px;">
+      <div class="collapsible-hdr" onclick="toggleCollapsible(this)">
+        <span class="mono" style="color:var(--accent);min-width:40px;">${d.code}</span>
+        <span style="font-weight:600;flex:1;">${d.title}</span>
+        <span style="font-size:10.5px;color:var(--warn);">⏰ ${d.when}</span>
+        <span class="ch">▶</span>
+      </div>
+      <div class="collapsible-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;">
+          <div><div class="label">제공 담당</div>${d.provider}</div>
+          <div><div class="label">형식</div>${d.format}</div>
+          <div><div class="label" style="color:var(--danger);">미확보 시 영향</div><span style="color:var(--danger);">${d.risk}</span></div>
+          <div><div class="label" style="color:var(--ok);">임시 대응 방안</div><span style="color:var(--ok);">${d.fallback}</span></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderInteraction(){
+  const el=document.getElementById('interaction-list');
+  let html='';
+  INTERACTIONS.forEach(p=>{
+    html+=`<div class="pattern-box">
+      <div class="pattern-hdr">
+        <div>
+          <div class="pattern-title">${p.title}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.subtitle}</div>
+        </div>
+      </div>
+      <div class="pattern-body">`;
+    p.steps.forEach(s=>{
+      html+=`<div class="flow-step">
+        <span class="fs-actor ${s.actor==='human'?'fs-human':'fs-claude'}">${s.role}</span>
+        <span class="fs-arrow">${s.arrow}</span>
+        <div>
+          <div class="fs-content">${s.content}</div>
+          <div class="fs-note">${s.note}</div>
+        </div>
+      </div>`;
+    });
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+function urgencyColor(u){
+  if(u==='즉시'||u==='W1'||u==='W1 화요일') return 'var(--danger)';
+  if(u.includes('Day')) return 'var(--warn)';
+  return 'var(--muted)';
+}
+
+function renderReview(){
+  const el=document.getElementById('review-full-list');
+  const panel=document.getElementById('review-list');
+  let html='',panelHtml='';
+  REVIEW_ITEMS.forEach(r=>{
+    const uc=urgencyColor(r.urgency);
+    html+=`<div class="review-box">
+      <div class="ricon">⚠️</div>
+      <div class="rtxt">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span class="mono" style="font-weight:700;color:var(--review);">${r.id}</span>
+          <span class="tag tag-review">${r.category}</span>
+          <span style="font-size:10px;color:${uc};font-weight:700;">⏰ ${r.urgency}</span>
+          <span style="font-size:10px;color:var(--muted);">담당: ${r.owner}</span>
+        </div>
+        <div class="rtitle">${r.title}</div>
+        <div class="rdesc">${r.desc}</div>
+        <div class="raction">→ ${r.action}</div>
+      </div>
+    </div>`;
+    panelHtml+=`<div class="rp-item">
+      <div class="rp-item-title">${r.id} — ${r.title}</div>
+      <div class="rp-item-desc">${r.action}</div>
+    </div>`;
+  });
+  if(el) el.innerHTML=html;
+  if(panel) panel.innerHTML=panelHtml;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI LOGIC
+// ═══════════════════════════════════════════════════════════════
+
+function showPage(id){
+  document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tnb,.sb-item').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  document.querySelectorAll(`[onclick*="'${id}'"]`).forEach(b=>b.classList.add('active'));
+}
+
+function switchTab(group, tab){
+  const panes=document.querySelectorAll(`[id^="${group}-"]`);
+  panes.forEach(p=>{if(p.classList.contains('tab-pane'))p.classList.remove('active');});
+  const target=document.getElementById(`${group}-${tab}`);
+  if(target) target.classList.add('active');
+  const buttons=document.querySelectorAll(`.tab-row .tab-btn`);
+  buttons.forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes(tab))b.classList.add('active');else b.classList.remove('active');});
+}
+
+function toggleCollapsible(hdr){
+  const c=hdr.parentElement;
+  c.classList.toggle('open');
+}
+
+function toggleReviewPanel(){
+  document.getElementById('review-panel').classList.toggle('open');
+}
+
+// Phase card toggle
+document.addEventListener('click',function(e){
+  const hdr=e.target.closest('.phase-hdr');
+  if(hdr) hdr.parentElement.classList.toggle('open');
+});
+
+// Init
+renderAutomation();
+renderHarness();
+renderFlags();
+renderData();
+renderInteraction();
+renderReview();
+</script>
+</body>
+</html>

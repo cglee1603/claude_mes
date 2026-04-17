@@ -185,16 +185,16 @@ export class PermissionService {
 
 ```typescript
 // 기존 authenticate(인증) → requirePermission(권한) 순서로 적용
-app.use('/api/production',
+app.use('/api/sewing/output',
   authenticate,
-  requirePermission('SW-17', 'CREATE'),
-  productionRouter
+  requirePermission('H-RT-01', 'CREATE'),
+  sewingOutputRouter
 )
 
-app.get('/api/analytics/factory-kpi',
+app.get('/api/factory/dashboard',
   authenticate,
-  requirePermission('AD-23', 'VIEW'),
-  analyticsController.getFactoryKpi
+  requirePermission('Dashboard', 'VIEW'),
+  dashboardController.getFactoryStatus
 )
 ```
 
@@ -204,7 +204,7 @@ app.get('/api/analytics/factory-kpi',
 
 | 기능 | 설명 |
 |------|------|
-| 화면 권한 매트릭스 | 33개 화면 × 5개 액션 × 역할/부서/사용자 Grid 표시 |
+| 화면 권한 매트릭스 | 34개 화면 × 5개 액션 × 역할/부서/사용자 Grid 표시 |
 | 부서 관리 | 부서 CRUD, 소속 사용자 배정 |
 | 역할 권한 설정 | roleCode별 screenCode·action 권한 토글 |
 | 부서 권한 오버라이드 | 부서별 권한 설정 (역할 설정 우선 덮어쓰기) |
@@ -218,13 +218,15 @@ app.get('/api/analytics/factory-kpi',
 ```typescript
 // packages/db/prisma/seed.ts — 초기 역할 권한 시드
 const defaultRolePermissions = [
-  // factory_manager: 전체 VIEW + 분석 화면
-  { roleCode: 'factory_manager', screenCode: 'AD-23', action: 'VIEW', granted: true },
-  { roleCode: 'factory_manager', screenCode: 'AD-24', action: 'VIEW', granted: true },
+  // factory_manager: 전체 VIEW + 공장 통합 대시보드
+  { roleCode: 'factory_manager', screenCode: 'Dashboard', action: 'VIEW', granted: true },
   // line_manager: 봉제 실적 입력
-  { roleCode: 'line_manager', screenCode: 'SW-17', action: 'CREATE', granted: true },
-  { roleCode: 'line_manager', screenCode: 'SW-18', action: 'CREATE', granted: true },
-  // ... 33개 화면 × 역할 초기값 (차후 확정 시 이 시드 파일 업데이트)
+  { roleCode: 'line_manager', screenCode: 'H-RT-01', action: 'CREATE', granted: true },
+  // qc_inspector: QC 검사 입력
+  { roleCode: 'qc_inspector', screenCode: 'H-QC-01', action: 'CREATE', granted: true },
+  // warehouse: 원단 입고
+  { roleCode: 'warehouse', screenCode: 'H-WH-01', action: 'CREATE', granted: true },
+  // ... 34개 화면 × 역할 초기값 (차후 확정 시 이 시드 파일 업데이트)
 ]
 // ⚠️ 권한 기준은 차후 확정 예정 — 시드값은 임시, 운영 전 Admin 화면에서 재설정 필수
 ```

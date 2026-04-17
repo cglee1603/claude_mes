@@ -2,50 +2,50 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { MainLayout } from './components/layout/MainLayout'
 
 // Warehouse
-import { WH01ReceivePage } from './pages/warehouse/WH01-Receive'
-import { WH02HistoryPage } from './pages/warehouse/WH02-History'
-import { WH03DashboardPage } from './pages/warehouse/WH03-Dashboard'
-
-// Relaxation
-import { RX04PlanPage } from './pages/relaxation/RX04-Plan'
-import { RX05MaterialPage } from './pages/relaxation/RX05-Material'
-import { RX06AlertPage } from './pages/relaxation/RX06-Alert'
+import { HWH01Page } from './pages/warehouse/H-WH-01-FabricReceive'
+import { HWH02Page } from './pages/warehouse/H-WH-02-TrimReceive'
+import { HWH03Page } from './pages/warehouse/H-WH-03-IssueVoucher'
+import { HWH04Page } from './pages/warehouse/H-WH-04-Inventory'
+import { HWH05Page } from './pages/warehouse/H-WH-05-Relaxation'
+import { HPrint01Page } from './pages/warehouse/H-PRINT-01-RollLabel'
+import { HPrint02Page } from './pages/warehouse/H-PRINT-02-BundleLabel'
 
 // Cutting
-import { SC07LotCreatePage } from './pages/cutting/SC07-LotCreate'
-import { SC08BundleCreatePage } from './pages/cutting/SC08-BundleCreate'
-import { SC09MarkerEfficiencyPage } from './pages/cutting/SC09-MarkerEfficiency'
-import { SC10LotListPage } from './pages/cutting/SC10-LotList'
-import { SC11LotTracePage } from './pages/cutting/SC11-LotTrace'
-import { SC12ShadingCheckPage } from './pages/cutting/SC12-ShadingCheck'
-import { SC13CuttingDashboardPage } from './pages/cutting/SC13-CuttingDashboard'
+import { HSC01Page } from './pages/cutting/H-SC-01-CuttingPlan'
+import { HSC02Page } from './pages/cutting/H-SC-02-SpreadingReport'
+import { HSC03Page } from './pages/cutting/H-SC-03-MarkerEfficiency'
+import { HLot01Page } from './pages/cutting/H-LOT-01-ColorGroup'
+import { HLot02Page } from './pages/cutting/H-LOT-02-LineDelivery'
+import { HScan01Page } from './pages/cutting/H-SCAN-01-BundleScan'
+import { HCut04Page } from './pages/cutting/H-CUT-04-Outsource'
+import { HCut05Page } from './pages/cutting/H-CUT-05-DailyReport'
 
 // Sewing
-import { SW14InputPlanPage } from './pages/sewing/SW14-InputPlan'
-import { SW15LineLayoutPage } from './pages/sewing/SW15-LineLayout'
-import { SW16MachineStatusPage } from './pages/sewing/SW16-MachineStatus'
-import { SW17OutputEntryPage } from './pages/sewing/SW17-OutputEntry'
-import { SW18OutputSummaryPage } from './pages/sewing/SW18-OutputSummary'
-
-// Quality
-import { QC25InlineInspectPage } from './pages/quality/QC25-InlineInspect'
-import { QC26InlineResultPage } from './pages/quality/QC26-InlineResult'
-import { QC27FinalInspectPage } from './pages/quality/QC27-FinalInspect'
-import { QC28FinalResultPage } from './pages/quality/QC28-FinalResult'
-import { QC29PackingInspectPage } from './pages/quality/QC29-PackingInspect'
-import { QC30ShippingInspectPage } from './pages/quality/QC30-ShippingInspect'
-import { QC31DHUTrendPage } from './pages/quality/QC31-DHUTrend'
-import { QC32QCDashboardPage } from './pages/quality/QC32-QCDashboard'
+import { HSW01Page } from './pages/sewing/H-SW-01-ProductionPlan'
+import { HSW02Page } from './pages/sewing/H-SW-02-PPChecklist'
+import { HSW03Page } from './pages/sewing/H-SW-03-MaterialReceiving'
+import { HRT01Page } from './pages/sewing/H-RT-01-ProductionOutput'
+import { HBoard01Page } from './pages/sewing/H-BOARD-01-Scoreboard'
+import { HQC01Page } from './pages/sewing/H-QC-01-BundleQC'
+import { HQC02Page } from './pages/sewing/H-QC-02-EndlineQC'
+import { HQC03Page } from './pages/sewing/H-QC-03-QCDashboard'
+import { HMFZ01Page } from './pages/sewing/H-MFZ-01-MetalDetection'
+import { HSW04Page } from './pages/sewing/H-SW-04-SharpTools'
+import { HSW05Page } from './pages/sewing/H-SW-05-PassedGarments'
+import { HSW06Page } from './pages/sewing/H-SW-06-InternalTransfer'
+import { HSW07Page } from './pages/sewing/H-SW-07-HourlyEntry'
 
 // Finishing
-import { FP19TaggingPage } from './pages/finishing/FP19-Tagging'
-import { FP20PolybagPage } from './pages/finishing/FP20-Polybag'
-import { FP21MFZPage } from './pages/finishing/FP21-MFZ'
-import { FP22CartonPage } from './pages/finishing/FP22-Carton'
-
-// Analytics
-import { AD23KPIPage } from './pages/analytics/AD23-KPI'
-import { AD24WIPPage } from './pages/analytics/AD24-WIP'
+import { HFin01Page } from './pages/finishing/H-FIN-01-HangtagInspect'
+import { HFin02Page } from './pages/finishing/H-FIN-02-MFZCalibration'
+import { HFin03Page } from './pages/finishing/H-FIN-03-WeightQtyInspect'
+import { HFin04Page } from './pages/finishing/H-FIN-04-CartonInspect'
+import { HFin05Page } from './pages/finishing/H-FIN-05-PackingList'
+import { HPerf01Page } from './pages/finishing/H-PERF-01-FinishingPerf'
+import { HFin06Page } from './pages/finishing/H-FIN-06-Shipment'
+import { HFin07Page } from './pages/finishing/H-FIN-07-DryRoomCheck'
+import { HFin08Page } from './pages/finishing/H-FIN-08-MFZDailySummary'
+import { HFin09Page } from './pages/finishing/H-FIN-09-MonthlyReport'
 
 // Admin
 import { AdminLinePage } from './pages/admin/AdminLine'
@@ -63,101 +63,95 @@ import { MyPage } from './pages/mypage/MyPage'
 import { MyMenuPage } from './pages/my-menu/MyMenuPage'
 import { WorkspacePage } from './pages/my-menu/WorkspacePage'
 import { MyMenuProvider } from './context/MyMenuContext'
+import { FavoritesProvider } from './context/FavoritesContext'
 
 export default function App() {
   return (
+    <FavoritesProvider>
     <MyMenuProvider>
     <Routes>
       <Route path="/" element={<MainLayout />}>
-        <Route index element={<Navigate to="/analytics/kpi" replace />} />
+        <Route index element={<Navigate to="/dashboard" replace />} />
 
         {/* Warehouse */}
         <Route path="warehouse">
-          <Route index element={<Navigate to="receive" replace />} />
-          <Route path="receive" element={<WH01ReceivePage />} />
-          <Route path="history" element={<WH02HistoryPage />} />
-          <Route path="dashboard" element={<WH03DashboardPage />} />
-        </Route>
-
-        {/* Relaxation */}
-        <Route path="relaxation">
-          <Route index element={<Navigate to="plan" replace />} />
-          <Route path="plan" element={<RX04PlanPage />} />
-          <Route path="material" element={<RX05MaterialPage />} />
-          <Route path="alert" element={<RX06AlertPage />} />
+          <Route index element={<Navigate to="fabric-receive" replace />} />
+          <Route path="fabric-receive"  element={<HWH01Page />} />
+          <Route path="trim-receive"    element={<HWH02Page />} />
+          <Route path="issue-voucher"   element={<HWH03Page />} />
+          <Route path="inventory"       element={<HWH04Page />} />
+          <Route path="relaxation"      element={<HWH05Page />} />
+          <Route path="roll-label"      element={<HPrint01Page />} />
+          <Route path="bundle-label"    element={<HPrint02Page />} />
         </Route>
 
         {/* Cutting */}
         <Route path="cutting">
-          <Route index element={<Navigate to="lot-list" replace />} />
-          <Route path="lot-create" element={<SC07LotCreatePage />} />
-          <Route path="bundle-create" element={<SC08BundleCreatePage />} />
-          <Route path="marker" element={<SC09MarkerEfficiencyPage />} />
-          <Route path="lot-list" element={<SC10LotListPage />} />
-          <Route path="lot-trace" element={<SC11LotTracePage />} />
-          <Route path="shading" element={<SC12ShadingCheckPage />} />
-          <Route path="dashboard" element={<SC13CuttingDashboardPage />} />
+          <Route index element={<Navigate to="cutting-plan" replace />} />
+          <Route path="cutting-plan"  element={<HSC01Page />} />
+          <Route path="spreading"     element={<HSC02Page />} />
+          <Route path="marker"        element={<HSC03Page />} />
+          <Route path="color-group"   element={<HLot01Page />} />
+          <Route path="line-delivery" element={<HLot02Page />} />
+          <Route path="bundle-scan"   element={<HScan01Page />} />
+          <Route path="outsource"     element={<HCut04Page />} />
+          <Route path="daily-report"  element={<HCut05Page />} />
         </Route>
 
         {/* Sewing */}
         <Route path="sewing">
-          <Route index element={<Navigate to="plan" replace />} />
-          <Route path="plan" element={<SW14InputPlanPage />} />
-          <Route path="layout" element={<SW15LineLayoutPage />} />
-          <Route path="machine" element={<SW16MachineStatusPage />} />
-          <Route path="output" element={<SW17OutputEntryPage />} />
-          <Route path="summary" element={<SW18OutputSummaryPage />} />
-        </Route>
-
-        {/* Quality */}
-        <Route path="quality">
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="inline-inspect" element={<QC25InlineInspectPage />} />
-          <Route path="inline-result" element={<QC26InlineResultPage />} />
-          <Route path="final-inspect" element={<QC27FinalInspectPage />} />
-          <Route path="final-result" element={<QC28FinalResultPage />} />
-          <Route path="packing-inspect" element={<QC29PackingInspectPage />} />
-          <Route path="shipping-inspect" element={<QC30ShippingInspectPage />} />
-          <Route path="dhu-trend" element={<QC31DHUTrendPage />} />
-          <Route path="dashboard" element={<QC32QCDashboardPage />} />
+          <Route index element={<Navigate to="output" replace />} />
+          <Route path="production-plan"    element={<HSW01Page />} />
+          <Route path="pp-checklist"       element={<HSW02Page />} />
+          <Route path="material-receiving" element={<HSW03Page />} />
+          <Route path="output"             element={<HRT01Page />} />
+          <Route path="bundle-qc"          element={<HQC01Page />} />
+          <Route path="endline-qc"         element={<HQC02Page />} />
+          <Route path="qc-dashboard"       element={<HQC03Page />} />
+          <Route path="metal-detection"    element={<HMFZ01Page />} />
+          <Route path="sharp-tools"        element={<HSW04Page />} />
+          <Route path="passed-garments"    element={<HSW05Page />} />
+          <Route path="internal-transfer"  element={<HSW06Page />} />
+          <Route path="hourly-entry"       element={<HSW07Page />} />
+          <Route path="scoreboard"         element={<HBoard01Page />} />
         </Route>
 
         {/* Finishing */}
         <Route path="finishing">
-          <Route index element={<Navigate to="tag" replace />} />
-          <Route path="tag" element={<FP19TaggingPage />} />
-          <Route path="polybag" element={<FP20PolybagPage />} />
-          <Route path="mfz" element={<FP21MFZPage />} />
-          <Route path="carton" element={<FP22CartonPage />} />
-        </Route>
-
-        {/* Analytics */}
-        <Route path="analytics">
-          <Route index element={<Navigate to="kpi" replace />} />
-          <Route path="kpi" element={<AD23KPIPage />} />
-          <Route path="wip" element={<AD24WIPPage />} />
+          <Route index element={<Navigate to="shipment" replace />} />
+          <Route path="hangtag-inspect"  element={<HFin01Page />} />
+          <Route path="mfz-calibration"  element={<HFin02Page />} />
+          <Route path="weight-inspect"   element={<HFin03Page />} />
+          <Route path="carton-inspect"   element={<HFin04Page />} />
+          <Route path="packing-list"     element={<HFin05Page />} />
+          <Route path="performance"      element={<HPerf01Page />} />
+          <Route path="shipment"         element={<HFin06Page />} />
+          <Route path="dry-room"         element={<HFin07Page />} />
+          <Route path="mfz-summary"      element={<HFin08Page />} />
+          <Route path="monthly-report"   element={<HFin09Page />} />
         </Route>
 
         {/* Admin */}
         <Route path="admin">
           <Route index element={<Navigate to="line" replace />} />
-          <Route path="line" element={<AdminLinePage />} />
-          <Route path="machine" element={<AdminMachinePage />} />
-          <Route path="smv" element={<AdminSMVPage />} />
-          <Route path="erp" element={<AdminERPPage />} />
-          <Route path="lifecycle" element={<AdminLifecyclePage />} />
-          <Route path="qc-config" element={<AdminQCConfigPage />} />
+          <Route path="line"       element={<AdminLinePage />} />
+          <Route path="machine"    element={<AdminMachinePage />} />
+          <Route path="smv"        element={<AdminSMVPage />} />
+          <Route path="erp"        element={<AdminERPPage />} />
+          <Route path="lifecycle"  element={<AdminLifecyclePage />} />
+          <Route path="qc-config"  element={<AdminQCConfigPage />} />
           <Route path="permission" element={<AdminPermissionPage />} />
-          <Route path="backup" element={<AdminBackupPage />} />
+          <Route path="backup"     element={<AdminBackupPage />} />
         </Route>
 
         {/* Personal */}
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="mypage" element={<MyPage />} />
-        <Route path="my-menu" element={<MyMenuPage />} />
-        <Route path="my-menu/:id" element={<WorkspacePage />} />
+        <Route path="dashboard"     element={<DashboardPage />} />
+        <Route path="mypage"        element={<MyPage />} />
+        <Route path="my-menu"       element={<MyMenuPage />} />
+        <Route path="my-menu/:id"   element={<WorkspacePage />} />
       </Route>
     </Routes>
     </MyMenuProvider>
+    </FavoritesProvider>
   )
 }

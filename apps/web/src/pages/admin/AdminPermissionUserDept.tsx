@@ -4,11 +4,11 @@ import { Save, UserCircle2, ChevronDown, Plus, X, Search } from 'lucide-react'
 
 /* ── 목업 데이터 ─────────────────────────────────── */
 export const INITIAL_DEPARTMENTS = [
-  { id: 'D001', code: 'PRODUCTION', name: '생산부' },
-  { id: 'D002', code: 'QC',         name: '품질관리부' },
-  { id: 'D003', code: 'WAREHOUSE',  name: '자재창고부' },
-  { id: 'D004', code: 'ADMIN',      name: '관리부' },
-  { id: 'D005', code: 'FEATURE_TEST', name: '신규 기능 테스트' },  // 테스트용 부서
+  { id: 'D001', code: 'PRODUCTION', name: 'Production' },
+  { id: 'D002', code: 'QC',         name: 'Quality Control' },
+  { id: 'D003', code: 'WAREHOUSE',  name: 'Materials & Warehouse' },
+  { id: 'D004', code: 'ADMIN',      name: 'Administration' },
+  { id: 'D005', code: 'FEATURE_TEST', name: 'Feature Testing' },  // test dept
 ]
 
 export const ROLE_I18N_KEY: Record<string, string> = {
@@ -28,17 +28,18 @@ interface MockUser {
 }
 
 const MOCK_USERS: MockUser[] = [
-  { id: 'U001', name: '김철수',      email: 'cskim@factory.com',   role: 'factory_manager', deptIds: ['D004'] },
-  { id: 'U002', name: '이영희',      email: 'yhlee@factory.com',   role: 'line_manager',    deptIds: ['D001'] },
-  { id: 'U003', name: '박민준',      email: 'mjpark@factory.com',  role: 'line_manager',    deptIds: ['D001'] },
-  { id: 'U004', name: '최수진',      email: 'sjchoi@factory.com',  role: 'qc_inspector',    deptIds: ['D002'] },
-  { id: 'U005', name: '정대호',      email: 'dhjeong@factory.com', role: 'qc_inspector',    deptIds: ['D002'] },
-  { id: 'U006', name: 'Nguyen Van A', email: 'nva@factory.com',    role: 'warehouse',       deptIds: ['D003'] },
-  { id: 'U007', name: 'Tran Thi B',   email: 'ttb@factory.com',    role: 'warehouse',       deptIds: ['D003'] },
-  { id: 'U008', name: '홍길동',      email: 'gdhong@factory.com',  role: 'admin',           deptIds: ['D004', 'D005'] },
+  { id: 'U001', name: 'Kim Chul-su',      email: 'cskim@factory.com',   role: 'factory_manager', deptIds: ['D004'] },
+  { id: 'U002', name: 'Lee Young-hee',    email: 'yhlee@factory.com',   role: 'line_manager',    deptIds: ['D001'] },
+  { id: 'U003', name: 'Park Min-jun',     email: 'mjpark@factory.com',  role: 'line_manager',    deptIds: ['D001'] },
+  { id: 'U004', name: 'Choi Su-jin',      email: 'sjchoi@factory.com',  role: 'qc_inspector',    deptIds: ['D002'] },
+  { id: 'U005', name: 'Nguyen Van An',    email: 'dhjeong@factory.com', role: 'qc_inspector',    deptIds: ['D002'] },
+  { id: 'U006', name: 'Tran Thi Bich',    email: 'nva@factory.com',     role: 'warehouse',       deptIds: ['D003'] },
+  { id: 'U007', name: 'Le Van Cuong',     email: 'ttb@factory.com',     role: 'warehouse',       deptIds: ['D003'] },
+  { id: 'U008', name: 'Hong Gil-dong',    email: 'gdhong@factory.com',  role: 'admin',           deptIds: ['D004', 'D005'] },
 ]
 
-const ROLE_FILTER_OPTIONS = ['전체', ...Object.keys(ROLE_I18N_KEY)]
+const ALL_ROLES = '_ALL_'
+const ROLE_FILTER_OPTIONS = [ALL_ROLES, ...Object.keys(ROLE_I18N_KEY)]
 
 /* ── 부서 추가 팝오버 ─────────────────────────────── */
 function DeptPopover({
@@ -88,8 +89,8 @@ export function UserDeptAssignment({
   const { t } = useTranslation()
   const [users, setUsers]       = useState<MockUser[]>(MOCK_USERS)
   const [searchName, setSearchName]   = useState('')
-  const [filterRole, setFilterRole] = useState('전체')
-  const [filterDept, setFilterDept] = useState('전체')
+  const [filterRole, setFilterRole] = useState(ALL_ROLES)
+  const [filterDept, setFilterDept] = useState(ALL_ROLES)
   const [saved, setSaved]       = useState(false)
   const [changed, setChanged]   = useState<Set<string>>(new Set())
   const [openPopover, setOpenPopover] = useState<string | null>(null)
@@ -113,8 +114,8 @@ export function UserDeptAssignment({
 
   const filtered = users.filter(u => {
     const nameMatch = !searchName.trim() || u.name.toLowerCase().includes(searchName.trim().toLowerCase())
-    const roleMatch = filterRole === '전체' || u.role === filterRole
-    const deptMatch = filterDept === '전체' || u.deptIds.includes(filterDept)
+    const roleMatch = filterRole === ALL_ROLES || u.role === filterRole
+    const deptMatch = filterDept === ALL_ROLES || u.deptIds.includes(filterDept)
     return nameMatch && roleMatch && deptMatch
   })
 
@@ -144,7 +145,7 @@ export function UserDeptAssignment({
             <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
               className="input text-sm pr-8 appearance-none">
               {ROLE_FILTER_OPTIONS.map(r => (
-                <option key={r} value={r}>{r === '전체' ? t('admin.permission.allRoles') : t(ROLE_I18N_KEY[r] ?? r)}</option>
+                <option key={r} value={r}>{r === ALL_ROLES ? t('admin.permission.allRoles') : t(ROLE_I18N_KEY[r] ?? r)}</option>
               ))}
             </select>
             <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
@@ -152,7 +153,7 @@ export function UserDeptAssignment({
           <div className="relative">
             <select value={filterDept} onChange={e => setFilterDept(e.target.value)}
               className="input text-sm pr-8 appearance-none">
-              <option value="전체">{t('admin.permission.allDepts')}</option>
+              <option value={ALL_ROLES}>{t('admin.permission.allDepts')}</option>
               {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
             <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />

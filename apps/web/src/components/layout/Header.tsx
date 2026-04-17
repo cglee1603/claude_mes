@@ -1,19 +1,19 @@
 import { useTranslation } from 'react-i18next'
 
 const LANGUAGES = [
-  { code: 'ko', label: 'KO' },
   { code: 'en', label: 'EN' },
   { code: 'vi', label: 'VI' },
+  { code: 'ko', label: 'KO' },
 ]
 
 export function Header() {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   return (
     <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6">
       <div className="flex items-center gap-2">
         <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300">
-          목업 모드
+          {t('common.mockupMode')}
         </span>
       </div>
       <div className="flex items-center gap-4">
@@ -32,7 +32,7 @@ export function Header() {
             </button>
           ))}
         </div>
-        <div className="text-sm text-gray-600 font-medium">관리자</div>
+        <div className="text-sm text-gray-600 font-medium">{t('common.adminUser')}</div>
       </div>
     </header>
   )

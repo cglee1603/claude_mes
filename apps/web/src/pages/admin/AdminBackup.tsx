@@ -49,18 +49,13 @@ const LATEST_INTEGRITY: IntegrityResult = {
     line_daily_summaries: 72,
   },
   issues: [
-    { severity: 'WARNING', table: 'line_outputs', message: '고아 레코드 2건 감지 (lot_id 참조 없음)' },
+    { severity: 'WARNING', table: 'line_outputs', message: '2 orphan records detected (no lot_id reference)' },
   ],
-}
-
-const BACKUP_TYPE_LABEL: Record<BackupLog['backupType'], string> = {
-  RDS_SNAPSHOT:   'RDS 스냅샷',
-  LOGICAL_DUMP:   'pg_dump → S3',
-  MANUAL_SNAPSHOT:'수동 스냅샷',
 }
 
 /* ── 백업 현황 카드 ───────────────────────────────── */
 function BackupSummaryCards() {
+  const { t } = useTranslation()
   return (
     <div className="grid grid-cols-3 gap-4">
       <div className="card flex items-center gap-4">
@@ -68,10 +63,10 @@ function BackupSummaryCards() {
           <Database className="w-5 h-5 text-blue-600" />
         </div>
         <div>
-          <p className="text-xs text-gray-500">RDS 자동 백업 (PITR)</p>
-          <p className="text-sm font-semibold text-gray-900">30일 보존</p>
+          <p className="text-xs text-gray-500">{t('admin.backup.pitrTitle')}</p>
+          <p className="text-sm font-semibold text-gray-900">{t('admin.backup.pitrRetention')}</p>
           <p className="text-xs text-green-600 flex items-center gap-0.5 mt-0.5">
-            <Check className="w-3 h-3" /> 정상 — 마지막 04-16 01:00
+            <Check className="w-3 h-3" /> {t('admin.backup.pitrOk')} — {t('admin.backup.lastAt', { time: '04-16 01:00' })}
           </p>
         </div>
       </div>
@@ -80,10 +75,10 @@ function BackupSummaryCards() {
           <Clock className="w-5 h-5 text-purple-600" />
         </div>
         <div>
-          <p className="text-xs text-gray-500">주간 스냅샷</p>
+          <p className="text-xs text-gray-500">{t('admin.backup.weeklySnapshot')}</p>
           <p className="text-sm font-semibold text-gray-900">mes-weekly-2026-04-13</p>
           <p className="text-xs text-green-600 flex items-center gap-0.5 mt-0.5">
-            <Check className="w-3 h-3" /> 완료 — 4.2 GB
+            <Check className="w-3 h-3" /> {t('admin.backup.doneSize', { size: '4.2 GB' })}
           </p>
         </div>
       </div>
@@ -92,10 +87,10 @@ function BackupSummaryCards() {
           <HardDrive className="w-5 h-5 text-green-600" />
         </div>
         <div>
-          <p className="text-xs text-gray-500">월간 논리 백업 (S3)</p>
+          <p className="text-xs text-gray-500">{t('admin.backup.monthlyDump')}</p>
           <p className="text-sm font-semibold text-gray-900">2026-04 — 1.8 GB</p>
           <p className="text-xs text-green-600 flex items-center gap-0.5 mt-0.5">
-            <Check className="w-3 h-3" /> 완료 — AES256 암호화
+            <Check className="w-3 h-3" /> {t('admin.backup.doneAes256')}
           </p>
         </div>
       </div>
@@ -105,13 +100,14 @@ function BackupSummaryCards() {
 
 /* ── 무결성 체크 결과 ─────────────────────────────── */
 function IntegrityPanel() {
+  const { t } = useTranslation()
   const [isChecking, setIsChecking] = useState(false)
   const [result, setResult] = useState<IntegrityResult>(LATEST_INTEGRITY)
 
   function runCheck() {
     setIsChecking(true)
     setTimeout(() => {
-      setResult({ ...LATEST_INTEGRITY, checkedAt: '2026-04-16 10:42 (방금)' })
+      setResult({ ...LATEST_INTEGRITY, checkedAt: '2026-04-16 10:42 (just now)' })
       setIsChecking(false)
     }, 2000)
   }
@@ -127,13 +123,13 @@ function IntegrityPanel() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Shield className="w-5 h-5 text-gray-500" />
-          <h3 className="font-semibold text-gray-900">DB 무결성 체크</h3>
+          <h3 className="font-semibold text-gray-900">{t('admin.backup.integrityCheck')}</h3>
           <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${severityColor[result.status]}`}>
             {result.status}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">마지막: {result.checkedAt}</span>
+          <span className="text-xs text-gray-400">{t('admin.backup.lastChecked', { time: result.checkedAt })}</span>
           <button
             type="button"
             onClick={runCheck}
@@ -141,7 +137,7 @@ function IntegrityPanel() {
             className="btn-secondary text-sm flex items-center gap-1.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isChecking ? 'animate-spin' : ''}`} />
-            {isChecking ? '검사 중...' : '즉시 실행'}
+            {isChecking ? t('admin.backup.checking') : t('admin.backup.runNow')}
           </button>
         </div>
       </div>
@@ -159,7 +155,7 @@ function IntegrityPanel() {
       {/* 이슈 목록 */}
       {result.issues.length > 0 ? (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">발견된 이슈</h4>
+          <h4 className="text-sm font-medium text-gray-700">{t('admin.backup.issuesFound')}</h4>
           {result.issues.map((issue, i) => (
             <div key={i} className={`flex items-start gap-2 p-3 rounded-lg border ${
               issue.severity === 'CRITICAL' ? 'bg-red-50 border-red-200' :
@@ -180,7 +176,7 @@ function IntegrityPanel() {
       ) : (
         <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">
           <Check className="w-4 h-4" />
-          이슈 없음 — 모든 레코드 정상
+          {t('admin.backup.noIssues')}
         </div>
       )}
     </div>
@@ -212,9 +208,9 @@ export function AdminBackupPage() {
 
   const statusBadge = (status: BackupLog['status']) => {
     switch (status) {
-      case 'COMPLETED':   return <StatusBadge status="ACTIVE"   label="완료" />
-      case 'IN_PROGRESS': return <StatusBadge status="QC"       label="진행 중" />
-      case 'FAILED':      return <StatusBadge status="MFZ_HOLD" label="실패" />
+      case 'COMPLETED':   return <StatusBadge status="ACTIVE"   label={t('admin.backup.statusCompleted')} />
+      case 'IN_PROGRESS': return <StatusBadge status="QC"       label={t('admin.backup.statusInProgress')} />
+      case 'FAILED':      return <StatusBadge status="MFZ_HOLD" label={t('admin.backup.statusFailed')} />
     }
   }
 
@@ -231,7 +227,7 @@ export function AdminBackupPage() {
             className="btn-primary flex items-center gap-1.5 text-sm"
           >
             <Database className={`w-4 h-4 ${isSnapshotting ? 'animate-pulse' : ''}`} />
-            {isSnapshotting ? '스냅샷 생성 중...' : t('admin.backup.manualSnapshot')}
+            {isSnapshotting ? t('admin.backup.snapshotting') : t('admin.backup.manualSnapshot')}
           </button>
         }
       />
@@ -245,22 +241,22 @@ export function AdminBackupPage() {
       {/* 백업 이력 테이블 */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">백업 이력</h3>
+          <h3 className="font-semibold text-gray-900">{t('admin.backup.historyTitle')}</h3>
           <button type="button" className="btn-secondary text-sm flex items-center gap-1.5">
             <Download className="w-3.5 h-3.5" />
-            CSV 내보내기
+            {t('admin.backup.exportCsv')}
           </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left pb-3 font-semibold text-gray-700">유형</th>
-                <th className="text-left pb-3 font-semibold text-gray-700">스냅샷 ID</th>
-                <th className="text-left pb-3 font-semibold text-gray-700">상태</th>
-                <th className="text-left pb-3 font-semibold text-gray-700">실행 주체</th>
-                <th className="text-left pb-3 font-semibold text-gray-700">크기</th>
-                <th className="text-left pb-3 font-semibold text-gray-700">생성 시각</th>
+                <th className="text-left pb-3 font-semibold text-gray-700">{t('admin.backup.colType')}</th>
+                <th className="text-left pb-3 font-semibold text-gray-700">{t('admin.backup.colSnapshotId')}</th>
+                <th className="text-left pb-3 font-semibold text-gray-700">{t('admin.backup.colStatus')}</th>
+                <th className="text-left pb-3 font-semibold text-gray-700">{t('admin.backup.colTriggeredBy')}</th>
+                <th className="text-left pb-3 font-semibold text-gray-700">{t('admin.backup.colSize')}</th>
+                <th className="text-left pb-3 font-semibold text-gray-700">{t('admin.backup.colCreatedAt')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -272,7 +268,7 @@ export function AdminBackupPage() {
                       log.backupType === 'LOGICAL_DUMP'   ? 'bg-green-100 text-green-700' :
                       'bg-purple-100 text-purple-700'
                     }`}>
-                      {BACKUP_TYPE_LABEL[log.backupType]}
+                      {log.backupType === 'LOGICAL_DUMP' ? 'pg_dump → S3' : log.backupType === 'RDS_SNAPSHOT' ? t('admin.backup.typeRdsSnapshot') : t('admin.backup.typeManualSnapshot')}
                     </span>
                   </td>
                   <td className="py-3 font-mono text-xs text-gray-600">{log.snapshotId}</td>

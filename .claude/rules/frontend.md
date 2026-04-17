@@ -27,7 +27,7 @@ apps/web/src/
 │   ├── dashboard/    # DashboardPage.tsx — 다중 대시보드 (탭 기반)
 │   ├── my-menu/      # MyMenuPage.tsx, WorkspacePage.tsx
 │   ├── mypage/       # MyPage.tsx
-│   └── …(33개 업무 화면)
+│   └── …(34개 업무 화면)
 ├── hooks/            # TanStack Query 커스텀 훅
 ├── mocks/            # MSW 핸들러 (자동생성 — 수동 작성 금지 H-1)
 ├── services/         # API 호출 함수
@@ -500,9 +500,9 @@ function WH02HistoryPage() {
 **저장 키 규칙**:
 | 화면 | 저장 키 |
 |------|--------|
-| WH-02 원단 이력 | `mes-grid:WH-02` |
-| SC-10 재단 LOT 목록 | `mes-grid:SC-10` |
-| QC-25 인라인 검사 | `mes-grid:QC-25` |
+| H-WH-01 원단 입고 | `mes-grid:H-WH-01` |
+| H-SC-01 재단 계획 | `mes-grid:H-SC-01` |
+| H-QC-01 Bundle QC | `mes-grid:H-QC-01` |
 | Admin 생산라인 | `mes-grid:Admin-Line` |
 
 ---
@@ -600,14 +600,60 @@ DashboardPage.tsx (메인 레이아웃만)
 ---
 
 ### 14. 화면 전체 목록
-| 그룹 | 화면 |
-|------|------|
-| 창고 | WH-01(원단입고), WH-02(이력조회), WH-03(대시보드) |
-| 릴렉싱 | RX-04(계획), RX-05(소재별시간), RX-06(완료알림) |
-| 재단 | SC-07~13 |
-| 봉제 | SW-14(투입계획), SW-15(Layout), SW-16(기계상태), SW-17~18(팀실적) |
-| 품질 | QC-25~32 (8단계 검사) |
-| 완성·포장 | FP-19(태깅), FP-20(Polybag), FP-21(MFZ), FP-22(Carton) |
-| 분석 | AD-23(공장장대시보드), AD-24(WIP조회) |
-| Admin | 생산라인, 기계, SMV, ERP동기화, 수명주기, QC기준, **권한관리(Admin-P)**, **백업관리(Admin-B)** |
-| 개인화 | **다중 대시보드** (`/dashboard`), **마이페이지** (`/mypage`), **내 메뉴** (`/my-menu`, `/my-menu/:id`) |
+| 그룹 | 화면 코드 | 화면명 | 경로 |
+|------|----------|--------|------|
+| WAREHOUSE | H-WH-01 | 원단 입고·4점법 검사 | /warehouse/fabric-receive |
+| WAREHOUSE | H-WH-02 | 부자재 입고·검사 | /warehouse/trim-receive |
+| WAREHOUSE | H-WH-03 | 출고 전표 | /warehouse/issue-voucher |
+| WAREHOUSE | H-WH-04 | 재고 현황 | /warehouse/inventory |
+| WAREHOUSE | H-WH-05 | 릴렉싱 관리 | /warehouse/relaxation |
+| WAREHOUSE | H-PRINT-01 | 롤 라벨 출력 | /warehouse/roll-label |
+| WAREHOUSE | H-PRINT-02 | 번들 라벨 출력 | /warehouse/bundle-label |
+| CUT | H-SC-01 | 재단 계획 | /cutting/cutting-plan |
+| CUT | H-SC-02 | 연신 보고서 | /cutting/spreading |
+| CUT | H-SC-03 | 마커 효율 | /cutting/marker |
+| CUT | H-LOT-01 | LOT 색상 그룹 편성 | /cutting/color-group |
+| CUT | H-LOT-02 | 봉제라인 인도서 | /cutting/line-delivery |
+| CUT | H-SCAN-01 | 번들 바코드 스캔 | /cutting/bundle-scan |
+| CUT | H-CUT-04 | 외주 자수·프린팅 추적 | /cutting/outsource |
+| CUT | H-CUT-05 | 일일 재단 실적 | /cutting/daily-report |
+| SEWING | H-SW-01 | 생산 계획·런데이 목표 | /sewing/production-plan |
+| SEWING | H-SW-02 | PP 체크리스트·공정 배치 | /sewing/pp-checklist |
+| SEWING | H-SW-03 | 자재 수령 (BTP·부자재) | /sewing/material-receiving |
+| SEWING | H-RT-01 | 봉제 실적·SAM 추정 | /sewing/output |
+| SEWING | H-QC-01 | Bundle QC 검사 | /sewing/bundle-qc |
+| SEWING | H-QC-02 | Endline QC 보고서 | /sewing/endline-qc |
+| SEWING | H-QC-03 | QC 대시보드 | /sewing/qc-dashboard |
+| SEWING | H-MFZ-01 | 금속 탐지 검사 | /sewing/metal-detection |
+| SEWING | H-SW-04 | 날카로운 도구 관리 | /sewing/sharp-tools |
+| SEWING | H-SW-05 | 합격 수량 기록 | /sewing/passed-garments |
+| SEWING | H-SW-06 | 내부 이관 | /sewing/internal-transfer |
+| SEWING | H-SW-07 | 시간별 생산량 입력 | /sewing/hourly-entry |
+| FINISHING | H-FIN-01 | 행택·라벨 검사 | /finishing/hangtag-inspect |
+| FINISHING | H-FIN-02 | 금속탐지기 교정 | /finishing/mfz-calibration |
+| FINISHING | H-FIN-03 | 중량·수량 검사 | /finishing/weight-inspect |
+| FINISHING | H-FIN-04 | 박스 포장 검사 | /finishing/carton-inspect |
+| FINISHING | H-FIN-05 | 패킹리스트 | /finishing/packing-list |
+| FINISHING | H-PERF-01 | 완성 실적·월보 | /finishing/performance |
+| FINISHING | H-FIN-06 | 출하 관리 | /finishing/shipment |
+| FINISHING | H-FIN-07 | 건조실 점검 | /finishing/dry-room |
+| FINISHING | H-FIN-08 | 금속 검사 일별 요약 | /finishing/mfz-summary |
+| FINISHING | H-FIN-09 | 완성부 월별 실적 | /finishing/monthly-report |
+| 개인화 | Dashboard | 공장 통합 대시보드 | /dashboard |
+| 개인화 | - | 마이페이지 | /mypage |
+| 개인화 | - | 내 메뉴 | /my-menu |
+| Admin | - | 마스터 데이터 | /admin/masters |
+| Admin | - | 생산라인 | /admin/line |
+| Admin | - | 기계 | /admin/machine |
+| Admin | - | SAM/SMV | /admin/smv |
+| Admin | - | ERP 동기화 | /admin/erp |
+| Admin | - | 수명주기 | /admin/lifecycle |
+| Admin | - | QC 기준 | /admin/qc-config |
+| Admin | - | 권한 관리 | /admin/permission |
+| Admin | - | DB 백업 | /admin/backup |
+
+### 15. Excel 내보내기·가져오기 정책
+- **내보내기**: 목록/실적 화면 전체. `exportToCsv(data, filename)` from `utils/excel`
+- **가져오기**: H-SC-01(재단계획), H-SW-01(생산계획), H-FIN-05(패킹리스트) 3개 화면
+- 유틸리티: `apps/web/src/utils/excel.ts` (CSV 기반, xlsx 교체 예정)
+- 버튼 i18n: `common.exportExcel` / `common.importExcel`

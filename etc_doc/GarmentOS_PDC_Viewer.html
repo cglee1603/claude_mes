@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>GarmentOS PDC Viewer — 공정별 업무 워크플로우</title>
+<style>
+:root{
+  --bg:#0D1117;--surf:#161B22;--surf2:#1C2128;--bdr:#21262D;--bdr2:#30363D;
+  --txt:#E6EDF3;--muted:#8B949E;--accent:#58A6FF;--green:#3FB950;
+  --wh:#DC8A00;--cut:#3B82F6;--sew:#06B6D4;--fin:#10B981;
+  --red:#FF7B72;--yellow:#E3B341;--blue:#79C0FF;--purple:#D2A8FF;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+/* ── TOPBAR ── */
+#topbar{height:48px;background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0;z-index:100;}
+.tb-logo{font-weight:900;font-size:14px;letter-spacing:-.3px;}
+.tb-sub{font-size:10.5px;color:var(--muted);}
+.tb-sep{width:1px;height:22px;background:var(--bdr);flex-shrink:0;margin:0 4px;}
+#searchbox{flex:1;max-width:260px;background:var(--bg);border:1px solid var(--bdr2);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--txt);outline:none;}
+#searchbox::placeholder{color:var(--muted);}
+#searchbox:focus{border-color:var(--accent);}
+.flt{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--bdr);background:transparent;color:var(--muted);transition:all .15s;}
+.flt:hover,.flt.active{color:#fff;border-color:transparent;}
+.flt.all.active{background:#334155;}
+.flt.wh.active{background:var(--wh);}
+.flt.cut.active{background:var(--cut);}
+.flt.sew.active{background:var(--sew);}
+.flt.fin.active{background:var(--fin);}
+.tb-r{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.viewbtn{padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bdr2);background:var(--surf2);color:var(--muted);transition:all .15s;}
+.viewbtn:hover{background:var(--bdr2);color:var(--txt);}
+.viewbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+/* ── MAIN LAYOUT ── */
+#main{display:flex;flex:1;overflow:hidden;}
+/* ── SIDENAV ── */
+#sidenav{width:270px;background:var(--surf);border-right:1px solid var(--bdr);overflow-y:auto;flex-shrink:0;padding-bottom:20px;}
+.proc-header{padding:10px 12px 6px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;border-bottom:1px solid var(--bdr);}
+.proc-header:hover{background:var(--surf2);}
+.proc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.proc-title{font-size:12px;font-weight:700;flex:1;}
+.proc-count{font-size:10px;color:var(--muted);background:var(--bdr2);padding:1px 6px;border-radius:8px;}
+.proc-chevron{font-size:10px;color:var(--muted);transition:transform .2s;}
+.proc-header.open .proc-chevron{transform:rotate(90deg);}
+.act-section{padding:4px 8px;}
+.act-label{font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;padding:6px 8px 3px;}
+.task-item{padding:5px 10px 5px 22px;border-radius:6px;cursor:pointer;font-size:11.5px;color:var(--muted);transition:all .15s;display:flex;align-items:center;gap:6px;margin:1px 2px;}
+.task-item:hover{background:var(--surf2);color:var(--txt);}
+.task-item.active{color:#fff;font-weight:600;}
+.task-item .tid{font-family:'Consolas','Courier New',monospace;font-size:10px;font-weight:700;min-width:62px;flex-shrink:0;}
+.task-item .tname-nav{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;}
+.task-item .h-dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;}
+.nav-hidden{display:none;}
+/* ── CONTENT ── */
+#content{flex:1;overflow-y:auto;background:var(--bg);}
+/* ── WELCOME ── */
+#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--muted);}
+#welcome .wicon{font-size:56px;}
+#welcome h2{font-size:18px;color:var(--txt);}
+#welcome p{font-size:13px;text-align:center;max-width:360px;line-height:1.6;}
+.stats-row{display:flex;gap:12px;margin-top:8px;}
+.stat-card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:12px 20px;text-align:center;}
+.stat-n{font-size:24px;font-weight:800;color:var(--accent);}
+.stat-l{font-size:11px;color:var(--muted);}
+/* ── TABLE INDEX ── */
+#tbl-index{padding:24px;}
+.ti-title{font-size:16px;font-weight:700;margin-bottom:16px;}
+.ti-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;}
+.ti-card{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:12px;cursor:pointer;transition:border-color .15s;}
+.ti-card:hover{border-color:var(--accent);}
+.ti-tname{font-family:'Consolas','Courier New',monospace;font-size:12px;font-weight:700;margin-bottom:8px;color:var(--accent);}
+.ti-ops{display:flex;flex-wrap:wrap;gap:4px;}
+.ti-op{font-size:9.5px;padding:1px 5px;border-radius:4px;font-weight:600;}
+.ti-op.C{background:rgba(59,251,36,.15);color:#3fb950;}
+.ti-op.U{background:rgba(251,191,36,.15);color:#e3b341;}
+.ti-op.R{background:rgba(88,166,255,.12);color:#58a6ff;}
+/* ── TASK DETAIL ── */
+#task-view{padding:24px;max-width:900px;}
+.tv-header{margin-bottom:20px;}
+.tv-id-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.tv-id{font-family:'Consolas','Courier New',monospace;font-size:13px;font-weight:700;padding:3px 10px;border-radius:6px;color:#fff;}
+.tv-isa{font-size:10.5px;color:var(--muted);border:1px solid var(--bdr2);padding:2px 8px;border-radius:5px;}
+.hbadge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(239,68,68,.2);color:#ff7b72;border:1px solid rgba(239,68,68,.3);}
+.tv-name{font-size:20px;font-weight:800;margin-bottom:8px;}
+.tv-trigger{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+.tv-trigger strong{color:var(--txt);}
+/* flow chips */
+.flow-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.flow-chip{font-family:'Consolas','Courier New',monospace;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:6px;cursor:pointer;border:1px solid var(--bdr2);background:var(--surf);color:var(--muted);transition:all .15s;}
+.flow-chip:hover{border-color:var(--accent);color:var(--txt);}
+.flow-chip.cur{color:#fff;}
+.flow-arrow{color:var(--muted);font-size:12px;}
+/* quick stats */
+.quick-stats{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.qs{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;text-align:center;min-width:70px;}
+.qs-n{font-size:18px;font-weight:800;}
+.qs-l{font-size:9.5px;color:var(--muted);}
+/* sections */
+.section{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;margin-bottom:14px;overflow:hidden;}
+.sec-hdr{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;border-bottom:1px solid var(--bdr);}
+.sec-hdr:hover{background:var(--surf2);}
+.sec-icon{font-size:14px;}
+.sec-title{font-size:12.5px;font-weight:700;flex:1;}
+.sec-chevron{font-size:10px;color:var(--muted);transition:transform .2s;}
+.sec-body{padding:12px 14px;}
+.sec-collapsed .sec-body{display:none;}
+.sec-collapsed .sec-chevron{transform:rotate(-90deg);}
+/* pre/post */
+.cond-list{list-style:none;}
+.cond-item{padding:4px 0;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,.04);}
+.cond-item:last-child{border:none;}
+.cond-item::before{content:'→';color:var(--accent);font-size:11px;}
+/* docs */
+.doc-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.06);border:1px solid var(--bdr2);border-radius:5px;padding:3px 8px;font-size:11px;margin:3px 3px 3px 0;}
+/* tables read/write */
+.tbl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.tbl-card{border-radius:8px;padding:10px 12px;border:1px solid var(--bdr2);}
+.tbl-card.read-side{background:rgba(88,166,255,.05);border-color:rgba(88,166,255,.2);}
+.tbl-card.write-side{background:rgba(63,185,80,.05);border-color:rgba(63,185,80,.2);}
+.tc-head{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.tc-head.r{color:var(--blue);}.tc-head.w{color:var(--green);}
+.tbl-entry{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);display:grid;gap:2px;}
+.tbl-entry:last-child{border:none;}
+.te-top{display:flex;align-items:center;gap:6px;}
+.te-name{font-family:'Consolas','Courier New',monospace;font-size:11.5px;font-weight:700;color:var(--txt);cursor:pointer;}
+.te-name:hover{color:var(--accent);}
+.op-badge{font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;}
+.op-C{background:rgba(63,185,80,.2);color:var(--green);}
+.op-U{background:rgba(227,179,65,.2);color:var(--yellow);}
+.op-R{background:rgba(88,166,255,.15);color:var(--blue);}
+.te-cols{font-family:'Consolas','Courier New',monospace;font-size:9.5px;color:var(--muted);line-height:1.5;}
+.te-why{font-size:10px;color:var(--muted);margin-top:2px;}
+/* steps */
+.step-list{list-style:none;counter-reset:step;}
+.step-item{counter-increment:step;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:10px;font-size:12px;}
+.step-item:last-child{border:none;}
+.step-item::before{content:counter(step);min-width:22px;height:22px;background:var(--bdr2);color:var(--muted);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+/* validation */
+.val-item{padding:6px 10px;border-radius:6px;margin-bottom:5px;font-size:11.5px;display:flex;gap:8px;align-items:flex-start;}
+.val-item:last-child{margin-bottom:0;}
+.val-lvl{font-size:10px;font-weight:800;padding:1px 6px;border-radius:4px;flex-shrink:0;margin-top:1px;}
+.lE{background:rgba(239,68,68,.2);color:var(--red);}
+.lW{background:rgba(227,179,65,.2);color:var(--yellow);}
+.lI{background:rgba(88,166,255,.15);color:var(--blue);}
+.val-item.lEb{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);}
+.val-item.lWb{background:rgba(227,179,65,.05);border:1px solid rgba(227,179,65,.12);}
+.val-item.lIb{background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.12);}
+/* roles */
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.role-card{background:var(--surf2);border-radius:8px;padding:10px 12px;}
+.role-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px;}
+.role-chip{display:inline-block;background:rgba(255,255,255,.08);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;margin:2px 2px 2px 0;}
+/* exceptions */
+.exc-item{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11.5px;color:var(--muted);display:flex;gap:6px;}
+.exc-item::before{content:'⚠';font-size:11px;flex-shrink:0;}
+.exc-item:last-child{border:none;}
+/* search highlight */
+.sh{background:rgba(227,179,65,.3);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="tb-logo">🏭 GarmentOS</span>
+  <span class="tb-sub">PDC Viewer — 공정별 업무 워크플로우</span>
+  <div class="tb-sep"></div>
+  <input id="searchbox" type="text" placeholder="태스크명, 테이블명 검색..." oninput="doSearch(this.value)">
+  <div class="tb-sep"></div>
+  <button class="flt all active" onclick="filterProc('all',this)">전체</button>
+  <button class="flt wh" onclick="filterProc('WH',this)">Warehouse</button>
+  <button class="flt cut" onclick="filterProc('CUT',this)">CUT</button>
+  <button class="flt sew" onclick="filterProc('SEW',this)">Sewing</button>
+  <button class="flt fin" onclick="filterProc('FIN',this)">Finishing</button>
+  <div class="tb-r">
+    <button class="viewbtn active" id="vTask" onclick="setView('task')">📋 태스크</button>
+    <button class="viewbtn" id="vTable" onclick="setView('table')">🗄 테이블 인덱스</button>
+  </div>
+</div>
+
+<div id="main">
+  <div id="sidenav" id="sidenav"></div>
+  <div id="content">
+    <div id="welcome">
+      <div class="wicon">📋</div>
+      <h2>Process Data Contract Viewer</h2>
+      <p>왼쪽 트리에서 태스크를 선택하면 입력·처리·출력·검증 등 전체 PDC를 확인합니다.</p>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-n">37</div><div class="stat-l">태스크</div></div>
+        <div class="stat-card"><div class="stat-n">14</div><div class="stat-l">Activity</div></div>
+        <div class="stat-card"><div class="stat-n">4</div><div class="stat-l">공정</div></div>
+        <div class="stat-card"><div class="stat-n">51</div><div class="stat-l">WRITE 테이블</div></div>
+        <div class="stat-card"><div class="stat-n">71</div><div class="stat-l">ERD 테이블</div></div>
+      </div>
+    </div>
+    <div id="tbl-index" style="display:none;"></div>
+    <div id="task-view" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// TASK DATA — 37개 PDC 정의
+// ═══════════════════════════════════════════════════════════════════
+const PROC_COLOR={WH:'#DC8A00',CUT:'#3B82F6',SEW:'#06B6D4',FIN:'#10B981'};
+const PROC_LABEL={WH:'WAREHOUSE',CUT:'CUT',SEW:'SEWING',FIN:'FINISHING'};
+
+const ACTIVITIES={
+  'WH-A01':{name:'입고 관리',proc:'WH',tasks:['WH-T01','WH-T02','WH-T03']},
+  'WH-A02':{name:'부자재 검사 및 등록',proc:'WH',tasks:['WH-T04','WH-T05']},
+  'WH-A03':{name:'출고 및 재고 관리',proc:'WH',tasks:['WH-T06','WH-T07']},
+  'CUT-A01':{name:'재단 계획 및 편성',proc:'CUT',tasks:['CUT-T01','CUT-T02','CUT-T03']},
+  'CUT-A02':{name:'재단 실행',proc:'CUT',tasks:['CUT-T04','CUT-T05']},
+  'CUT-A03':{name:'외주 및 이관',proc:'CUT',tasks:['CUT-T06','CUT-T07','CUT-T08']},
+  'SEW-A01':{name:'생산 준비',proc:'SEW',tasks:['SEW-T01','SEW-T02','SEW-T03']},
+  'SEW-A02':{name:'자재 수령',proc:'SEW',tasks:['SEW-T04','SEW-T05']},
+  'SEW-A03':{name:'봉제 생산',proc:'SEW',tasks:['SEW-T06','SEW-T07','SEW-T08']},
+  'SEW-A04':{name:'품질 관리',proc:'SEW',tasks:['SEW-T09','SEW-T10','SEW-T11']},
+  'SEW-A05':{name:'안전·준수',proc:'SEW',tasks:['SEW-T12']},
+  'FIN-A01':{name:'완성 검사',proc:'FIN',tasks:['FIN-T01','FIN-T02','FIN-T03','FIN-T04','FIN-T05']},
+  'FIN-A02':{name:'포장 및 서류',proc:'FIN',tasks:['FIN-T06']},
+  'FIN-A03':{name:'실적 보고',proc:'FIN',tasks:['FIN-T07','FIN-T08']},
+  'FIN-A04':{name:'출하 관리',proc:'FIN',tasks:['FIN-T09','FIN-T10']},
+};
+
+// Compact task definition helper
+// reads/writes: {t:'table', c:['cols'], op:'C|U|R', why:'reason'}
+const T={
+'WH-T01':{proc:'WH',act:'WH-A01',name:'공급업체·발주 정보 확인',isa95:'Level 3 — ProductionRequest Evaluation',harness:[],trigger:'입고 차량 도착 / 공급업체 납품 통보',prev:[],next:['WH-T02'],pre:['orders.status = ACTIVE','suppliers 등록 완료'],inDocs:['납품서(Delivery Note)','PO 확인서'],reads:[{t:'orders',c:['order_no','supplier_id','total_qty','style_code'],why:'발주 기준 확인'},{t:'suppliers',c:['supplier_name','country'],why:'공급업체 정보 조회'},{t:'buyers',c:['buyer_code'],why:'바이어 정보 확인'}],steps:['PO 번호 수령 및 orders 테이블 조회','공급업체 납품서(Delivery Note) 접수','품목·수량·로트 코드 사전 확인','material_receipts 헤더 생성 (status=PENDING)'],writes:[{t:'material_receipts',op:'C',c:['receipt_no','order_id','supplier_id','lot_code','plist_qty'],why:'입고 기록 헤더 생성'}],outDocs:['입고 접수 확인서'],vals:[{lvl:'E',rule:'orders.supplier_id 불일치 → 차단'},{lvl:'W',rule:'납품 예정일 초과 → 알림'},{lvl:'I',rule:'동일 lot_code 기존 입고 여부 조회'}],post:['material_receipts.status = PENDING','lot_code 등록 완료'],roles:{exec:['WAREHOUSE'],approve:[]},exc:['미등록 PO → 관리자 확인 후 처리','공급업체 불일치 → 반송 처리']},
+
+'WH-T02':{proc:'WH',act:'WH-A01',name:'입고 수량 실사 대조',isa95:'Level 3 — MaterialLot Receipt',harness:[],trigger:'WH-T01 완료 (material_receipts PENDING 상태)',prev:['WH-T01'],next:['WH-T03','WH-T04'],pre:['material_receipts.status = PENDING'],inDocs:['패킹리스트(Packing List)','롤 태그'],reads:[{t:'material_receipts',c:['plist_qty','lot_code'],why:'패킹리스트 기준 수량'},{t:'orders',c:['total_qty'],why:'발주 수량 대조 기준'}],steps:['물리적 수량 실사 (롤 개수 / 부자재 박스 수)','패킹리스트 기준 수량 vs 실수령 수량 대조','과부족(surplus_qty) 수량 기록','material_receipts 상태 COUNTED로 업데이트'],writes:[{t:'material_receipts',op:'U',c:['actual_qty','surplus_qty','status'],why:'실사 결과 기록'}],outDocs:['입고 실사 확인서 (서명)'],vals:[{lvl:'E',rule:'actual_qty ≤ 0 → 수량 오류'},{lvl:'W',rule:'surplus_qty ≠ 0 → 과부족 알림 발송'},{lvl:'I',rule:'부족률 계산 (surplus/plist_qty × 100%)'}],post:['material_receipts.status = COUNTED','actual_qty, surplus_qty 기록 완료'],roles:{exec:['WAREHOUSE'],approve:['SUPERVISOR']},exc:['부족 > 5% → 공급업체 통보 + 클레임','초과 수령 → 반품 조율']},
+
+'WH-T03':{proc:'WH',act:'WH-A01',name:'원단 롤 등록 및 4점법 검사',isa95:'Level 3 — MaterialLot Creation (Fabric Roll)',harness:['H-WH-01'],trigger:'WH-T02 완료 (원단 입고 건)',prev:['WH-T02'],next:['CUT-T01','CUT-T02'],pre:['material_receipts.status = COUNTED','rolls 미존재 (동일 lot_code 중복 방지)'],inDocs:['롤 태그 (Roll Tag)','4점법 검사 기준표'],reads:[{t:'material_receipts',c:['lot_code','order_id','actual_qty'],why:'입고 기준 정보'},{t:'orders',c:['style_code','buyer_id'],why:'발주 기준'},{t:'locations',c:['location_code','capacity_rolls'],why:'보관 위치 확인'}],steps:['롤 바코드 스캔 또는 수동 입력','내부 롤 번호(internal_roll_no) 시퀀스 자동 생성','4점법 결함 측정 (결함수 × 가중치 합산)','결함 점수 > 40 → inspection_status = FAILED','보관 위치(Location) 배정','롤 라벨 출력 요청 (print_log INSERT)'],writes:[{t:'rolls',op:'C',c:['roll_no','lot_code','internal_roll_no','length_m','fabric_width_cm','inspection_status','location_id'],why:'롤 마스터 생성'},{t:'print_log',op:'C',c:['roll_id','label_type','status','printed_by'],why:'롤 라벨 출력 기록 (H-PRINT-01)'}],outDocs:['롤 라벨 (바코드)'],vals:[{lvl:'E',rule:'roll_no UNIQUE — 중복 시 INSERT 차단'},{lvl:'E',rule:'length_m > 0 필수'},{lvl:'E',rule:'H-WH-01: inspection_status=FAILED 롤 → lot_transfers 진입 차단'},{lvl:'W',rule:'결함 점수 > 40 → 관리자 알림'},{lvl:'I',rule:'동일 lot_code 롤 합계 ≤ material_receipts.actual_qty'}],post:['rolls.inspection_status IN (PASSED, CONDITIONAL, FAILED)','rolls.location_id NOT NULL','print_log.status = PRINTED'],roles:{exec:['WAREHOUSE'],approve:['P_MANAGER']},exc:['4점법 FAILED → 공급업체 클레임 + 격리 보관','중복 lot_code → 알림 + 재확인 요청']},
+
+'WH-T04':{proc:'WH',act:'WH-A02',name:'부자재 입고 검사',isa95:'Level 3 — QualityTest (Incoming Trims)',harness:[],trigger:'WH-T02 완료 (부자재 입고 건)',prev:['WH-T02'],next:['WH-T05'],pre:['material_receipts.status = COUNTED','material_type IN (TRIM, THREAD, FOAM)'],inDocs:['부자재 검사 기준서 (바이어 제공)'],reads:[{t:'material_receipts',c:['receipt_no','supplier_id'],why:'입고 기준'},{t:'material_master',c:['material_type','unit'],why:'자재 유형 확인'},{t:'defect_codes',c:['code','name_vn'],why:'결함 유형 코드 조회'},{t:'buyers',c:['buyer_code'],why:'바이어 검사 기준'}],steps:['AQL 기준 표본 수량 결정','11종 결함 유형별 개수 측정','trims_inspections 헤더 생성','결함 유형별 trims_inspection_lines 기록','합격/불합격 판정 (결함 비율 기준)'],writes:[{t:'trims_inspections',op:'C',c:['receipt_id','buyer_id','supplier_id','inspection_date'],why:'검사 헤더 생성'},{t:'trims_inspection_lines',op:'C',c:['inspection_id','material_id','defect_code','qty_inspected','defect_count','result'],why:'결함 유형별 라인 기록'}],outDocs:['부자재 검사 성적서'],vals:[{lvl:'E',rule:'결함 비율 > AQL 기준 → FAIL 판정'},{lvl:'W',rule:'결함 비율 > 2% 경계값 → 경고'},{lvl:'I',rule:'결함코드 미등록 → defect_codes 추가 후 기록'}],post:['trims_inspections + lines 생성 완료','합격 부자재만 WH-T05 진행'],roles:{exec:['QC'],approve:['QC_MANAGER']},exc:['검사 FAIL → 공급업체 클레임 + 재검사 요청','결함코드 미등록 → defect_codes 추가 후 재기록']},
+
+'WH-T05':{proc:'WH',act:'WH-A02',name:'부자재 재고 등록',isa95:'Level 3 — MaterialLot Registration (Trims)',harness:[],trigger:'WH-T04 검사 합격 판정',prev:['WH-T04'],next:['WH-T06'],pre:['trims_inspections.result = PASS'],inDocs:[],reads:[{t:'material_master',c:['material_code','unit'],why:'자재 마스터 연결'},{t:'locations',c:['location_code','capacity_rolls'],why:'보관 위치 확인'},{t:'warehouses',c:['warehouse_code','account_code'],why:'창고 배정'}],steps:['합격 부자재 창고 위치 배정','trims 재고 등록 (신규 또는 기존 로트 수량 추가)','재고 수량 확인'],writes:[{t:'trims',op:'C/U',c:['material_id','warehouse_id','location_id','lot_code','qty_on_hand','unit'],why:'부자재 재고 등록'}],outDocs:[],vals:[{lvl:'E',rule:'location 수용 한계 초과 시 차단'},{lvl:'W',rule:'동일 lot_code 중복 등록 확인'},{lvl:'I',rule:'재고 총량 = 검사 합격 수량'}],post:['trims.qty_on_hand 업데이트','위치 배정 완료'],roles:{exec:['WAREHOUSE'],approve:[]},exc:['용량 초과 → 대체 위치 수동 지정']},
+
+'WH-T06':{proc:'WH',act:'WH-A03',name:'출고 전표 발행',isa95:'Level 3 — MaterialMovement (Legal Voucher)',harness:[],trigger:'봉제/재단 부자재 출고 요청',prev:['WH-T05'],next:['SEW-T05'],pre:['trims.qty_on_hand ≥ 요청 수량'],inDocs:['출고 요청서'],reads:[{t:'trims',c:['qty_on_hand','material_id'],why:'재고 가용 수량 확인'},{t:'material_master',c:['material_code','account_code'],why:'회계 계정 조회'},{t:'workers',c:['employee_no'],why:'수령자 확인'}],steps:['출고 요청 수량 대비 재고 확인','법정 회계 전표번호 채번','차변(621)/대변(152) 계정 자동 매핑','issue_vouchers 헤더 생성','자재별 issue_voucher_lines 생성','trims 재고 차감'],writes:[{t:'issue_vouchers',op:'C',c:['voucher_no','voucher_date','warehouse_id','receiver_id','debit_account','credit_account','total_amount_vnd'],why:'법정 출고 전표 생성'},{t:'issue_voucher_lines',op:'C',c:['voucher_id','material_id','qty','unit','unit_price_vnd','total_amount_vnd'],why:'자재별 라인 기록'},{t:'trims',op:'U',c:['qty_on_hand'],why:'재고 차감'}],outDocs:['PHIẾU XUẤT KHO (법정 출고 전표)'],vals:[{lvl:'E',rule:'재고 부족 시 출고 차단'},{lvl:'E',rule:'voucher_no 중복 → 채번 오류'},{lvl:'W',rule:'단가 변동 > 10% → 관리자 알림'}],post:['issue_vouchers + lines 생성','trims 재고 차감','회계 장부 연동'],roles:{exec:['WAREHOUSE'],approve:['ACCOUNTING']},exc:['재고 부족 → 긴급 입고 요청','단가 불일치 → 구매팀 확인']},
+
+'WH-T07':{proc:'WH',act:'WH-A03',name:'기간별 재고 스냅샷 생성',isa95:'Level 3 — MaterialInventory Snapshot (Monthly)',harness:[],trigger:'월말 자동 스케줄러',prev:[],next:[],pre:['해당 월 출고 전표 마감 완료'],inDocs:[],reads:[{t:'trims',c:['qty_on_hand','material_id','warehouse_id'],why:'현재 부자재 재고'},{t:'rolls',c:['length_m','inspection_status'],why:'원단 재고 현황'},{t:'inventory_period_snapshots',c:['closing_qty'],why:'전월 마감 기준'}],steps:['전월 마감 재고(opening_qty) 조회','당월 입고(receipt_qty) 집계','당월 출고(issue_qty) 집계','당월 마감 재고 계산','inventory_period_snapshots INSERT'],writes:[{t:'inventory_period_snapshots',op:'C',c:['material_id','warehouse_id','period_year','period_month','opening_qty','receipt_qty','issue_qty','closing_qty'],why:'월별 재고 스냅샷 (파티셔닝 적용)'}],outDocs:['월별 재고 현황 보고서'],vals:[{lvl:'E',rule:'전월 closing_qty ≠ 당월 opening_qty → 오류'},{lvl:'W',rule:'재고 음수 발생 → 알림'},{lvl:'I',rule:'스냅샷 완료 후 다음 달 opening 기준 확정'}],post:['당월 스냅샷 완료','다음 달 opening 기준 확정'],roles:{exec:['SYSTEM/SCHEDULER'],approve:['WAREHOUSE_MGR']},exc:['전월 데이터 미존재 → 최초 등록으로 처리']},
+
+'CUT-T01':{proc:'CUT',act:'CUT-A01',name:'재단 계획서 작성',isa95:'Level 3 — WorkMaster / ProductionSchedule',harness:[],trigger:'work_orders 확정 + rolls PASSED 충분히 확보',prev:['WH-T03'],next:['CUT-T02','CUT-T03'],pre:['work_orders.status = CONFIRMED','rolls.inspection_status = PASSED (수량 충분)'],inDocs:['오더 작업 지시서','원단 재고 현황'],reads:[{t:'orders',c:['style_code','total_qty','due_date'],why:'오더 기준'},{t:'work_orders',c:['wo_no','planned_qty'],why:'작업 지시 기준'},{t:'rolls',c:['length_m','fabric_width_cm'],why:'가용 원단 파악'},{t:'sam_master',c:['sam_minutes'],why:'마커 효율 기준'}],steps:['오더 수량 + 로스율 감안한 총 재단 수량 산정','원단 시트 분류별 계획 작성 (VC/LÓT/MEX)','밴드별 플라이 수·마커 길이·효율 계산','cutting_plans 헤더 생성','cutting_plan_bands 밴드별 라인 생성'],writes:[{t:'cutting_plans',op:'C',c:['plan_no','order_id','fabric_type','standard_consumption_y','total_planned_qty'],why:'재단 계획 헤더'},{t:'cutting_plan_bands',op:'C',c:['cutting_plan_id','band_no','ply_count','marker_length_y','marker_efficiency_pct','total_qty'],why:'밴드별 계획 라인'}],outDocs:['TÁC NGHIỆP CẮT (재단 계획서)'],vals:[{lvl:'E',rule:'총 가용 원단 길이 < 계획 소요량 → 차단'},{lvl:'W',rule:'마커 효율 < 80% → 재설계 권고'},{lvl:'W',rule:'계획 수량 > work_orders.planned_qty+10% → 경고'}],post:['cutting_plans 생성 완료','cutting_plan_bands 밴드별 등록'],roles:{exec:['TECHNICIAN'],approve:['P_MANAGER']},exc:['원단 부족 → WH 긴급 입고 요청','마커 효율 미달 → 마커 재설계']},
+
+'CUT-T02':{proc:'CUT',act:'CUT-A01',name:'LOT 색상 그룹 편성',isa95:'Level 3 — MaterialLot Allocation',harness:[],trigger:'CUT-T01 완료',prev:['CUT-T01'],next:['CUT-T04'],pre:['cutting_plans 생성 완료'],inDocs:['PN 시트 (LOT-색상-롤 배정표)'],reads:[{t:'cutting_plans',c:['plan_no','fabric_type'],why:'재단 계획 참조'},{t:'rolls',c:['lot_code','length_m','inspection_status'],why:'롤 배정 대상 조회'}],steps:['색상별 필요 수량 계산','롤 품질·길이 기준 그룹 배정','lot_color_groups 생성 (색상별 그룹)','lot_color_group_rolls M:N 연결 등록','롤 current_zone = CUT_STAGING 업데이트'],writes:[{t:'lot_color_groups',op:'C',c:['cutting_plan_id','group_name','lot_no','color','total_length_y'],why:'색상별 LOT 그룹'},{t:'lot_color_group_rolls',op:'C',c:['lot_color_group_id','roll_id','sequence','allocated_length_y'],why:'롤-그룹 M:N 매핑'},{t:'rolls',op:'U',c:['current_zone'],why:'롤 현재 위치 CUT으로 변경'}],outDocs:[],vals:[{lvl:'E',rule:'같은 roll_id 중복 배정 불가'},{lvl:'W',rule:'allocated_length_y 합계 > 그룹 필요 길이 검토'}],post:['lot_color_group_rolls 완성','rolls.current_zone = CUT_STAGING'],roles:{exec:['CUT_SUPERVISOR'],approve:[]},exc:['롤 품질 등급 혼재 → 동일 그룹 배정 금지']},
+
+'CUT-T03':{proc:'CUT',act:'CUT-A01',name:'일일 재단 요청 접수',isa95:'Level 3 — ProductionRequest (Daily)',harness:[],trigger:'봉제라인 일일 생산 계획 확정 (매일 오전)',prev:['CUT-T01'],next:['CUT-T04'],pre:['line_production_plans 확정'],inDocs:['일일 재단 요청서'],reads:[{t:'work_orders',c:['wo_no','planned_qty'],why:'작업 지시 현황'},{t:'bundles',c:['current_zone'],why:'현재 WIP 수량 계산'},{t:'cutting_plans',c:['total_planned_qty'],why:'계획 대비 실적'}],steps:['봉제라인별 당일 필요 수량 집계','WIP 재고 차감 후 실제 요청 수량 산정','daily_cutting_requests 등록','재단팀 확인 후 commitment_qty 기록'],writes:[{t:'daily_cutting_requests',op:'C',c:['request_date','line_no','buyer_id','style_code','color','wip_qty','commitment_qty','request_qty'],why:'일일 재단 요청 등록'}],outDocs:['재단 요청서 (일별)'],vals:[{lvl:'W',rule:'request_qty > 당일 재단 능력 → 조정 필요'},{lvl:'I',rule:'commitment_qty < request_qty → 부족분 알림'}],post:['daily_cutting_requests 등록','재단팀 commitment 확인'],roles:{exec:['LINE_STAT'],approve:['CUT_SUPERVISOR']},exc:['급성 요청 증가 → 긴급 추가 재단 편성']},
+
+'CUT-T04':{proc:'CUT',act:'CUT-A02',name:'연신 작업 실시',isa95:'Level 3 — WorkResponse (Spreading)',harness:[],trigger:'CUT-T02 LOT 편성 완료 + CUT-T03 요청 접수',prev:['CUT-T02','CUT-T03'],next:['CUT-T05'],pre:['lot_color_group_rolls 완성','daily_cutting_requests.commitment_qty > 0'],inDocs:['재단 계획서 밴드 명세'],reads:[{t:'cutting_plan_bands',c:['band_no','ply_count','marker_length_y'],why:'밴드별 연신 기준'},{t:'lot_color_group_rolls',c:['roll_id','allocated_length_y'],why:'배정 롤 목록'},{t:'rolls',c:['length_m','lot_code'],why:'실제 롤 정보'}],steps:['연신 시작 시각 기록','롤별 선단 손실(head_waste_y) 측정','실제 사용 길이(actual_usage_y) 기록','연신 종료 시각 기록','마커 효율 계산 (실제 vs 계획)','롤별 spreading_report_rolls 라인 기록'],writes:[{t:'spreading_reports',op:'C',c:['cutting_plan_id','band_no','spread_start_at','spread_end_at','marker_efficiency_pct','spreader_id'],why:'연신 보고서 헤더'},{t:'spreading_report_rolls',op:'C',c:['spreading_report_id','roll_id','head_waste_y','actual_usage_y','post_cut_variance_y'],why:'롤별 실제 소비량'}],outDocs:['Spreading Report'],vals:[{lvl:'W',rule:'actual_usage_y > allocated_length_y+5% → 초과 알림'},{lvl:'W',rule:'마커 효율 < 80% → 재단팀장 확인'},{lvl:'I',rule:'선단 손실 > 기준값 → 개선 검토'}],post:['spreading_reports + rolls 기록 완료','실제 소비량 추적'],roles:{exec:['CUT_WORKER'],approve:['CUT_SUPERVISOR']},exc:['롤 불량 발견 → 롤 교체','연신 중단 → 재개 후 시각 합산']},
+
+'CUT-T05':{proc:'CUT',act:'CUT-A02',name:'Bundle 생성 및 라벨 출력',isa95:'Level 3 — MaterialLot (Bundle) Creation',harness:['H-SC-01','H-PRINT-01'],trigger:'CUT-T04 연신 완료 후 재단 완료',prev:['CUT-T04'],next:['CUT-T06','CUT-T07'],pre:['spreading_reports 완료','work_orders.status = IN_PROGRESS'],inDocs:[],reads:[{t:'work_orders',c:['wo_no','planned_qty','export_country'],why:'작업 지시 기준'},{t:'rolls',c:['roll_no','lot_code'],why:'원단 롤 추적'},{t:'cutting_plan_bands',c:['band_no','total_qty'],why:'밴드별 수량'}],steps:['번들별 global_seq GENERATED로 자동 채번 (H-SC-01: Race Condition 방어)','번들 정보 INSERT (색상·사이즈·밴드·수량)','번들 바코드 라벨 출력 요청 (H-PRINT-01: 중복 차단)','print_log 생성','bundles.current_zone = CUT_DONE 업데이트'],writes:[{t:'bundles',op:'C',c:['global_seq','work_order_id','roll_id','cutting_plan_id','band_no','cut_qty','export_country','current_zone'],why:'번들 마스터 생성'},{t:'print_log',op:'C',c:['bundle_id','label_type','status','printed_by'],why:'라벨 출력 기록 (H-PRINT-01)'}],outDocs:['번들 바코드 라벨'],vals:[{lvl:'E',rule:'H-SC-01: global_seq GENERATED ALWAYS — 중복 불가'},{lvl:'E',rule:'H-PRINT-01: 동일 bundle_id 중복 출력 차단'},{lvl:'E',rule:'cut_qty > 0'},{lvl:'W',rule:'번들 합계 수량 > work_orders.planned_qty+3% → 경고'}],post:['bundles 생성 완료','라벨 출력 완료','current_zone = CUT_DONE'],roles:{exec:['CUT_WORKER'],approve:['CUT_SUPERVISOR']},exc:['라벨 프린터 장애 → 수동 라벨 + print_log 수동 기록','번들 수량 오류 → 재재단 또는 취소']},
+
+'CUT-T06':{proc:'CUT',act:'CUT-A03',name:'인쇄·자수 외주 출고',isa95:'Level 3 — MaterialMovement (Subcontractor)',harness:[],trigger:'CUT-T05 완료 (인쇄/자수 필요 스타일)',prev:['CUT-T05'],next:['CUT-T07'],pre:['bundles.current_zone = CUT_DONE','해당 스타일에 인쇄·자수 공정 필요'],inDocs:['외주 의뢰서'],reads:[{t:'bundles',c:['global_seq','cut_qty','band_no'],why:'출고 번들 확인'},{t:'subcontractors',c:['vendor_name','process_type'],why:'외주처 정보'}],steps:['외주 업체별 송출 수량 집계','print_emb_shipments 생성','번들 current_zone = SUBCON_OUT으로 업데이트','lot_transfers 생성 (이관 이력)'],writes:[{t:'print_emb_shipments',op:'C',c:['style_code','color','subcontractor_id','process_type','destination_factory'],why:'외주 출고 기록'},{t:'bundles',op:'U',c:['current_zone'],why:'번들 위치 외주 출고로 변경'},{t:'lot_transfers',op:'C',c:['bundle_id','from_zone','to_zone','is_current'],why:'이관 이력 기록'}],outDocs:['외주 인도서'],vals:[{lvl:'E',rule:'미등록 외주처 사용 불가'},{lvl:'W',rule:'외주 기간 > 5일 → 납기 위험 알림'}],post:['print_emb_shipments 기록','bundles.current_zone = SUBCON_OUT'],roles:{exec:['CUT_SUPERVISOR'],approve:['P_MANAGER']},exc:['외주처 수령 거부 → 대체 업체 탐색','외주 반납 지연 → 봉제 투입 일정 조정']},
+
+'CUT-T07':{proc:'CUT',act:'CUT-A03',name:'봉제라인 재단물 인도',isa95:'Level 3 — MaterialMovement (Cut-to-Sewing)',harness:['H-SCAN-01'],trigger:'CUT-T05 or CUT-T06(외주 반납) 완료',prev:['CUT-T05','CUT-T06'],next:['SEW-T04'],pre:['bundles.current_zone = CUT_DONE or SUBCON_IN'],inDocs:['BIÊN BẢN GIAO NHẬN BTP (재단→봉제 인도서)'],reads:[{t:'bundles',c:['global_seq','cut_qty','band_no','current_zone'],why:'인도 번들 목록'},{t:'buyers',c:['buyer_code'],why:'바이어 기준'},{t:'workers',c:['employee_no'],why:'인도자·수령자 확인'},{t:'cutting_plans',c:['plan_no'],why:'계획 연결'}],steps:['인도 번들 목록 확인 및 색상·사이즈별 수량 명세 작성','cut_to_line_deliveries 헤더 생성','cut_to_line_delivery_lines 라인 등록 (색상별·사이즈별)','번들 바코드 스캔 → lot_transfers 생성 (H-SCAN-01)','bundles.current_zone = SEW_PENDING 업데이트','4중 서명 완료'],writes:[{t:'cut_to_line_deliveries',op:'C',c:['delivery_date','cutting_plan_id','buyer_id','sewing_line_no','deliverer_id','receiver_id'],why:'재단 인도서 헤더'},{t:'cut_to_line_delivery_lines',op:'C',c:['delivery_id','color','size_code','qty'],why:'색상·사이즈별 수량'},{t:'lot_transfers',op:'C',c:['bundle_id','from_zone','to_zone','trolley_no','is_current'],why:'공정 이관 기록 (H-SCAN-01)'},{t:'bundles',op:'U',c:['current_zone'],why:'번들 위치 봉제 대기로 변경'}],outDocs:['재단→봉제 인도서 (4중 서명)'],vals:[{lvl:'E',rule:'H-SCAN-01: 인도 수량 ≠ 번들 수량 → 차단'},{lvl:'E',rule:'QC FAILED 번들 인도 차단'},{lvl:'W',rule:'인도서 서명 미완료 시 경고'}],post:['cut_to_line_deliveries + lines 완료','bundles.current_zone = SEW_PENDING','lot_transfers 3-way matching 준비'],roles:{exec:['CUT_SUPERVISOR'],approve:['SEW_SUPERVISOR']},exc:['수량 불일치 → 현장 재확인 + 서류 수정','봉제라인 수령 거부 → 보관 후 재조율']},
+
+'CUT-T08':{proc:'CUT',act:'CUT-A03',name:'일일 재단 실적 보고',isa95:'Level 3 — ProductionPerformance (Cutting Daily)',harness:[],trigger:'매일 근무 종료',prev:['CUT-T07'],next:[],pre:['당일 재단 및 인도 완료'],inDocs:[],reads:[{t:'bundles',c:['cut_qty','current_zone'],why:'당일 재단 수량 집계'},{t:'cutting_plans',c:['plan_no','total_planned_qty'],why:'계획 대비 실적'},{t:'daily_cutting_requests',c:['request_qty','commitment_qty'],why:'요청 대비 실적'}],steps:['당일 재단 수량 집계 (cutting_plans 기준)','당일 라인 인도 수량 집계','누계 vs 잔량 계산','daily_cutting_reports 생성'],writes:[{t:'daily_cutting_reports',op:'C',c:['report_date','factory_id','cutting_plan_id','line_no','buyer_id','cutting_today','loading_today'],why:'일일 재단 실적 보고'}],outDocs:['Daily Cutting Report'],vals:[{lvl:'W',rule:'loading_today < cutting_today × 0.9 → 인도 지연 알림'}],post:['daily_cutting_reports 완료'],roles:{exec:['CUT_SUPERVISOR'],approve:['P_MANAGER']},exc:['데이터 집계 오류 → 수동 검토']},
+
+'SEW-T01':{proc:'SEW',act:'SEW-A01',name:'PP 체크리스트 완료 확인',isa95:'Level 3 — ProductionRequest Preparation',harness:[],trigger:'라인 시작 최소 2일 전 (관리자 확인)',prev:['CUT-T01'],next:['SEW-T02','SEW-T03'],pre:['line_production_plans 확정','work_orders.status = SCHEDULED'],inDocs:['PP 회의록','샘플 치수표','컬러 스탠다드'],reads:[{t:'line_production_plans',c:['pp_meeting_date','manpower','daily_target_qty'],why:'계획 기준'},{t:'work_orders',c:['wo_no','pp_meeting_date'],why:'작업 지시 기준'},{t:'cutting_plans',c:['total_planned_qty'],why:'재단 현황 확인 (CWS)'}],steps:['10개 준비 항목 순서대로 점검 (ZJD-PRODUCTION-FM-01)','1) 문서·자재 정보 확인','2) 패턴·그레이딩 준비','3) 대조 샘플 제작 여부','4) 대조 샘플 치수표 확인','5) 컬러 스탠다드 확인','6) PP 회의 완료','7) 패턴 수정 사항 반영','8) 라인 설계 SMV 차트','9) 특수 지그·기계 준비','10) 재단·인쇄·자수 CWS 현황','pp_checklists 생성'],writes:[{t:'pp_checklists',op:'C',c:['plan_id','work_order_id','pp_meeting_done','pattern_done','cutting_status','check_date'],why:'PP 체크리스트 기록 (10개 항목)'}],outDocs:['ZJD-PRODUCTION-FM-01 완료 보고서'],vals:[{lvl:'E',rule:'PP 회의 미완료 시 라인 시작 차단'},{lvl:'E',rule:'재단 수량 부족 시 차단 (CWS)'},{lvl:'W',rule:'패턴 수정 미적용 → 기술팀 확인'}],post:['pp_checklists 완료','라인 시작 승인'],roles:{exec:['TECHNICIAN'],approve:['P_MANAGER']},exc:['미완료 항목 → 공장장 특별 승인 시 조건부 시작']},
+
+'SEW-T02':{proc:'SEW',act:'SEW-A01',name:'공정 배치 설계 (Line Balance)',isa95:'Level 3 — WorkMaster (Line Balance Design)',harness:[],trigger:'SEW-T01 체크리스트 완료',prev:['SEW-T01'],next:['SEW-T06'],pre:['pp_checklists 완료'],inDocs:['PROCESS LAYOUT SHEET','QT (공정 기준서)'],reads:[{t:'sam_master',c:['sam_minutes','sewing_time_sec','auxiliary_time_sec'],why:'표준 시간 참조'},{t:'work_orders',c:['manpower','composite_line'],why:'투입 인원 기준'},{t:'workers',c:['skill_grade','role'],why:'작업자 숙련도 매핑'}],steps:['전체 공정 목록 작성 및 SAM 배분','process_layouts 생성 (라인 배치 헤더)','공정별 작업자 배정 (숙련도 매칭)','기계 유형 매핑 (1k/Vs/Bartack 등)','process_layout_operations 생성 (공정별 라인)'],writes:[{t:'process_layouts',op:'C',c:['work_order_id','line_no','style_code','total_smv_seconds','worker_count'],why:'라인 배치 설계 헤더'},{t:'process_layout_operations',op:'C',c:['layout_id','sam_master_id','stt','operation_name_en','smv_seconds','assigned_worker_id'],why:'공정별 배치 라인'}],outDocs:['PROCESS LAYOUT SHEET (확정판)'],vals:[{lvl:'W',rule:'총 SMV > work_orders.effective_smv+5% → 라인 재설계'},{lvl:'W',rule:'특정 작업자 SMV 과부하 > 1.3 → 재배분'}],post:['process_layouts + operations 완료','라인 배치 확정'],roles:{exec:['TECHNICIAN'],approve:['P_MANAGER']},exc:['특정 기계 고장 → 대체 공정 설계','숙련 작업자 부재 → 교육 후 배정']},
+
+'SEW-T03':{proc:'SEW',act:'SEW-A01',name:'런데이별 목표 설정 (Ramp-up 곡선)',isa95:'Level 3 — ProductionSchedule (Ramp-up Curve)',harness:[],trigger:'line_production_plans 확정',prev:['SEW-T01'],next:['SEW-T07'],pre:['line_production_plans 확정'],inDocs:['PRODUCTION PLAN (KẾ HOẠCH SẢN XUẤT)'],reads:[{t:'line_production_plans',c:['daily_target_qty','manpower'],why:'계획 기준 목표'},{t:'sam_master',c:['sam_minutes'],why:'SMV 기준'}],steps:['학습 곡선 효율 설정 (Day1=30% → Day22=130%)','런데이별 목표 수량 계산','급여 등급 매핑 (Ms → M10)','line_plan_rampup_days 생성 (22일치)'],writes:[{t:'line_plan_rampup_days',op:'C',c:['plan_id','run_day','efficiency_pct','target_qty','salary_grade'],why:'런데이별 효율 목표 (22개 행)'}],outDocs:[],vals:[{lvl:'W',rule:'Day1 목표가 30% 미만 또는 30% 초과 → 비현실 경고'},{lvl:'I',rule:'22일 합계 목표 ≈ work_orders.planned_qty 검증'}],post:['22일치 런데이 목표 완료','급여 등급 연동 완료'],roles:{exec:['TECHNICIAN'],approve:[]},exc:['오더 수량 변경 → 목표 재산정']},
+
+'SEW-T04':{proc:'SEW',act:'SEW-A02',name:'재단 BTP 수령 기록',isa95:'Level 3 — MaterialLot Reception (Sewing Side)',harness:[],trigger:'봉제라인에 재단물 도착 (CUT-T07 인도서 동반)',prev:['CUT-T07'],next:['SEW-T06'],pre:['cut_to_line_deliveries 생성 완료','bundles.current_zone = SEW_PENDING'],inDocs:['재단→봉제 인도서 (사본)'],reads:[{t:'cut_to_line_deliveries',c:['delivery_date','sewing_line_no'],why:'인도서 기준'},{t:'cut_to_line_delivery_lines',c:['color','size_code','qty'],why:'수령 수량 기준'},{t:'bundles',c:['cut_qty','band_no'],why:'번들 정보 확인'}],steps:['재단 인도서 수령 및 수량 확인','날짜·스타일·밴드·사이즈별 수령 수량 기록','라인 투입 수량 vs 잔여 수량 분리','btp_receiving_log 생성 (수신자 관점)'],writes:[{t:'btp_receiving_log',op:'C',c:['log_date','line_no','style_code','band_no','received_qty','issued_to_line_qty','remaining_qty'],why:'BTP 수령 로그 (수신자 관점)'}],outDocs:['SỔ THEO DÕI NHẬN BTP (수령 로그북)'],vals:[{lvl:'E',rule:'received_qty ≠ delivery_lines 합계 → 3-way 불일치 알림'},{lvl:'W',rule:'remaining_qty > 0 → 미투입 번들 대기 알림'}],post:['btp_receiving_log 완료','3-way 수량 검증 완료 (CUT 인도서 / MES 이관 / SEW 수령)'],roles:{exec:['LINE_STAT'],approve:['SEW_SUPERVISOR']},exc:['수량 불일치 → CUT팀 + 봉제팀 현장 재확인','일부 밴드 미도착 → 부분 투입 기록']},
+
+'SEW-T05':{proc:'SEW',act:'SEW-A02',name:'부자재 라인 전달 (창고→라인)',isa95:'Level 3 — MaterialMovement (WH to Sewing Line)',harness:[],trigger:'생산 시작 전 (WH 출고 전표 발행 완료 후)',prev:['WH-T06'],next:['SEW-T06'],pre:['issue_vouchers 발행 완료','trims 재고 충분'],inDocs:['PHIẾU GIAO NHẬN PHỤ LIỆU (QT.TKGN-01)'],reads:[{t:'trims',c:['qty_on_hand','material_id'],why:'부자재 재고 확인'},{t:'issue_vouchers',c:['voucher_no'],why:'출고 전표 참조'},{t:'material_master',c:['material_name','unit'],why:'부자재 명세'}],steps:['출고 전표(issue_vouchers) 기준 확인','부자재 라인 배달 실시','accessories_to_line_deliveries 헤더 생성 (issue_voucher_id 연결)','부자재별 accessories_to_line_delivery_lines 라인 등록','3자 서명 완료'],writes:[{t:'accessories_to_line_deliveries',op:'C',c:['delivery_date','to_line_no','buyer_id','issue_voucher_id','season','deliverer_id'],why:'부자재 전달 헤더 (운영·회계 연동)'},{t:'accessories_to_line_delivery_lines',op:'C',c:['delivery_id','material_id','color','size_code','qty','unit','weight_kg'],why:'부자재별 수량 라인'}],outDocs:['PHIẾU GIAO NHẬN PHỤ LIỆU (3자 서명)'],vals:[{lvl:'E',rule:'issue_voucher_id 없이 배달 차단 (회계 연동 필수)'},{lvl:'W',rule:'전달 수량 > 계획 수량+5% → 과다 배달 경고'}],post:['accessories_to_line_deliveries + lines 완료','운영·회계 연동 (OPT: issue_voucher FK)'],roles:{exec:['WAREHOUSE'],approve:['LINE_STAT']},exc:['부자재 불량 → 반품 + 긴급 재조달']},
+
+'SEW-T06':{proc:'SEW',act:'SEW-A03',name:'번들 스캔 및 공정 이관',isa95:'Level 3 — WorkResponse (Production Tracking)',harness:['H-SCAN-01'],trigger:'공정 완료 시점 (번들 공정 통과 후 스캔)',prev:['SEW-T04'],next:['SEW-T07','SEW-T08'],pre:['bundles.current_zone = SEW_PENDING or 이전 공정'],inDocs:[],reads:[{t:'bundles',c:['global_seq','work_order_id','current_zone'],why:'번들 현재 위치'},{t:'work_orders',c:['wo_no','line_no'],why:'작업 지시 확인'}],steps:['번들 바코드 스캔 (핸드헬드 또는 고정 스캐너)','스캔 시각 기록','lot_transfers INSERT (H-SCAN-01: from_zone → to_zone)','이전 lot_transfers.is_current = FALSE 업데이트','bundles.current_zone 업데이트 (OPT-05 비정규화)'],writes:[{t:'lot_transfers',op:'C',c:['bundle_id','from_zone','to_zone','is_current'],why:'공정 이관 기록 (H-SCAN-01)'},{t:'lot_transfers',op:'U',c:['is_current'],why:'이전 이관 기록 비활성화'},{t:'bundles',op:'U',c:['current_zone','status'],why:'번들 현재 위치 비정규화 (OPT-05: Partial Index 활용)'}],outDocs:[],vals:[{lvl:'E',rule:'H-SCAN-01: 동시 스캔 잠금 (Race Condition 방어)'},{lvl:'E',rule:'공정 순서 위반 검사'},{lvl:'W',rule:'번들 체류 시간 > 기준 → 병목 알림'}],post:['lot_transfers 기록 완료','bundles.current_zone 최신화'],roles:{exec:['SEW_WORKER'],approve:[]},exc:['스캐너 장애 → 수동 입력 대체','번들 손상 → qc_inspections 생성']},
+
+'SEW-T07':{proc:'SEW',act:'SEW-A03',name:'시간별 생산량 입력',isa95:'Level 3 — ProductionPerformance (Hourly)',harness:[],trigger:'매 시간 마감 (7:30~20:30, 총 9개 슬롯)',prev:['SEW-T06'],next:['SEW-T08'],pre:['work_orders.status = IN_PROGRESS'],inDocs:['시간별 수기 생산 기록'],reads:[{t:'work_orders',c:['wo_no','daily_target_qty'],why:'시간별 목표 기준'},{t:'line_plan_rampup_days',c:['target_qty','efficiency_pct'],why:'런데이 목표 대비'}],steps:['시간대별 완성 수량 집계','hourly_production_entries INSERT (시각 + 수량)','목표 대비 달성률 계산','라인 조장 확인'],writes:[{t:'hourly_production_entries',op:'C',c:['work_order_id','hour_slot','actual_qty','entered_by'],why:'시간별 생산량 기록'}],outDocs:[],vals:[{lvl:'E',rule:'hour_slot UNIQUE — 중복 방지'},{lvl:'W',rule:'actual_qty < 시간 목표 × 0.7 → 라인 조장 알림'}],post:['hourly_production_entries 기록','실시간 생산 현황 갱신'],roles:{exec:['LINE_STAT'],approve:[]},exc:['시간 집계 누락 → 소급 입력 허용 (entered_by 기록 필수)']},
+
+'SEW-T08':{proc:'SEW',act:'SEW-A03',name:'봉제 출력 기록',isa95:'Level 3 — ProductionResponse',harness:['H-RT-01'],trigger:'SEW-T07 완료 or 번들 완성 스캔',prev:['SEW-T07'],next:['SEW-T09','SEW-T10'],pre:['hourly_production_entries 기록 완료 or 번들 스캔'],inDocs:[],reads:[{t:'work_orders',c:['wo_no','planned_qty'],why:'WO 연결'},{t:'bundles',c:['global_seq','cut_qty'],why:'번들 기준 수량'}],steps:['완성 번들 수량 집계','data_source 구분 (SCAN or MANUAL)','sewing_outputs INSERT'],writes:[{t:'sewing_outputs',op:'C',c:['work_order_id','bundle_id','qty','data_source','output_at','line_no'],why:'봉제 실적 기록 (H-RT-01)'}],outDocs:[],vals:[{lvl:'W',rule:'H-RT-01: 같은 bundle_id 중복 출력 경고'},{lvl:'E',rule:'qty > bundles.cut_qty → 수량 초과 차단'}],post:['sewing_outputs 기록','봉제 실적 반영'],roles:{exec:['LINE_STAT'],approve:[]},exc:['번들 미스캔 → 수동 보정 (data_source=MANUAL)']},
+
+'SEW-T09':{proc:'SEW',act:'SEW-A04',name:'라인 출구 QC 검사 (Endline)',isa95:'Level 3 — QualityTest (Endline, Time-based)',harness:[],trigger:'시간대별 (7:30~20:30, 9개 슬롯) 정기 검사',prev:['SEW-T08'],next:['SEW-T10','SEW-T11'],pre:['sewing_outputs 기록 완료','defect_codes 등록 완료'],inDocs:['DAILY INSPECTION REPORT 양식'],reads:[{t:'work_orders',c:['wo_no','line_no'],why:'WO 기준'},{t:'defect_codes',c:['code','name_vn'],why:'결함 유형 코드 (16종)'},{t:'buyer_qc_standards',c:['dhu_limit'],why:'바이어별 불량률 기준 (2%)'}],steps:['시간대별 검사 수량 샘플링','16종 결함 유형별 개수 확인','endline_qc_reports INSERT (시간대별)','결함-작업자 매핑 → endline_defect_workers INSERT (Root Cause)','불량률 계산 (결함수/검사수)','2% 기준 초과 시 라인 조장 즉시 알림'],writes:[{t:'endline_qc_reports',op:'C',c:['report_date','work_order_id','line_no','time_slot','produced_qty','passed_qty','defect_qty','defect_rate_pct'],why:'시간대별 QC 보고서'},{t:'endline_defect_workers',op:'C',c:['report_id','worker_id','defect_code','defect_location','defect_count'],why:'결함-작업자 매핑 (Root Cause 분석)'}],outDocs:['DAILY INSPECTION REPORT (5단계 서명)'],vals:[{lvl:'W',rule:'defect_rate_pct > 2% → 라인 조장 즉시 알림'},{lvl:'E',rule:'defect_rate_pct > 5% → 생산 일시 중단 권고'}],post:['endline_qc_reports + defect_workers 완료','실시간 불량률 모니터링'],roles:{exec:['QC'],approve:['QC_MANAGER','P_MANAGER','FACTORY_DIRECTOR']},exc:['결함 급증 시 → 공정 역추적 + 해당 작업자 교육','검사 누락 → 소급 입력']},
+
+'SEW-T10':{proc:'SEW',act:'SEW-A04',name:'Bundle QC 검사',isa95:'Level 3 — QualityTest (Bundle-level, H-QC-01/MFZ)',harness:['H-QC-01','H-MFZ-01'],trigger:'번들 QC 검사 지점 도착',prev:['SEW-T09'],next:['SEW-T11'],pre:['bundles.current_zone = QC_POINT','buyer_qc_standards 설정 완료'],inDocs:[],reads:[{t:'bundles',c:['global_seq','cut_qty'],why:'번들 수량 기준'},{t:'work_orders',c:['wo_no'],why:'WO 참조'},{t:'buyer_qc_standards',c:['dhu_limit','aql_level','mfz_required'],why:'바이어별 검사 기준'},{t:'defect_codes',c:['code','category'],why:'결함 코드 참조'}],steps:['AQL 기준 샘플 수 결정','샘플 검사 실시 (봉제 결함 유형별)','DHU 계산 (총 결함 수 / 검사 수 × 100)','mfz_required=TRUE → 금속 탐지기 통과 확인 (H-MFZ-01)','qc_inspections INSERT','불량별 defects INSERT','H-QC-01: DHU > 기준 → FAIL + 번들 이관 차단'],writes:[{t:'qc_inspections',op:'C',c:['bundle_id','work_order_id','inspection_type','inspect_qty','mfz_inspected','result'],why:'QC 검사 기록'},{t:'defects',op:'C',c:['inspection_id','defect_code','worker_id','defect_location','count','is_rework'],why:'불량 상세 기록 (defect_codes FK 연결)'}],outDocs:[],vals:[{lvl:'E',rule:'H-QC-01: DHU > buyer_qc_standards.dhu_limit → 번들 이관 차단'},{lvl:'E',rule:'H-MFZ-01: mfz_required=TRUE & mfz_inspected=FALSE → 출하 차단'},{lvl:'W',rule:'재작업(is_rework) 비율 > 10% → 공정 개선 권고'}],post:['qc_inspections + defects 완료','PASS 번들만 완성부 이관 가능'],roles:{exec:['QC'],approve:['QC_MANAGER']},exc:['FAIL → 재작업 후 재검사','금속 검출 → FIN-T03에서 별도 추적']},
+
+'SEW-T11':{proc:'SEW',act:'SEW-A04',name:'합격 수량 창고 입고 기록',isa95:'Level 3 — ProductionResponse (Pass Record)',harness:[],trigger:'SEW-T10 PASS 판정',prev:['SEW-T10'],next:['FIN-T01'],pre:['qc_inspections.result = PASS'],inDocs:[],reads:[{t:'qc_inspections',c:['inspect_qty','result'],why:'합격 수량 기준'},{t:'work_orders',c:['wo_no'],why:'WO 연결'},{t:'buyers',c:['buyer_code'],why:'바이어 기준'}],steps:['QC 합격 수량 집계 (사이즈별)','dept_type 결정 (QC부 or 완성부 HT)','passed_garment_records INSERT','누계 합격 수량 업데이트','bundles.current_zone = FIN_PENDING 업데이트'],writes:[{t:'passed_garment_records',op:'C',c:['record_date','work_order_id','buyer_id','po_no','dept_type','daily_pass_qty','cumulative_pass_qty'],why:'합격 수량 공식 기록 (QT.QCBM7-49)'},{t:'bundles',op:'U',c:['current_zone'],why:'번들 완성부 이관 준비'}],outDocs:['PASSED GARMENT RECORD (서명)'],vals:[{lvl:'E',rule:'FAIL 번들 입고 기록 불가'},{lvl:'W',rule:'cumulative_pass_qty > work_orders.planned_qty → 초과 알림'}],post:['passed_garment_records 완료','bundles → FIN_PENDING'],roles:{exec:['QC'],approve:['FINISHING_SUPERVISOR']},exc:['조건부 합격 → 재작업 조건 부기']},
+
+'SEW-T12':{proc:'SEW',act:'SEW-A05',name:'날카로운 도구 불출/반납',isa95:'Level 3 — EquipmentTracking (Safety Compliance)',harness:[],trigger:'교대 시작/종료 (베트남 노동법 규정)',prev:[],next:[],pre:['베트남 노동법 규정 준수 필요 (QT.HTBM8-07)'],inDocs:['HỒ SƠ QUẢN LÝ VẬT SẮC NHỌN (도구 관리 대장)'],reads:[{t:'workers',c:['employee_no','department'],why:'불출 대상 작업자 확인'}],steps:['교대 시작: 17종 도구 유형별 불출 수량 기록','불출 시각 기록','작업자 수령 서명','교대 종료: 반납 수량 기록','반납 시각 기록','FQA/PSS 담당자 서명'],writes:[{t:'sharp_tools_log',op:'C',c:['log_date','worker_id','tool_type','issued_qty','issue_time','return_time'],why:'도구 불출·반납 기록 (17종, 안전 규정)'}],outDocs:['도구 관리 대장 (서명 완료)'],vals:[{lvl:'E',rule:'미반납 도구 존재 → 교대 종료 차단'},{lvl:'W',rule:'불출 후 4시간 미반납 → 알림'}],post:['sharp_tools_log 완료','모든 도구 반납 확인'],roles:{exec:['FQA_PSS'],approve:[]},exc:['도구 분실 → 즉시 보고 + 수색','도구 파손 → 폐기 기록 + 보충']},
+
+'FIN-T01':{proc:'FIN',act:'FIN-A01',name:'택·라벨 검사 (Hangtag Inspection)',isa95:'Level 3 — QualityTest (Hangtag/Packaging)',harness:[],trigger:'봉제 합격품 완성부 수령 후',prev:['SEW-T11'],next:['FIN-T03'],pre:['bundles.current_zone = FIN_PENDING','defect_codes (PKG003/PKG022) 등록 완료'],inDocs:['BÁO CÁO KIỂM TRA THẺ BÀI 양식 (QT.QCBM7-21)'],reads:[{t:'buyers',c:['buyer_code'],why:'바이어 기준'},{t:'buyer_qc_standards',c:['hangtag_defect_target_pct'],why:'택 불량률 기준 (기본 2%)'},{t:'defect_codes',c:['code','name_vn'],why:'PKG003/PKG022 결함 코드 11종'}],steps:['시간대별(7:30~17:30, 9슬롯) 택·라벨 검사 실시','11종 결함 유형별 개수 확인','hangtag_inspections INSERT (시간대별)','hangtag_defects INSERT (결함 유형별 라인)','불량률 계산 (결함/검사 × 100)'],writes:[{t:'hangtag_inspections',op:'C',c:['inspection_date','buyer_id','style_code','time_slot','inspected_qty','pass_qty','defect_rate_pct'],why:'택 검사 헤더 (QT.QCBM7-21)'},{t:'hangtag_defects',op:'C',c:['inspection_id','time_slot','defect_code','defect_count'],why:'결함 유형별 라인'}],outDocs:['BÁO CÁO KIỂM TRA THẺ BÀI (4단계 서명)'],vals:[{lvl:'W',rule:'defect_rate_pct > 2% → 완성부 조장 알림'},{lvl:'E',rule:'Wrong PO / Wrong Style 발견 → 즉시 생산 중단 검토'}],post:['hangtag_inspections + defects 완료','부적합 라벨 재부착'],roles:{exec:['QA'],approve:['QA_DIRECTOR']},exc:['전수 불합격 → 라벨 전량 재부착 후 재검사']},
+
+'FIN-T02':{proc:'FIN',act:'FIN-A01',name:'금속 탐지기 교정 (9-POINT TEST)',isa95:'Level 3 — EquipmentCapabilityTest (Calibration)',harness:[],trigger:'일 4회 정기 (7h30 / 10h / 13h / 15h)',prev:[],next:['FIN-T03'],pre:['machines(METAL_DETECTOR) 등록 완료'],inDocs:['NEEDLE & FERROUS METAL DETECTOR CALIBRATION LOG'],reads:[{t:'machines',c:['machine_code','machine_type'],why:'금속 탐지기 조회'}],steps:['9-POINT TEST 그리드 (A1~A9) 순서대로 테스트','각 포인트 합격/불합격 기록','metal_detector_calibrations INSERT (9개 행 × 4회/일 = 최대 36개/일)','불합격 포인트 발생 시 기계 즉시 사용 중단'],writes:[{t:'metal_detector_calibrations',op:'C',c:['calibration_date','calibration_time','machine_id','buyer_id','test_point','test_result','operator_id'],why:'교정 로그 (9포인트 × 4회/일)'}],outDocs:['교정 로그 (서명)'],vals:[{lvl:'E',rule:'임의 포인트 FAIL → 해당 기계 즉시 사용 중단'},{lvl:'E',rule:'교정 주기 미준수 → 당일 검사 무효화'}],post:['교정 완료 기록','PASS 기계만 FIN-T03 진행 가능'],roles:{exec:['FIN_WORKER'],approve:['FINISHING_SUPERVISOR']},exc:['교정 FAIL → 기술팀 수리 + 재교정 후 재개']},
+
+'FIN-T03':{proc:'FIN',act:'FIN-A01',name:'금속 전수 검사 (Metal Detection)',isa95:'Level 3 — QualityTest (Metal Detection, 100% Scan)',harness:['H-MFZ-01'],trigger:'FIN-T02 9-POINT TEST 전수 PASS 확인 후',prev:['FIN-T02'],next:['FIN-T04'],pre:['metal_detector_calibrations 당일 PASS 완료','packing_lists 생성 완료'],inDocs:['NHẬT KÝ DÒ KIM LOẠI (QT.QCBM7-45)'],reads:[{t:'machines',c:['machine_code'],why:'교정된 기계 사용 확인'},{t:'packing_lists',c:['packing_list_no','po_no'],why:'PO 연결'},{t:'buyers',c:['buyer_code'],why:'바이어 기준'}],steps:['스타일·PO·색상별 전수 검사 실시','검사 수량 기록','금속 검출 시 이물질 종류 기록','metal_detection_logs INSERT (스타일별)'],writes:[{t:'metal_detection_logs',op:'C',c:['log_date','machine_id','packing_list_id','po_no','buyer_id','style_code','units_scanned','all_passed','failure_count'],why:'스타일별 전수 검사 로그 (QT.QCBM7-45)'}],outDocs:['금속 검사 로그 (서명)'],vals:[{lvl:'E',rule:'H-MFZ-01: all_passed=FALSE → 해당 박스 출하 차단'},{lvl:'E',rule:'교정 미완료 기계 사용 불가'}],post:['metal_detection_logs 완료','PASS 제품만 FIN-T04 진행'],roles:{exec:['FIN_WORKER'],approve:['FIN_MANAGER','P_MANAGER','FACTORY_DIRECTOR']},exc:['금속 검출 → 원인 추적 + 공정 피드백','교정 기간 초과 → 재교정 후 재개']},
+
+'FIN-T04':{proc:'FIN',act:'FIN-A01',name:'중량·수량 검사',isa95:'Level 3 — QualityTest (Weight/Quantity Verification)',harness:[],trigger:'FIN-T03 금속 전수 검사 PASS',prev:['FIN-T03'],next:['FIN-T05','FIN-T06'],pre:['metal_detection_logs.all_passed = TRUE'],inDocs:['BIÊN BẢN KIỂM TRA TRỌNG LƯỢNG-SỐ LƯỢNG'],reads:[{t:'packing_list_lines',c:['nw_kg','gw_kg','pcs_per_ctn'],why:'패킹리스트 기준 중량·수량'}],steps:['박스별 순중량(N.W.) 측정','박스별 총중량(G.W.) 측정','측정 완료 시각 및 출하 예정일 기록','weight_qty_inspections INSERT','박스별 carton_records INSERT (3열 병렬 레이아웃)'],writes:[{t:'weight_qty_inspections',op:'C',c:['style_code','po_no','measurement_completed_at','export_date','qc_inspector_id'],why:'중량 검사 헤더'},{t:'carton_records',op:'C',c:['inspection_id','packing_list_id','size_code','carton_no','qty_pcs','nw_kg','gw_kg'],why:'박스별 중량 기록 (통관 서류 연동)'}],outDocs:['중량·수량 검사서 (3자 서명)'],vals:[{lvl:'W',rule:'실측 N.W. vs 패킹리스트 N.W. 차이 > 0.5kg → 확인'},{lvl:'E',rule:'qty_pcs ≠ packing_list_lines.pcs_per_ctn → 수량 불일치'}],post:['carton_records 완료','통관 서류 연동 준비'],roles:{exec:['QC'],approve:['FINISHING_SUPERVISOR']},exc:['중량 초과 → 박스 재포장','수량 불일치 → 재확인']},
+
+'FIN-T05':{proc:'FIN',act:'FIN-A01',name:'박스 포장 검사 (Carton Packing)',isa95:'Level 3 — QualityTest (Carton Packing)',harness:[],trigger:'FIN-T04 중량 검사 완료',prev:['FIN-T04'],next:['FIN-T06'],pre:['carton_records 완료'],inDocs:['CARTON PACKING INSPECTION REPORT (문서07)'],reads:[{t:'buyers',c:['buyer_code'],why:'바이어별 포장 기준'},{t:'packing_lists',c:['dimension_cm'],why:'박스 규격 확인'}],steps:['박스 외관·봉인 상태 검사','라벨 부착 상태 확인','박스 규격 측정 (cm)','carton_packing_inspections INSERT'],writes:[{t:'carton_packing_inspections',op:'C',c:['inspection_date','buyer_id','style_code','po_no','carton_count_inspected','pass_count','defect_notes'],why:'박스 포장 검사 기록'}],outDocs:['박스 포장 검사서'],vals:[{lvl:'E',rule:'라벨 오부착 → 전량 재라벨링'},{lvl:'W',rule:'규격 불일치 > 1cm → 물류팀 확인'}],post:['carton_packing_inspections 완료','출하 준비 완료'],roles:{exec:['FIN_WORKER'],approve:['FINISHING_SUPERVISOR']},exc:['박스 파손 → 교체 포장','라벨 오류 → 전량 재작업']},
+
+'FIN-T06':{proc:'FIN',act:'FIN-A02',name:'패킹리스트 작성 (법정 수출 서류)',isa95:'Level 4 — ShipmentDocument (Legal Export)',harness:[],trigger:'FIN-T04, FIN-T05 검사 완료',prev:['FIN-T04','FIN-T05'],next:['FIN-T09'],pre:['carton_records 완료','carton_packing_inspections PASS'],inDocs:['carton_records 집계'],reads:[{t:'orders',c:['order_no','style_code','buyer_id'],why:'오더 기준'},{t:'carton_records',c:['carton_no','qty_pcs','nw_kg','gw_kg'],why:'실측 박스 데이터'},{t:'buyers',c:['buyer_name'],why:'수신처 정보'}],steps:['PO별 박스 수량·중량 집계','박스 번호 범위(ctn_from, ctn_to) 정리','ORDER QTY vs SHIPPING QTY 대조','OVER/SHORT % 계산','packing_lists 헤더 생성','packing_list_lines 라인 생성 (색상·박스 범위별)'],writes:[{t:'packing_lists',op:'C',c:['packing_list_no','order_id','po_no','destination_country','total_carton_count','hood_deadline_date'],why:'패킹리스트 헤더 (법정 수출 서류)'},{t:'packing_list_lines',op:'C',c:['packing_list_id','color_code','ctn_from','ctn_to','pcs_per_ctn','nw_kg','gw_kg','dimension_cm'],why:'박스 라인 명세'}],outDocs:['PACKING LIST (수출 통관 서류)'],vals:[{lvl:'E',rule:'SHIPPING QTY > ORDER QTY + 허용 오차 → 통관 문제'},{lvl:'W',rule:'SHORT % > 2% → 바이어 승인 필요'},{lvl:'I',rule:'N.W. 합계 vs carton_records 합계 대조'}],post:['packing_lists + lines 완료','수출 통관 서류 확정'],roles:{exec:['FINISHING_SUPERVISOR'],approve:['P_MANAGER']},exc:['수량 오차 → 바이어 승인 후 확정','중량 오류 → 재계량']},
+
+'FIN-T07':{proc:'FIN',act:'FIN-A03',name:'완성부 일일 실적 보고',isa95:'Level 3 — ProductionPerformance (Finishing Daily)',harness:[],trigger:'매일 근무 종료 후',prev:['FIN-T01','FIN-T06'],next:['FIN-T08'],pre:['당일 검사·포장 완료'],inDocs:[],reads:[{t:'passed_garment_records',c:['daily_pass_qty','cumulative_pass_qty'],why:'입고 기준'},{t:'shipment_lots',c:['shipped_qty'],why:'출하 기준'},{t:'orders',c:['total_qty'],why:'오더 대비 잔량'}],steps:['완성부 팀별 입고 수량 집계','Inhand / Balance / Shipped / Stock 집계','finishing_daily_reports INSERT (파티셔닝 적용)'],writes:[{t:'finishing_daily_reports',op:'C',c:['report_date','order_id','finishing_line_no','buyer_id','style_code','po_no','inhand_qty','shipped_qty','stock_qty'],why:'완성부 일일 실적 (RANGE 파티셔닝 적용)'}],outDocs:['DAILY PRODUCTION DATA'],vals:[{lvl:'W',rule:'stock_qty 음수 → 출하 초과 알림'},{lvl:'I',rule:'inhand_qty vs passed_garment_records 합계 대조'}],post:['finishing_daily_reports 완료','공장장 보고 데이터 확정'],roles:{exec:['FINISHING_SUPERVISOR'],approve:['P_MANAGER']},exc:['데이터 불일치 → SEW-T11 + FIN-T07 대조 후 수정']},
+
+'FIN-T08':{proc:'FIN',act:'FIN-A03',name:'완성부 월별 실적 정리',isa95:'Level 3 — ProductionPerformance (Finishing Monthly)',harness:[],trigger:'월말 마감',prev:['FIN-T07'],next:[],pre:['당월 finishing_daily_reports 완료'],inDocs:[],reads:[{t:'finishing_daily_reports',c:['inhand_qty','shipped_qty'],why:'일별 집계 기준'},{t:'shipment_lots',c:['lot_no','shipped_qty'],why:'출하 차수 집계'}],steps:['팀별 월 折包(gấp gói) 수량 집계','팀별 월 박스 포장(đóng thùng) 수량 집계','작업자별 일별 실적 정리','finishing_monthly_reports INSERT','worker_daily_finishing_output INSERT (작업자별 피스율 — 급여 기준)'],writes:[{t:'finishing_monthly_reports',op:'C',c:['year','month','finishing_team','buyer_id','style_code','total_folding_qty','total_boxing_qty'],why:'월별 팀별 집계'},{t:'worker_daily_finishing_output',op:'C',c:['report_date','monthly_report_id','worker_id','style_code','color','folding_qty','boxing_qty'],why:'작업자별 피스율 (임금 계산 근거)'}],outDocs:['TỔNG HỢP THÁNG (월별 실적)'],vals:[{lvl:'W',rule:'total_folding_qty ≠ total_boxing_qty → 편차 > 5% 경고'},{lvl:'I',rule:'worker_daily_finishing_output 합계 = total_folding_qty 검증'}],post:['finishing_monthly_reports + worker_output 완료','급여 계산 데이터 확정'],roles:{exec:['FINISHING_SUPERVISOR'],approve:['P_MANAGER']},exc:['누락 작업자 → 소급 입력']},
+
+'FIN-T09':{proc:'FIN',act:'FIN-A04',name:'출하 차수 관리 (L1~L4)',isa95:'Level 3 — MaterialMovement (Shipment Lot)',harness:[],trigger:'출하 확정 (부분 출하 L1→L4 순차)',prev:['FIN-T06'],next:[],pre:['packing_lists 완료','carton_packing_inspections PASS','metal_detection_logs.all_passed = TRUE'],inDocs:['출하 확정서'],reads:[{t:'packing_lists',c:['packing_list_no','total_carton_count'],why:'출하 대상 확인'},{t:'finishing_monthly_reports',c:['total_boxing_qty'],why:'월별 실적 연동'}],steps:['출하 차수(L1~L4) 결정','차수별 출하 수량·날짜 확정','shipment_lots INSERT','통관 서류 첨부 (packing_lists 연결)'],writes:[{t:'shipment_lots',op:'C',c:['monthly_report_id','packing_list_id','lot_no','shipment_date','shipped_qty'],why:'출하 차수 기록 (L1~L4)'}],outDocs:['출하 확인서 (차수별)'],vals:[{lvl:'E',rule:'H-MFZ-01 연동: 금속 검사 PASS 미확인 시 출하 차단'},{lvl:'E',rule:'packing_lists 미완성 시 차단'},{lvl:'W',rule:'누적 shipped_qty > order_qty → 과다 출하 경고'}],post:['shipment_lots 완료','출하 이력 확정'],roles:{exec:['FINISHING_SUPERVISOR'],approve:['P_MANAGER']},exc:['부분 출하 → 잔여 수량 다음 차수로 이월','통관 서류 오류 → 수정 후 재출하']},
+
+'FIN-T10':{proc:'FIN',act:'FIN-A04',name:'금속 검사 일별 요약 서명 잠금',isa95:'Level 3 — QualityTest Summary (Finalization)',harness:[],trigger:'당일 FIN-T03 전량 완료 후 마감',prev:['FIN-T03'],next:['FIN-T09'],pre:['당일 metal_detection_logs 완료'],inDocs:['BÁO CÁO TỔNG HỢP DÒ KIM LOẠI (QT.QCBM7-46)'],reads:[{t:'metal_detection_logs',c:['units_scanned','failure_count'],why:'일별 스타일별 집계'},{t:'buyers',c:['buyer_code'],why:'바이어별 요약'}],steps:['일별 스타일별 검사 수량 집계 (metal_detection_logs GROUP BY)','불합격 수량 집계','불합격률 계산 (failure/checked × 100)','metal_detection_summaries INSERT','4자 서명 완료 후 is_finalized = TRUE + finalized_at 기록'],writes:[{t:'metal_detection_summaries',op:'C',c:['summary_date','buyer_id','style_code','po_no','total_checked','total_rejected','reject_pct'],why:'일별 집계 요약 (QT.QCBM7-46)'},{t:'metal_detection_summaries',op:'U',c:['is_finalized','finalized_at'],why:'서명 완료 후 잠금 (OPT: is_finalized 추가)'}],outDocs:['SUMMARY OF METAL DETECTION REPORT (4자 서명)'],vals:[{lvl:'E',rule:'is_finalized=TRUE 후 수정 불가 (서명 잠금)'},{lvl:'W',rule:'reject_pct > 0% → 공정 역추적 필요'},{lvl:'I',rule:'total_checked = metal_detection_logs 집계와 대조'}],post:['metal_detection_summaries 잠금 완료','공식 QC 문서 확정'],roles:{exec:['FIN_MANAGER'],approve:['P_MANAGER','FACTORY_DIRECTOR']},exc:['잠금 후 오류 발견 → 관리자 특별 해제 + 감사 로그']},
+};
+
+// ═══ TABLE INDEX (CRUD Mapping) ══════════════════════════════════════
+function buildTableIndex(){
+  const idx={};
+  Object.entries(T).forEach(([tid,t])=>{
+    (t.reads||[]).forEach(r=>{if(!idx[r.t])idx[r.t]={};if(!idx[r.t][tid])idx[r.t][tid]={ops:[]};if(!idx[r.t][tid].ops.includes('R'))idx[r.t][tid].ops.push('R');});
+    (t.writes||[]).forEach(w=>{if(!idx[w.t])idx[w.t]={};if(!idx[w.t][tid])idx[w.t][tid]={ops:[]};const ops=w.op.split('/');ops.forEach(op=>{if(!idx[w.t][tid].ops.includes(op))idx[w.t][tid].ops.push(op);});});
+  });
+  return idx;
+}
+const TABLE_IDX=buildTableIndex();
+
+// ═══ UI LOGIC ════════════════════════════════════════════════════════
+let curTask=null, curView='task', curFilter='all', searchQ='';
+
+function getColor(proc){return PROC_COLOR[proc]||'#8B949E';}
+
+function renderNav(){
+  const nav=document.getElementById('sidenav');
+  nav.innerHTML='';
+  Object.entries(ACTIVITIES).forEach(([actId,act])=>{
+    if(curFilter!=='all'&&act.proc!==curFilter) return;
+    const tasks=act.tasks.filter(tid=>{
+      const t=T[tid];if(!t)return false;
+      if(searchQ){
+        const q=searchQ.toLowerCase();
+        if(!tid.toLowerCase().includes(q)&&!t.name.toLowerCase().includes(q)){
+          const tblMatch=(t.reads||[]).some(r=>r.t.toLowerCase().includes(q))||
+                         (t.writes||[]).some(w=>w.t.toLowerCase().includes(q));
+          if(!tblMatch) return false;
+        }
+      }
+      return true;
+    });
+    if(!tasks.length) return;
+    // proc header (only once per proc group)
+    const procId='proc-'+act.proc;
+    if(!nav.querySelector('#'+procId)){
+      const ph=document.createElement('div');
+      ph.className='proc-header open';ph.id=procId;
+      ph.innerHTML=`<div class="proc-dot" style="background:${getColor(act.proc)}"></div><span class="proc-title">${PROC_LABEL[act.proc]}</span><span class="proc-count" id="cnt-${act.proc}"></span><span class="proc-chevron">▶</span>`;
+      ph.onclick=()=>{ph.classList.toggle('open');const body=nav.querySelector('#body-'+act.proc);if(body)body.style.display=ph.classList.contains('open')?'':'none';};
+      nav.appendChild(ph);
+      const body=document.createElement('div');body.id='body-'+act.proc;nav.appendChild(body);
+    }
+    const body=nav.querySelector('#body-'+act.proc);
+    const as=document.createElement('div');as.className='act-section';
+    as.innerHTML=`<div class="act-label">${actId} · ${act.name}</div>`;
+    tasks.forEach(tid=>{
+      const t=T[tid];if(!t)return;
+      const hasH=t.harness&&t.harness.length;
+      const item=document.createElement('div');
+      item.className='task-item'+(curTask===tid?' active':'');
+      item.id='nav-'+tid;
+      item.style.borderLeft=curTask===tid?`3px solid ${getColor(t.proc)}`:'3px solid transparent';
+      if(curTask===tid) item.style.background=getColor(t.proc)+'22';
+      item.innerHTML=`<span class="tid" style="color:${getColor(t.proc)}">${tid}</span><span class="tname-nav">${t.name}</span>${hasH?`<span class="h-dot" title="${t.harness.join(', ')}"></span>`:''}`;
+      item.onclick=()=>selectTask(tid);
+      as.appendChild(item);
+    });
+    body.appendChild(as);
+  });
+  // update proc counts
+  Object.keys(PROC_COLOR).forEach(proc=>{
+    const el=nav.querySelector('#cnt-'+proc);
+    if(el) el.textContent=Object.values(T).filter(t=>t.proc===proc).length+'개';
+  });
+}
+
+function selectTask(tid){
+  curTask=tid;
+  setView('task');
+  renderNav();
+  renderTaskDetail(tid);
+}
+
+function renderTaskDetail(tid){
+  const t=T[tid];
+  if(!t){return;}
+  const c=getColor(t.proc);
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('tbl-index').style.display='none';
+  const tv=document.getElementById('task-view');
+  tv.style.display='block';
+
+  const readCnt=(t.reads||[]).length;
+  const writeCnt=(t.writes||[]).length;
+  const stepCnt=(t.steps||[]).length;
+  const valCnt=(t.vals||[]).length;
+
+  let html=`<div class="tv-header">
+<div class="tv-id-row">
+  <span class="tv-id" style="background:${c}">${tid}</span>
+  <span class="tv-isa">${t.isa95}</span>
+  ${(t.harness||[]).map(h=>`<span class="hbadge">🛡 ${h}</span>`).join('')}
+</div>
+<div class="tv-name">${t.name}</div>
+<div class="tv-trigger">🔔 트리거: <strong>${t.trigger}</strong></div>`;
+
+  // flow chips
+  html+=`<div class="flow-row">`;
+  if(t.prev&&t.prev.length){t.prev.forEach(p=>{html+=`<span class="flow-chip" onclick="selectTask('${p}')" title="${T[p]?.name||p}">${p}</span>`;});html+=`<span class="flow-arrow">→</span>`;}
+  html+=`<span class="flow-chip cur" style="background:${c};border-color:${c};color:#fff">${tid}</span>`;
+  if(t.next&&t.next.length){html+=`<span class="flow-arrow">→</span>`;t.next.forEach(n=>{html+=`<span class="flow-chip" onclick="selectTask('${n}')" title="${T[n]?.name||n}">${n}</span>`;});}
+  html+=`</div>`;
+
+  // quick stats
+  html+=`<div class="quick-stats">
+<div class="qs"><div class="qs-n" style="color:#58a6ff">${readCnt}</div><div class="qs-l">READ 테이블</div></div>
+<div class="qs"><div class="qs-n" style="color:#3fb950">${writeCnt}</div><div class="qs-l">WRITE 테이블</div></div>
+<div class="qs"><div class="qs-n" style="color:#e3b341">${stepCnt}</div><div class="qs-l">처리 단계</div></div>
+<div class="qs"><div class="qs-n" style="color:#ff7b72">${valCnt}</div><div class="qs-l">검증 규칙</div></div>
+</div></div>`;
+
+  // Section helper
+  function sec(icon,title,body,collapsed=false){
+    return`<div class="section${collapsed?' sec-collapsed':''}">
+<div class="sec-hdr" onclick="this.parentElement.classList.toggle('sec-collapsed')">
+<span class="sec-icon">${icon}</span><span class="sec-title">${title}</span><span class="sec-chevron">▼</span>
+</div><div class="sec-body">${body}</div></div>`;
+  }
+
+  // Pre/Post conditions
+  let preHtml=`<ul class="cond-list">`;
+  (t.pre||[]).forEach(c2=>{preHtml+=`<li class="cond-item"><code style="font-size:10.5px;color:#79c0ff">${c2}</code></li>`;});
+  preHtml+=`</ul>`;
+  if(t.inDocs&&t.inDocs.length){preHtml+=`<div style="margin-top:8px;font-size:11px;color:var(--muted);">📄 입력 문서:</div><div style="margin-top:4px;">${t.inDocs.map(d=>`<span class="doc-tag">📄 ${d}</span>`).join('')}</div>`;}
+  html+=sec('🔔','선행 조건',preHtml);
+
+  // Inputs (READ)
+  let inHtml=`<div class="tbl-grid"><div class="tbl-card read-side"><div class="tc-head r">READ 테이블 (${readCnt}개)</div>`;
+  (t.reads||[]).forEach(r=>{
+    inHtml+=`<div class="tbl-entry"><div class="te-top"><span class="op-badge op-R">R</span><span class="te-name" onclick="showTableRef('${r.t}')">${r.t}</span></div><div class="te-cols">${r.c.join(', ')}</div><div class="te-why">↳ ${r.why}</div></div>`;
+  });
+  inHtml+=`</div></div>`;
+  html+=sec('📥','입력',inHtml);
+
+  // Processing steps
+  let stepsHtml=`<ol class="step-list">`;
+  (t.steps||[]).forEach(s=>{stepsHtml+=`<li class="step-item">${s}</li>`;});
+  stepsHtml+=`</ol>`;
+  html+=sec('⚙️','처리 단계',stepsHtml);
+
+  // Outputs (WRITE)
+  let outHtml=`<div class="tbl-grid"><div class="tbl-card write-side"><div class="tc-head w">WRITE 테이블 (${writeCnt}개)</div>`;
+  (t.writes||[]).forEach(w=>{
+    outHtml+=`<div class="tbl-entry"><div class="te-top"><span class="op-badge op-${w.op.split('/')[0]}">${w.op}</span><span class="te-name" onclick="showTableRef('${w.t}')">${w.t}</span></div><div class="te-cols">${w.c.join(', ')}</div><div class="te-why">↳ ${w.why}</div></div>`;
+  });
+  outHtml+=`</div></div>`;
+  if(t.outDocs&&t.outDocs.length){outHtml+=`<div style="margin-top:10px;font-size:11px;color:var(--muted);">📤 출력 문서:</div><div style="margin-top:4px;">${t.outDocs.map(d=>`<span class="doc-tag">📤 ${d}</span>`).join('')}</div>`;}
+  html+=sec('📤','출력',outHtml);
+
+  // Validations
+  let valHtml='';
+  (t.vals||[]).forEach(v=>{
+    const map={E:'lEb',W:'lWb',I:'lIb'};
+    const lmap={E:'ERROR',W:'WARN',I:'INFO'};
+    valHtml+=`<div class="val-item ${map[v.lvl]}"><span class="val-lvl l${v.lvl}">${lmap[v.lvl]}</span>${v.rule}</div>`;
+  });
+  html+=sec('✅','유효성 검증 · 비즈니스 규칙',valHtml);
+
+  // Post conditions
+  let postHtml=`<ul class="cond-list">`;
+  (t.post||[]).forEach(p=>{postHtml+=`<li class="cond-item"><code style="font-size:10.5px;color:#3fb950">${p}</code></li>`;});
+  postHtml+=`</ul>`;
+  html+=sec('🏁','사후 조건',postHtml,true);
+
+  // Governance
+  let govHtml=`<div class="role-grid"><div class="role-card"><div class="role-lbl">실행 (Executor)</div>${(t.roles.exec||[]).map(r=>`<span class="role-chip">👤 ${r}</span>`).join('')}</div><div class="role-card"><div class="role-lbl">승인 (Approver)</div>${(t.roles.approve||[]).length?(t.roles.approve.map(r=>`<span class="role-chip">✍️ ${r}</span>`).join('')):'<span style="color:var(--muted);font-size:11px">승인 없음</span>'}</div></div>`;
+  html+=sec('👤','거버넌스 (역할·책임)',govHtml,true);
+
+  // Exceptions
+  let excHtml='';
+  (t.exc||[]).forEach(e=>{excHtml+=`<div class="exc-item">${e}</div>`;});
+  html+=sec('⚠️','예외 처리',excHtml,true);
+
+  tv.innerHTML=html;
+}
+
+function showTableRef(tname){
+  setView('table');
+  setTimeout(()=>{
+    const el=document.getElementById('ti-'+tname);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function renderTableIndex(){
+  const div=document.getElementById('tbl-index');
+  let html=`<div class="ti-title">🗄 테이블 인덱스 — CRUD Responsibility Matrix</div><div style="font-size:12px;color:var(--muted);margin-bottom:16px;">${Object.keys(TABLE_IDX).length}개 테이블 × 37개 태스크 교차 분석</div><div class="ti-grid">`;
+  Object.entries(TABLE_IDX).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([tname,tasks])=>{
+    html+=`<div class="ti-card" id="ti-${tname}"><div class="ti-tname">${tname}</div><div class="ti-ops">`;
+    Object.entries(tasks).forEach(([tid,info])=>{
+      const proc=T[tid]?.proc||'?';
+      const c=getColor(proc);
+      info.ops.forEach(op=>{
+        html+=`<span class="ti-op ${op}" title="${tid}: ${op}" style="cursor:pointer;" onclick="selectTask('${tid}')">${op} ${tid}</span>`;
+      });
+    });
+    html+=`</div></div>`;
+  });
+  html+='</div>';
+  div.innerHTML=html;
+}
+
+function setView(v){
+  curView=v;
+  document.getElementById('vTask').classList.toggle('active',v==='task');
+  document.getElementById('vTable').classList.toggle('active',v==='table');
+  document.getElementById('welcome').style.display=(v==='task'&&!curTask)?'flex':'none';
+  document.getElementById('tbl-index').style.display=v==='table'?'block':'none';
+  document.getElementById('task-view').style.display=(v==='task'&&curTask)?'block':'none';
+  if(v==='table') renderTableIndex();
+}
+
+function filterProc(proc,btn){
+  curFilter=proc;
+  document.querySelectorAll('.flt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNav();
+}
+
+function doSearch(q){
+  searchQ=q.trim();
+  renderNav();
+}
+
+// INIT
+renderNav();
+</script>
+</body>
+</html>

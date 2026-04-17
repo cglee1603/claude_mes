@@ -25,7 +25,7 @@ interface ArchiveScheduleItem {
 const MOCK_LAYER_STATS: LayerStats[] = [
   {
     layer: 'A',
-    label: 'Layer A — ERP Origin',
+    label: 'admin.lifecycle.layerA',
     totalCount: 342,
     activeCount: 280,
     archivedCount: 62,
@@ -35,7 +35,7 @@ const MOCK_LAYER_STATS: LayerStats[] = [
   },
   {
     layer: 'B',
-    label: 'Layer B — MES 자체',
+    label: 'admin.lifecycle.layerB',
     totalCount: 48,
     activeCount: 44,
     archivedCount: 0,
@@ -45,17 +45,17 @@ const MOCK_LAYER_STATS: LayerStats[] = [
   },
   {
     layer: 'C',
-    label: 'Layer C — 영구 기록 (삭제 불가)',
+    label: 'admin.lifecycle.layerC',
     totalCount: 1284,
     activeCount: 0,
     archivedCount: 0,
     permanentCount: 1284,
-    nextArchiveDate: '영원히 보관',
+    nextArchiveDate: 'keepForever',
     color: 'red',
   },
   {
     layer: 'D',
-    label: 'Layer D — ERP 전송큐',
+    label: 'admin.lifecycle.layerD',
     totalCount: 120,
     activeCount: 3,
     archivedCount: 117,
@@ -91,17 +91,17 @@ export function AdminLifecyclePage() {
 
   const scheduleColumns: Column<ArchiveScheduleItem>[] = [
     { key: 'layer', header: 'Layer', render: (row) => <span className="font-mono">Layer {row.layer}</span> },
-    { key: 'entityType', header: '엔티티 유형' },
+    { key: 'entityType', header: t('admin.lifecycle.colEntityType') },
     {
       key: 'candidateCount',
-      header: '대상 건수',
-      render: (row) => <span className="font-semibold text-amber-600">{row.candidateCount}건</span>,
+      header: t('admin.lifecycle.colCandidateCount'),
+      render: (row) => <span className="font-semibold text-amber-600">{t('admin.lifecycle.countUnit', { n: row.candidateCount })}</span>,
     },
-    { key: 'scheduledDate', header: '예정일' },
+    { key: 'scheduledDate', header: t('admin.lifecycle.colScheduledDate') },
     {
       key: 'archiveDays',
-      header: '아카이브 기준',
-      render: (row) => <span className="text-gray-600">{row.archiveDays}일 경과</span>,
+      header: t('admin.lifecycle.colArchiveCriteria'),
+      render: (row) => <span className="text-gray-600">{t('admin.lifecycle.daysSuffix', { days: row.archiveDays })}</span>,
     },
   ]
 
@@ -109,7 +109,7 @@ export function AdminLifecyclePage() {
     <div className="space-y-6">
       <PageHeader
         title={t('admin.lifecycle.title')}
-        subtitle="Layer A~D 데이터 현황 및 아카이브 일정 (Layer C는 트리거로 삭제 영구 차단)"
+        subtitle={t('admin.lifecycle.subtitle')}
       />
 
       {/* Layer stats grid */}
@@ -120,38 +120,38 @@ export function AdminLifecyclePage() {
             className={`card border ${COLOR_MAP[layer.color]}`}
           >
             <h3 className={`text-sm font-bold mb-3 ${HEADER_COLOR_MAP[layer.color]}`}>
-              {layer.label}
+              {t(layer.label)}
             </h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-gray-500">총 레코드</p>
-                <p className="font-semibold text-gray-900">{layer.totalCount.toLocaleString()}건</p>
+                <p className="text-gray-500">{t('admin.lifecycle.totalRecords')}</p>
+                <p className="font-semibold text-gray-900">{t('admin.lifecycle.countUnit', { n: layer.totalCount.toLocaleString() })}</p>
               </div>
               {layer.permanentCount > 0 ? (
                 <div>
                   <p className="text-gray-500">PERMANENT</p>
-                  <p className="font-semibold text-red-700">{layer.permanentCount.toLocaleString()}건</p>
+                  <p className="font-semibold text-red-700">{t('admin.lifecycle.countUnit', { n: layer.permanentCount.toLocaleString() })}</p>
                 </div>
               ) : (
                 <>
                   <div>
                     <p className="text-gray-500">ACTIVE</p>
-                    <p className="font-semibold text-gray-900">{layer.activeCount.toLocaleString()}건</p>
+                    <p className="font-semibold text-gray-900">{t('admin.lifecycle.countUnit', { n: layer.activeCount.toLocaleString() })}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">{t('admin.lifecycle.archivedCount')}</p>
-                    <p className="font-semibold text-gray-500">{layer.archivedCount.toLocaleString()}건</p>
+                    <p className="font-semibold text-gray-500">{t('admin.lifecycle.countUnit', { n: layer.archivedCount.toLocaleString() })}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">{t('admin.lifecycle.archiveSchedule')}</p>
-                    <p className="font-semibold text-gray-700">{layer.nextArchiveDate}</p>
+                    <p className="font-semibold text-gray-700">{layer.nextArchiveDate === 'keepForever' ? t('admin.lifecycle.keepForever') : layer.nextArchiveDate}</p>
                   </div>
                 </>
               )}
             </div>
             {layer.layer === 'C' && (
               <div className="mt-3 rounded bg-red-100 px-3 py-2 text-xs text-red-700 font-medium">
-                DB 트리거 활성화 — PERMANENT 레코드 DELETE 시 예외 발생
+                {t('admin.lifecycle.triggerDbActive')}
               </div>
             )}
           </div>
@@ -161,7 +161,7 @@ export function AdminLifecyclePage() {
       {/* Archive schedule */}
       <div className="card">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">
-          {t('admin.lifecycle.archiveSchedule')} (30일 이내)
+          {t('admin.lifecycle.archiveSchedule')} (next 30 days)
         </h3>
         <MesGrid<ArchiveScheduleItem>
           columns={scheduleColumns}
@@ -171,19 +171,19 @@ export function AdminLifecyclePage() {
 
       {/* Trigger info */}
       <div className="card bg-gray-50">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">Layer C 삭제 방지 트리거 상태</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-2">{t('admin.lifecycle.triggerTitle')}</h3>
         <div className="space-y-1 text-xs text-gray-600">
           {['garment_lots', 'line_outputs', 'line_daily_summaries', 'qc_inspections', 'mfz_records'].map((table) => (
             <div key={table} className="flex items-center justify-between py-1 border-b border-gray-200 last:border-0">
               <span className="font-mono">{table}</span>
               <span className="flex items-center gap-1 text-green-700 font-medium">
                 <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-                활성화
+                {t('admin.lifecycle.triggerActive')}
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-2 text-xs text-gray-500">최근 트리거 동작: 2026-04-10 09:14 (삭제 시도 차단)</p>
+        <p className="mt-2 text-xs text-gray-500">{t('admin.lifecycle.triggerLastRun', { time: '2026-04-10 09:14' })}</p>
       </div>
     </div>
   )

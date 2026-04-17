@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader, KpiCard } from '@/components/common'
-import { AD23KPIPage } from '../analytics/AD23-KPI'
-import { FP19TaggingPage } from '../finishing/FP19-Tagging'
+import { HQC03Page } from '../sewing/H-QC-03-QCDashboard'
+import { HFin06Page } from '../finishing/H-FIN-06-Shipment'
 import {
   LayoutDashboard, Plus, Settings2, Save, X,
   Package, CheckSquare, TrendingUp, AlertTriangle,
@@ -17,9 +17,9 @@ type KpiWidgetType =
   | 'lot-status' | 'line-efficiency' | 'mfz-alert' | 'wip-summary'
 
 type ScreenWidgetType =
-  | 'screen:AD-23' | 'screen:AD-24'
-  | 'screen:FP-19' | 'screen:FP-20' | 'screen:FP-21' | 'screen:FP-22'
-  | 'screen:WH-03' | 'screen:SC-13' | 'screen:QC-32' | 'screen:SW-18'
+  | 'screen:H-QC-03' | 'screen:H-RT-01'
+  | 'screen:H-FIN-06' | 'screen:H-FIN-05' | 'screen:H-MFZ-01' | 'screen:H-PERF-01'
+  | 'screen:H-WH-04' | 'screen:H-CUT-05' | 'screen:H-FIN-08' | 'screen:H-SW-07'
 
 type WidgetType = KpiWidgetType | ScreenWidgetType
 
@@ -42,41 +42,41 @@ interface DashboardLayout {
 const DEFAULT_PRESETS: DashboardLayout[] = [
   {
     id: 'preset-default',
-    name: '기본 대시보드',
+    name: 'Default Dashboard',
     isPreset: true,
     widgets: [
-      { id: 'w1', type: 'kpi-oee',         title: 'OEE',        colSpan: 1, rowSpan: 1 },
-      { id: 'w2', type: 'kpi-output',      title: '금일 생산량', colSpan: 1, rowSpan: 1 },
-      { id: 'w3', type: 'kpi-dhu',         title: 'DHU',         colSpan: 1, rowSpan: 1 },
-      { id: 'w4', type: 'kpi-otd',         title: 'OTD',         colSpan: 1, rowSpan: 1 },
-      { id: 'w5', type: 'lot-status',      title: 'LOT 현황',    colSpan: 2, rowSpan: 1 },
-      { id: 'w6', type: 'line-efficiency', title: '라인 효율',   colSpan: 2, rowSpan: 1 },
-      { id: 'w7', type: 'mfz-alert',       title: 'MFZ 알림',    colSpan: 2, rowSpan: 1 },
-      { id: 'w8', type: 'wip-summary',     title: 'WIP 요약',    colSpan: 2, rowSpan: 1 },
+      { id: 'w1', type: 'kpi-oee',         title: 'OEE',             colSpan: 1, rowSpan: 1 },
+      { id: 'w2', type: 'kpi-output',      title: 'Today Output',    colSpan: 1, rowSpan: 1 },
+      { id: 'w3', type: 'kpi-dhu',         title: 'DHU',             colSpan: 1, rowSpan: 1 },
+      { id: 'w4', type: 'kpi-otd',         title: 'OTD',             colSpan: 1, rowSpan: 1 },
+      { id: 'w5', type: 'lot-status',      title: 'LOT Status',      colSpan: 2, rowSpan: 1 },
+      { id: 'w6', type: 'line-efficiency', title: 'Line Efficiency',  colSpan: 2, rowSpan: 1 },
+      { id: 'w7', type: 'mfz-alert',       title: 'MFZ Alert',       colSpan: 2, rowSpan: 1 },
+      { id: 'w8', type: 'wip-summary',     title: 'WIP Summary',     colSpan: 2, rowSpan: 1 },
     ],
   },
   {
     id: 'preset-analysis',
-    name: '분석 + 완성포장',
+    name: 'Analytics + Finishing',
     isPreset: true,
     widgets: [
       { id: 'w1', type: 'kpi-oee',         title: 'OEE',              colSpan: 1, rowSpan: 1 },
-      { id: 'w2', type: 'kpi-output',      title: '금일 생산량',       colSpan: 1, rowSpan: 1 },
-      { id: 'w3', type: 'kpi-dhu',         title: 'DHU',               colSpan: 1, rowSpan: 1 },
-      { id: 'w4', type: 'kpi-otd',         title: 'OTD',               colSpan: 1, rowSpan: 1 },
-      { id: 'w5', type: 'screen:AD-23',    title: '분석현황 (AD-23)',  colSpan: 2, rowSpan: 2 },
-      { id: 'w6', type: 'screen:FP-19',    title: '태깅 (FP-19)',      colSpan: 2, rowSpan: 2 },
+      { id: 'w2', type: 'kpi-output',      title: 'Today Output',     colSpan: 1, rowSpan: 1 },
+      { id: 'w3', type: 'kpi-dhu',         title: 'DHU',              colSpan: 1, rowSpan: 1 },
+      { id: 'w4', type: 'kpi-otd',         title: 'OTD',              colSpan: 1, rowSpan: 1 },
+      { id: 'w5', type: 'screen:H-QC-03',   title: 'QC Dashboard',     colSpan: 2, rowSpan: 2 },
+      { id: 'w6', type: 'screen:H-FIN-06', title: 'Shipment',         colSpan: 2, rowSpan: 2 },
     ],
   },
   {
     id: 'preset-quality',
-    name: '품질 집중',
+    name: 'Quality Focus',
     isPreset: true,
     widgets: [
-      { id: 'w1', type: 'kpi-dhu',         title: 'DHU',                   colSpan: 1, rowSpan: 1 },
-      { id: 'w2', type: 'kpi-oee',         title: 'OEE',                   colSpan: 1, rowSpan: 1 },
-      { id: 'w3', type: 'mfz-alert',       title: 'MFZ 알림',              colSpan: 2, rowSpan: 1 },
-      { id: 'w4', type: 'screen:QC-32',    title: 'QC 대시보드 (QC-32)',   colSpan: 4, rowSpan: 2 },
+      { id: 'w1', type: 'kpi-dhu',         title: 'DHU',                    colSpan: 1, rowSpan: 1 },
+      { id: 'w2', type: 'kpi-oee',         title: 'OEE',                    colSpan: 1, rowSpan: 1 },
+      { id: 'w3', type: 'mfz-alert',       title: 'MFZ Alert',              colSpan: 2, rowSpan: 1 },
+      { id: 'w4', type: 'screen:H-QC-03',   title: 'QC Dashboard',           colSpan: 4, rowSpan: 2 },
     ],
   },
 ]
@@ -101,36 +101,36 @@ function saveLayouts(layouts: DashboardLayout[]) {
 
 /* ── 위젯 선택기 — KPI 목록 ───────────────────────── */
 const KPI_WIDGETS: { type: KpiWidgetType; title: string; icon: React.ElementType; defaultSpan: Pick<Widget, 'colSpan' | 'rowSpan'> }[] = [
-  { type: 'kpi-oee',         title: 'OEE 카드',      icon: Activity,      defaultSpan: { colSpan: 1, rowSpan: 1 } },
-  { type: 'kpi-output',      title: '생산량 카드',    icon: Package,       defaultSpan: { colSpan: 1, rowSpan: 1 } },
-  { type: 'kpi-dhu',         title: 'DHU 카드',       icon: CheckSquare,   defaultSpan: { colSpan: 1, rowSpan: 1 } },
-  { type: 'kpi-otd',         title: 'OTD 카드',       icon: TrendingUp,    defaultSpan: { colSpan: 1, rowSpan: 1 } },
-  { type: 'lot-status',      title: 'LOT 현황 표',    icon: BarChart2,     defaultSpan: { colSpan: 2, rowSpan: 1 } },
-  { type: 'line-efficiency', title: '라인 효율 표',   icon: Activity,      defaultSpan: { colSpan: 2, rowSpan: 1 } },
-  { type: 'mfz-alert',       title: 'MFZ 알림',       icon: AlertTriangle, defaultSpan: { colSpan: 2, rowSpan: 1 } },
-  { type: 'wip-summary',     title: 'WIP 요약',       icon: BarChart2,     defaultSpan: { colSpan: 2, rowSpan: 1 } },
+  { type: 'kpi-oee',         title: 'OEE Card',            icon: Activity,      defaultSpan: { colSpan: 1, rowSpan: 1 } },
+  { type: 'kpi-output',      title: 'Output Card',         icon: Package,       defaultSpan: { colSpan: 1, rowSpan: 1 } },
+  { type: 'kpi-dhu',         title: 'DHU Card',            icon: CheckSquare,   defaultSpan: { colSpan: 1, rowSpan: 1 } },
+  { type: 'kpi-otd',         title: 'OTD Card',            icon: TrendingUp,    defaultSpan: { colSpan: 1, rowSpan: 1 } },
+  { type: 'lot-status',      title: 'LOT Status Table',    icon: BarChart2,     defaultSpan: { colSpan: 2, rowSpan: 1 } },
+  { type: 'line-efficiency', title: 'Line Efficiency Table', icon: Activity,    defaultSpan: { colSpan: 2, rowSpan: 1 } },
+  { type: 'mfz-alert',       title: 'MFZ Alert',           icon: AlertTriangle, defaultSpan: { colSpan: 2, rowSpan: 1 } },
+  { type: 'wip-summary',     title: 'WIP Summary',         icon: BarChart2,     defaultSpan: { colSpan: 2, rowSpan: 1 } },
 ]
 
 const SCREEN_WIDGETS: { type: ScreenWidgetType; title: string; group: string; defaultSpan: Pick<Widget, 'colSpan' | 'rowSpan'> }[] = [
-  { type: 'screen:AD-23', title: '공장장 대시보드 (AD-23)', group: '분석',     defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:AD-24', title: 'WIP 조회 (AD-24)',        group: '분석',     defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:FP-19', title: '태깅 (FP-19)',             group: '완성포장', defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:FP-20', title: 'Polybag (FP-20)',          group: '완성포장', defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:FP-21', title: 'MFZ 검사 (FP-21)',         group: '완성포장', defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:FP-22', title: 'Carton (FP-22)',            group: '완성포장', defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:WH-03', title: '창고 대시보드 (WH-03)',     group: '창고',     defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:SC-13', title: '재단 대시보드 (SC-13)',     group: '재단',     defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:QC-32', title: 'QC 대시보드 (QC-32)',       group: '품질',     defaultSpan: { colSpan: 2, rowSpan: 2 } },
-  { type: 'screen:SW-18', title: '봉제 실적 요약 (SW-18)',    group: '봉제',     defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-QC-03',   title: 'QC Dashboard',             group: 'Sewing',    defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-RT-01',   title: 'Production Output',        group: 'Sewing',    defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-FIN-06',  title: 'Shipment',                 group: 'Finishing', defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-FIN-05',  title: 'Packing List',             group: 'Finishing', defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-MFZ-01',  title: 'Metal Detection',          group: 'Sewing',    defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-PERF-01', title: 'Finishing Performance',    group: 'Finishing', defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-WH-04',   title: 'Inventory',                group: 'Warehouse', defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-CUT-05',  title: 'Daily Cutting Report',     group: 'Cutting',   defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-FIN-08',  title: 'MFZ Daily Summary',        group: 'Finishing', defaultSpan: { colSpan: 2, rowSpan: 2 } },
+  { type: 'screen:H-SW-07',   title: 'Hourly Entry',             group: 'Sewing',    defaultSpan: { colSpan: 2, rowSpan: 2 } },
 ]
 
 /* ── 목업 데이터 ─────────────────────────────────── */
 const LOT_STATUS_DATA = [
-  { status: '재단',      count: 12, color: 'bg-blue-100 text-blue-800' },
-  { status: '봉제',      count: 28, color: 'bg-purple-100 text-purple-800' },
-  { status: '품질검사',  count: 8,  color: 'bg-yellow-100 text-yellow-800' },
-  { status: '포장 대기', count: 5,  color: 'bg-green-100 text-green-800' },
-  { status: 'MFZ 보류',  count: 2,  color: 'bg-red-100 text-red-800' },
+  { status: 'Cutting',       count: 12, color: 'bg-blue-100 text-blue-800' },
+  { status: 'Sewing',        count: 28, color: 'bg-purple-100 text-purple-800' },
+  { status: 'QC',            count: 8,  color: 'bg-yellow-100 text-yellow-800' },
+  { status: 'Ready to Pack', count: 5,  color: 'bg-green-100 text-green-800' },
+  { status: 'MFZ Hold',      count: 2,  color: 'bg-red-100 text-red-800' },
 ]
 
 const LINE_DATA = [
@@ -148,8 +148,8 @@ function ScreenEmbedContent({ screenType }: { screenType: ScreenWidgetType }) {
     </div>
   )
   switch (screenType) {
-    case 'screen:AD-23': return <AD23KPIPage />
-    case 'screen:FP-19': return <FP19TaggingPage />
+    case 'screen:H-QC-03':  return <HQC03Page />
+    case 'screen:H-FIN-06': return <HFin06Page />
     default: return placeholder(screenType.replace('screen:', ''))
   }
 }
@@ -157,9 +157,9 @@ function ScreenEmbedContent({ screenType }: { screenType: ScreenWidgetType }) {
 /* ── KPI 위젯 렌더러 ─────────────────────────────── */
 function KpiWidgetContent({ type }: { type: KpiWidgetType }) {
   switch (type) {
-    case 'kpi-oee':    return <KpiCard label="OEE"       value="82.3%" trend="+1.2%" trendUp />
-    case 'kpi-output': return <KpiCard label="금일 생산량" value="3,450" trend="+230"  trendUp />
-    case 'kpi-dhu':    return <KpiCard label="평균 DHU"   value="2.8%"  trend="-0.3%" trendUp />
+    case 'kpi-oee':    return <KpiCard label="OEE"          value="82.3%" trend="+1.2%" trendUp />
+    case 'kpi-output': return <KpiCard label="Today Output" value="3,450" trend="+230"  trendUp />
+    case 'kpi-dhu':    return <KpiCard label="Avg DHU"      value="2.8%"  trend="-0.3%" trendUp />
     case 'kpi-otd':    return <KpiCard label="OTD"        value="95.3%" trend="+0.8%" trendUp />
     case 'lot-status':
       return (
@@ -195,15 +195,15 @@ function KpiWidgetContent({ type }: { type: KpiWidgetType }) {
           <div className="flex items-center gap-2 p-2 bg-red-50 rounded-lg border border-red-200">
             <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
             <div className="text-xs">
-              <p className="font-semibold text-red-700">LOT-2024-031 MFZ 보류</p>
-              <p className="text-red-500">검출 3개 — Ply 12 역추적 중</p>
+              <p className="font-semibold text-red-700">LOT-2024-031 MFZ Hold</p>
+              <p className="text-red-500">3 detected — Ply 12 tracing</p>
             </div>
           </div>
           <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
             <AlertTriangle className="w-4 h-4 text-yellow-500 flex-shrink-0" />
             <div className="text-xs">
-              <p className="font-semibold text-yellow-700">MFZ 장비 교정 예정</p>
-              <p className="text-yellow-600">5일 후 — monthly 교정 주기</p>
+              <p className="font-semibold text-yellow-700">MFZ Equipment Calibration Due</p>
+              <p className="text-yellow-600">In 5 days — monthly cycle</p>
             </div>
           </div>
         </div>
@@ -212,10 +212,10 @@ function KpiWidgetContent({ type }: { type: KpiWidgetType }) {
       return (
         <div className="grid grid-cols-2 gap-2 p-1">
           {[
-            { label: '총 활성 LOT', value: '55',     color: 'text-blue-700' },
-            { label: '출하 대기',   value: '8',      color: 'text-green-700' },
-            { label: '품질 이슈',   value: '3',      color: 'text-red-600' },
-            { label: '오더 잔량',   value: '12,840', color: 'text-gray-800' },
+            { label: 'Active LOTs',    value: '55',     color: 'text-blue-700' },
+            { label: 'Ready to Ship',  value: '8',      color: 'text-green-700' },
+            { label: 'Quality Issues', value: '3',      color: 'text-red-600' },
+            { label: 'Order Balance',  value: '12,840', color: 'text-gray-800' },
           ].map(item => (
             <div key={item.label} className="bg-gray-50 rounded-lg p-2 text-center">
               <p className={`text-lg font-bold ${item.color}`}>{item.value}</p>
@@ -315,7 +315,7 @@ function WidgetPicker({ onAdd, onClose }: {
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <LayoutDashboard className="w-5 h-5 text-primary-600" />위젯 추가
+            <LayoutDashboard className="w-5 h-5 text-primary-600" />Add Widget
           </h3>
           <button type="button" onClick={onClose}><X className="w-5 h-5 text-gray-400 hover:text-gray-600" /></button>
         </div>
@@ -326,7 +326,7 @@ function WidgetPicker({ onAdd, onClose }: {
                 tab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}>
               {t === 'screen' && <Monitor className="w-4 h-4" />}
-              {t === 'kpi' ? 'KPI 위젯' : '화면 임베드'}
+              {t === 'kpi' ? 'KPI Widgets' : 'Screen Embed'}
             </button>
           ))}
         </div>
@@ -392,7 +392,7 @@ export function DashboardPage() {
 
   /* ── 새 대시보드 생성 ── */
   function handleCreate() {
-    const name = newName.trim() || `내 대시보드 ${layouts.filter(l => !l.isPreset).length + 1}`
+    const name = newName.trim() || `My Dashboard ${layouts.filter(l => !l.isPreset).length + 1}`
     const newLayout: DashboardLayout = {
       id: `dash-${Date.now()}`,
       name,
@@ -542,7 +542,7 @@ export function DashboardPage() {
               >
                 <span>{layout.name}</span>
                 {layout.isPreset && (
-                  <span className="text-[9px] bg-gray-200 text-gray-500 rounded px-1 font-normal">기본</span>
+                  <span className="text-[9px] bg-gray-200 text-gray-500 rounded px-1 font-normal">Preset</span>
                 )}
                 {/* 사용자 레이아웃에만 편집/삭제 버튼 */}
                 {!layout.isPreset && activeId === layout.id && !isEditMode && (
@@ -578,7 +578,7 @@ export function DashboardPage() {
             <input
               autoFocus
               type="text"
-              placeholder="대시보드 이름"
+              placeholder="Dashboard name"
               value={newName}
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => {
@@ -599,10 +599,10 @@ export function DashboardPage() {
             type="button"
             onClick={() => setIsCreating(true)}
             className="flex items-center gap-1 px-3 py-2 text-sm text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-t-md transition-colors flex-shrink-0"
-            title="새 대시보드 추가"
+            title="New Dashboard"
           >
             <Plus className="w-4 h-4" />
-            <span>새 대시보드</span>
+            <span>New Dashboard</span>
           </button>
         )}
       </div>
@@ -643,7 +643,7 @@ export function DashboardPage() {
         {!isEditMode && displayWidgets.length === 0 && (
           <div className="col-span-4 text-center py-20 text-gray-400">
             <LayoutDashboard className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-            <p className="text-sm mb-3">위젯이 없습니다.</p>
+            <p className="text-sm mb-3">No widgets.</p>
             <button type="button" onClick={() => { setIsEditMode(true); setShowWidgetPicker(true) }}
               className="btn-secondary text-sm">{t('dashboard.addWidget')}</button>
           </div>

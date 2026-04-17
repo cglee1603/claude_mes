@@ -30,11 +30,11 @@ const MOCK_SYNC_ITEMS: ERPSyncItem[] = [
 ]
 
 const MOCK_HISTORY: SyncHistoryItem[] = [
-  { id: 'h1', ifType: 'ORDER', syncedAt: '2026-04-10 06:00', recordCount: 12, status: 'SUCCESS', message: '12건 동기화 완료' },
-  { id: 'h2', ifType: 'STYLE', syncedAt: '2026-04-10 06:05', recordCount: 8, status: 'SUCCESS', message: '8건 동기화 완료' },
-  { id: 'h3', ifType: 'MATERIAL', syncedAt: '2026-04-10 06:10', recordCount: 5, status: 'SUCCESS', message: '5/7건 처리, 2건 파싱 실패' },
-  { id: 'h4', ifType: 'LINE_RESULT', syncedAt: '2026-04-10 00:00', recordCount: 4, status: 'SUCCESS', message: '4개 라인 실적 전송' },
-  { id: 'h5', ifType: 'ORDER', syncedAt: '2026-04-09 06:00', recordCount: 10, status: 'SUCCESS', message: '10건 동기화 완료' },
+  { id: 'h1', ifType: 'ORDER', syncedAt: '2026-04-10 06:00', recordCount: 12, status: 'SUCCESS', message: '12 records synced' },
+  { id: 'h2', ifType: 'STYLE', syncedAt: '2026-04-10 06:05', recordCount: 8, status: 'SUCCESS', message: '8 records synced' },
+  { id: 'h3', ifType: 'MATERIAL', syncedAt: '2026-04-10 06:10', recordCount: 5, status: 'SUCCESS', message: '5/7 processed, 2 parse errors' },
+  { id: 'h4', ifType: 'LINE_RESULT', syncedAt: '2026-04-10 00:00', recordCount: 4, status: 'SUCCESS', message: '4 line results sent' },
+  { id: 'h5', ifType: 'ORDER', syncedAt: '2026-04-09 06:00', recordCount: 10, status: 'SUCCESS', message: '10 records synced' },
 ]
 
 const DIRECTION_LABEL: Record<string, string> = { IN: 'ERP → MES', OUT: 'MES → ERP' }
@@ -49,10 +49,10 @@ export function AdminERPPage() {
   }
 
   const syncColumns: Column<ERPSyncItem>[] = [
-    { key: 'ifType', header: 'IF 유형' },
+    { key: 'ifType', header: t('admin.erp.colIfType') },
     {
       key: 'direction',
-      header: '방향',
+      header: t('admin.erp.colDirection'),
       render: (row) => (
         <span className="text-xs font-medium text-gray-600">{DIRECTION_LABEL[row.direction]}</span>
       ),
@@ -85,19 +85,19 @@ export function AdminERPPage() {
           disabled={syncing === row.ifType}
           className="btn-secondary text-xs py-1 px-3 disabled:opacity-50"
         >
-          {syncing === row.ifType ? '동기화 중...' : t('admin.erp.syncNow')}
+          {syncing === row.ifType ? t('admin.erp.syncing') : t('admin.erp.syncNow')}
         </button>
       ),
     },
   ]
 
   const historyColumns: Column<SyncHistoryItem>[] = [
-    { key: 'ifType', header: 'IF 유형' },
-    { key: 'syncedAt', header: '동기화 시각' },
-    { key: 'recordCount', header: '처리 건수', render: (row) => <span>{row.recordCount}건</span> },
+    { key: 'ifType', header: t('admin.erp.colIfType') },
+    { key: 'syncedAt', header: t('admin.erp.colSyncedAt') },
+    { key: 'recordCount', header: t('admin.erp.colRecordCount'), render: (row) => <span>{t('admin.erp.countUnit', { n: row.recordCount })}</span> },
     {
       key: 'status',
-      header: '결과',
+      header: t('admin.erp.colResult'),
       render: (row) => (
         <StatusBadge
           status={row.status === 'SUCCESS' ? 'PASSED_QC' : 'MFZ_HOLD'}
@@ -105,37 +105,37 @@ export function AdminERPPage() {
         />
       ),
     },
-    { key: 'message', header: '메시지' },
+    { key: 'message', header: t('admin.erp.colMessage') },
   ]
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={t('admin.erp.title')}
-        subtitle="ERP ↔ MES 5종 IF 동기화 현황"
+        subtitle={t('admin.erp.subtitle')}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card text-center">
           <p className="text-2xl font-bold text-green-600">3</p>
-          <p className="text-xs text-gray-500 mt-1">정상 IF</p>
+          <p className="text-xs text-gray-500 mt-1">{t('admin.erp.normalIf')}</p>
         </div>
         <div className="card text-center">
           <p className="text-2xl font-bold text-amber-600">1</p>
-          <p className="text-xs text-gray-500 mt-1">부분 성공</p>
+          <p className="text-xs text-gray-500 mt-1">{t('admin.erp.partialSuccess')}</p>
         </div>
         <div className="card text-center">
           <p className="text-2xl font-bold text-blue-600">1</p>
-          <p className="text-xs text-gray-500 mt-1">전송 대기</p>
+          <p className="text-xs text-gray-500 mt-1">{t('admin.erp.pendingTransfer')}</p>
         </div>
         <div className="card text-center">
           <p className="text-2xl font-bold text-gray-700">3</p>
-          <p className="text-xs text-gray-500 mt-1">총 대기 항목</p>
+          <p className="text-xs text-gray-500 mt-1">{t('admin.erp.totalPending')}</p>
         </div>
       </div>
 
       <div className="card">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">IF 동기화 현황</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('admin.erp.ifStatus')}</h3>
         <MesGrid<ERPSyncItem>
           columns={syncColumns}
           data={MOCK_SYNC_ITEMS}
@@ -143,7 +143,7 @@ export function AdminERPPage() {
       </div>
 
       <div className="card">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">동기화 이력 (최근 5건)</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('admin.erp.historyTitle')}</h3>
         <MesGrid<SyncHistoryItem>
           columns={historyColumns}
           data={MOCK_HISTORY}
