@@ -53,8 +53,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'nav.hsw01',  path: '/sewing/production-plan',    priority: 'CRITICAL' },
       { label: 'nav.hsw02',  path: '/sewing/pp-checklist' },
       { label: 'nav.hsw03',  path: '/sewing/material-receiving' },
-      { label: 'nav.hrt01',    path: '/sewing/output',             priority: 'CRITICAL' },
-      { label: 'nav.hboard01', path: '/sewing/scoreboard',        priority: 'HIGH' },
+      { label: 'nav.hrt01',   path: '/sewing/output',            priority: 'CRITICAL' },
       { label: 'nav.hqc01',  path: '/sewing/bundle-qc',          priority: 'HIGH' },
       { label: 'nav.hqc02',  path: '/sewing/endline-qc' },
       { label: 'nav.hqc03',  path: '/sewing/qc-dashboard' },
@@ -91,6 +90,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'nav.adminQcConfig',   path: '/admin/qc-config' },
       { label: 'nav.adminPermission', path: '/admin/permission' },
       { label: 'nav.adminBackup',     path: '/admin/backup' },
+      { label: 'nav.hboard01',        path: '/sewing/scoreboard',  priority: 'HIGH' },
     ],
   },
   {
